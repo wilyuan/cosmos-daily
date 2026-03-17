@@ -1,0 +1,2651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celestial Map — Cosmos Daily</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600;8..60,700&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #07060D;
+  --gold: #C9A96E;
+  --red: #E84545;
+  --violet: #8B7EC7;
+  --steel: #4A90D9;
+  --orange: #E07A2F;
+  --green: #7ECBA1;
+  --teal: #6B9E9E;
+  --surface: rgba(255,255,255,0.03);
+  --surface-hover: rgba(255,255,255,0.06);
+  --text: #E8E4DC;
+  --text-dim: rgba(232,228,220,0.5);
+  --serif: 'Source Serif 4', Georgia, serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+}
+
+/* Starfield canvas */
+#starfield {
+  position: fixed; inset: 0; z-index: 0;
+}
+
+/* Ambient orbs */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+.orb-1 { width: 600px; height: 600px; background: rgba(232,69,69,0.06); top: -200px; left: -100px; }
+.orb-2 { width: 500px; height: 500px; background: rgba(155,143,212,0.05); bottom: -150px; right: -100px; }
+.orb-3 { width: 400px; height: 400px; background: rgba(201,169,110,0.04); top: 50%; left: 60%; }
+
+/* Main canvas */
+#mapCanvas {
+  position: fixed; inset: 0; z-index: 1;
+  cursor: grab;
+}
+#mapCanvas.dragging { cursor: grabbing; }
+
+/* Header */
+.header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 28px;
+  background: linear-gradient(180deg, rgba(7,6,13,0.92) 0%, rgba(7,6,13,0.6) 70%, transparent 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.header-brand {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.header-title {
+  font-family: var(--mono);
+  font-weight: 300;
+  font-size: 13px;
+  letter-spacing: 5px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.header-back {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.3s;
+  letter-spacing: 1px;
+}
+.header-back:hover { color: var(--gold); }
+
+/* Legend */
+.legend {
+  position: fixed;
+  bottom: 80px;
+  left: 28px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+.legend:hover { opacity: 1; }
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Filter chips */
+.filters {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(7,6,13,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 40px;
+}
+.filter-chip {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+.filter-chip:hover {
+  border-color: rgba(255,255,255,0.2);
+  color: var(--text);
+}
+.filter-chip.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(201,169,110,0.1);
+}
+
+/* Tooltip */
+.tooltip {
+  position: fixed;
+  z-index: 200;
+  pointer-events: none;
+  background: rgba(7,6,13,0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 14px 18px;
+  max-width: 320px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.tooltip-year {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.tooltip-celestial {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.tooltip-world {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+/* Detail panel */
+.detail-panel {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 420px;
+  max-width: 90vw;
+  z-index: 150;
+  background: rgba(7,6,13,0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-left: 1px solid rgba(255,255,255,0.06);
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.detail-panel.open {
+  transform: translateX(0);
+}
+.detail-panel-inner {
+  padding: 28px;
+  flex: 1;
+}
+.detail-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+  z-index: 10;
+}
+.detail-close:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.detail-image-wrap {
+  position: relative;
+  width: calc(100% + 56px);
+  margin: -28px -28px 0 -28px;
+  height: 200px;
+  overflow: hidden;
+}
+.detail-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.detail-image-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(7,6,13,0) 40%, rgba(7,6,13,0.95) 100%);
+  pointer-events: none;
+}
+.detail-image-year {
+  position: absolute;
+  bottom: 12px; left: 16px;
+  z-index: 2;
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 200;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+.detail-accent {
+  width: 100%;
+  height: 3px;
+  margin-bottom: 24px;
+  border-radius: 2px;
+}
+.detail-year {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+}
+.detail-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+.detail-badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+.detail-celestial {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 300;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+.detail-world {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+.detail-category {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+.detail-section {
+  margin-bottom: 20px;
+}
+.detail-section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.detail-section-text {
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(232,228,220,0.85);
+}
+/* Cosmic Link — gold accent */
+.detail-section-cosmic {
+  background: rgba(201,169,110,0.07);
+  border-left: 3px solid #C9A96E;
+  padding: 14px 18px;
+  border-radius: 0 8px 8px 0;
+}
+.detail-section-cosmic .detail-section-label { color: #C9A96E; }
+.detail-section-cosmic .detail-section-text { color: rgba(201,169,110,0.9); font-style: italic; }
+/* Historical Parallel — subtle surface */
+.detail-section-parallel {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 14px 18px;
+  border-radius: 8px;
+}
+/* Ripple Effects — red accent with timeline dots */
+.detail-section-ripple .detail-section-label { color: #E84545; }
+.detail-ripple-timeline {
+  position: relative;
+  padding-left: 24px;
+}
+.detail-ripple-timeline::before {
+  content: '';
+  position: absolute;
+  left: 6px; top: 4px; bottom: 4px;
+  width: 1px;
+  background: linear-gradient(to bottom, #E84545, rgba(232,69,69,0.1));
+}
+.detail-ripple {
+  position: relative;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(232,228,220,0.75);
+  letter-spacing: 0.02em;
+  padding: 6px 0;
+}
+.detail-ripple::before {
+  content: '';
+  position: absolute;
+  left: -22px; top: 12px;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #E84545;
+  box-shadow: 0 0 8px rgba(232,69,69,0.5);
+}
+.detail-ripple:first-child::before {
+  width: 9px; height: 9px;
+  left: -23px; top: 11px;
+  box-shadow: 0 0 12px rgba(232,69,69,0.7);
+}
+.detail-ripple:last-child::before {
+  background: rgba(232,69,69,0.3);
+  box-shadow: 0 0 6px rgba(232,69,69,0.2);
+}
+
+/* Zoom indicator */
+.zoom-indicator {
+  position: fixed;
+  bottom: 80px;
+  right: 28px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+.zoom-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(7,6,13,0.8);
+  backdrop-filter: blur(8px);
+  color: var(--text-dim);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+}
+.zoom-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.zoom-level {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+/* Scrollbar */
+.detail-panel::-webkit-scrollbar { width: 4px; }
+.detail-panel::-webkit-scrollbar-track { background: transparent; }
+.detail-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+@media (max-width: 600px) {
+  .header { padding: 12px 16px; }
+  .header-title { font-size: 10px; letter-spacing: 3px; }
+  .detail-panel { width: 100%; max-width: 100%; }
+  .legend { display: none; }
+  .filters { gap: 4px; padding: 6px 10px; }
+  .filter-chip { font-size: 9px; padding: 5px 10px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<canvas id="mapCanvas"></canvas>
+
+<div class="header">
+  <span class="header-brand">Cosmos Daily</span>
+  <span class="header-title">Celestial Map</span>
+  <a href="cosmos-daily-v4.html" class="header-back">&larr; Back to Chronicle</a>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<div class="filters" id="filters"></div>
+
+<div class="zoom-indicator">
+  <button class="zoom-btn" id="zoomIn">+</button>
+  <span class="zoom-level" id="zoomLevel">1.0x</span>
+  <button class="zoom-btn" id="zoomOut">&minus;</button>
+</div>
+
+<div class="tooltip" id="tooltip">
+  <div class="tooltip-year" id="tipYear"></div>
+  <div class="tooltip-celestial" id="tipCelestial"></div>
+  <div class="tooltip-world" id="tipWorld"></div>
+</div>
+
+<div class="detail-panel" id="detailPanel">
+  <button class="detail-close" id="detailClose">&times;</button>
+  <div class="detail-panel-inner" id="detailInner"></div>
+</div>
+
+<script>
+// ── DATA ──
+const EVENTS = [
+  {
+    id: 'sept11', year: 2001, date: 'September 11, 2001',
+    celestialEvent: 'Saturn Opposite Pluto', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'September 11 Attacks',
+    category: 'geopolitical',
+    image: './images/sept11.jpg',
+    significance: 4,
+    rippleEffects: ['Patriot Act signed — mass surveillance begins', 'War in Afghanistan (2001–2021)', 'Iraq War (2003) — no WMDs found', 'Department of Homeland Security created', 'Rise of ISIS from Iraqi power vacuum'],
+    description: 'On a clear Tuesday morning in New York, hijacked airplanes struck the Twin Towers and the Pentagon. Nearly 3,000 people were killed in the deadliest attack on American soil. The world changed in the hours that followed — borders tightened, wars began, and the American psyche fractured.',
+    cosmicLink: 'Saturn (authority, structure, empire) in exact opposition to Pluto (destruction, power, the underworld) is the most catastrophic aspect in modern history. Oppositions create peak tension between opposing forces — and this one literally brought towers down. Saturn rules governments and institutional order; Pluto rules their violent transformation.',
+    historicalParallel: '1914: WWI began under a Saturn-Pluto square (similar tension). 1947: Cold War began under Saturn opposite Pluto. These alignments consistently mark the end of one world order and the violent birth of another.'
+  },
+  {
+    id: 'moon', year: 1969, date: 'July 20, 1969',
+    celestialEvent: 'Jupiter-Uranus Conjunction', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Moon Landing — Apollo 11',
+    category: 'scientific',
+    image: './images/moon.jpg',
+    significance: 3,
+    rippleEffects: ['Space Race won — American technological supremacy', 'NASA budget peaks then declines', 'Satellite communications revolution', 'Space Shuttle program (1981–2011)', 'SpaceX and private space era begins'],
+    description: 'Neil Armstrong and Buzz Aldrin landed on the Moon on July 20, 1969, fulfilling Kennedy\'s promise. Armstrong\'s first steps were watched by 600 million people — the largest television audience in history at the time. "One small step for man, one giant leap for mankind."',
+    cosmicLink: 'Jupiter-Uranus conjunctions are the hallmark of technological breakthrough and collective consciousness expansion. Jupiter amplifies; Uranus shocks and innovates. Together they produce moments when humanity\'s sense of possibility is permanently expanded — a man standing on the Moon is the perfect expression.',
+    historicalParallel: '1901: First powered flight under Jupiter-Uranus conjunction. 2010-2011: Arab Spring and social media revolution under the same cycle. Every 14 years, a quantum leap in human collective capability.'
+  },
+  {
+    id: 'jfk', year: 1963, date: 'November 22, 1963',
+    celestialEvent: 'Saturn-Pluto Aspects (Presidential Power)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'JFK Assassination',
+    category: 'deaths',
+    image: './images/jfk.jpg',
+    significance: 4,
+    rippleEffects: ['Warren Commission — conspiracy theories born', 'LBJ escalates Vietnam War', 'Civil Rights Act (1964) passed in JFK\'s memory', 'Secret Service protocols overhauled', 'End of American innocence — cultural trauma for a generation'],
+    description: 'President John F. Kennedy was assassinated in Dallas, Texas, while riding in a presidential motorcade through Dealey Plaza. The killing marked the end of an era of American optimism and plunged the nation into grief, paranoia, and political transformation.',
+    cosmicLink: 'Saturn-Pluto aspects in the early 1960s signaled the death of institutional certainty and presidential invulnerability. Pluto transiting near the US natal chart while Saturn squared powerful fixed stars created a window of extreme political violence. The Sun — ruler of leaders and kings — was under pressure from both malefics.',
+    historicalParallel: '1865: Lincoln assassinated under similar Saturn-Pluto configurations. 1901: McKinley assassinated. The recurring theme is Saturn\'s encounter with Pluto near powerful degrees — the death of the sovereign.'
+  },
+  {
+    id: 'covid', year: 2020, date: 'December 31, 2019',
+    celestialEvent: 'Saturn-Pluto Conjunction in Capricorn at 22°', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'COVID-19 Pandemic Emerges',
+    category: 'pandemic',
+    image: './images/covid.jpg',
+    significance: 5,
+    rippleEffects: ['Global lockdowns — 4 billion confined', 'mRNA vaccine technology breakthrough', 'Remote work revolution — offices emptied', 'Supply chain collapse and inflation crisis', 'Mental health epidemic — loneliness, anxiety, distrust'],
+    description: 'On December 31, 2019, China alerted the WHO to a cluster of pneumonia cases of unknown cause in Wuhan. Within months it became the most disruptive global pandemic in a century — killing millions, shuttering economies, and reshaping human civilization.',
+    cosmicLink: 'The Saturn-Pluto conjunction of January 12, 2020, at 22° Capricorn was the most exact such alignment since 1982. Capricorn rules institutions, governments, and structures of society. Saturn is constriction; Pluto is death and transformation. Their merger dismantled the world as we knew it.',
+    historicalParallel: '1518-1520: Saturn-Pluto cycle accompanied the first smallpox pandemic in the Americas. 1914-1918: Their tense aspects preceded WWI and the 1918 Spanish flu. The conjunction is the beginning of a new cycle — and what a beginning it was.'
+  },
+  {
+    id: 'berlin', year: 1989, date: 'November 9, 1989',
+    celestialEvent: 'Saturn-Neptune Conjunction at 11° Sagittarius', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Berlin Wall Falls',
+    category: 'geopolitical',
+    image: './images/berlin.jpg',
+    significance: 4,
+    rippleEffects: ['German reunification (1990)', 'Soviet Union dissolves (1991)', 'NATO expands eastward', 'European Union accelerates — Maastricht Treaty (1992)', 'Unipolar American moment begins'],
+    description: 'On the night of November 9, 1989, the East German government announced that citizens could cross the Berlin Wall freely. Crowds surged to the wall and began tearing it down with their own hands. The Iron Curtain collapsed. The Cold War — which had defined the world for 44 years — was over.',
+    cosmicLink: 'Saturn rules walls, borders, and the structures that divide. Neptune dissolves. Their conjunction in Sagittarius — the sign of international travel and philosophical freedom — was the perfect cosmic recipe for walls to fall and ideological empires to dissolve. The 2026 Saturn-Neptune conjunction at 0° Aries is next.',
+    historicalParallel: '1953: Death of Stalin under Saturn-Neptune conjunction. The dissolution of authoritarian structures is the recurring theme of this cycle. Every 37 years, the walls fall.'
+  },
+  {
+    id: 'wwii', year: 1939, date: 'September 1, 1939',
+    celestialEvent: 'Mars in Gemini (Military Mobilization)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'World War II Begins',
+    category: 'geopolitical',
+    image: './images/wwii.jpg',
+    significance: 5,
+    rippleEffects: ['Holocaust — 6 million Jews and millions more murdered', 'United Nations founded (1945)', 'Atomic bomb developed and used', 'Cold War begins — world split in two', 'State of Israel created (1948)'],
+    description: 'Germany invaded Poland on September 1, 1939, triggering declarations of war from Britain and France. Over the next six years, the most destructive conflict in human history would kill an estimated 70-85 million people — more than 3% of the world\'s population.',
+    cosmicLink: 'Mars, the planet of war and aggression, had entered militant, dual-natured Gemini — the sign of communication, intelligence, and rapid movement. Combined with a Saturn-Pluto square building through 1939-1940, the cosmic conditions for mass organized violence were at maximum tension. The Uranus-Pluto cycle begun in the 1930s amplified revolutionary destruction.',
+    historicalParallel: '1914: WWI began under a similarly afflicted sky. 1870: Franco-Prussian War. The long cycle of Mars and the outer planets creates windows of extreme collective violence every two to three generations.'
+  },
+  {
+    id: 'hiroshima', year: 1945, date: 'August 6, 1945',
+    celestialEvent: 'Pluto enters Leo (Nuclear Transformation)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'Hiroshima & Nagasaki — Atomic Age Begins',
+    category: 'geopolitical',
+    image: './images/hiroshima.jpg',
+    significance: 5,
+    rippleEffects: ['Nuclear arms race begins (1945–)', 'Cold War standoff — MAD doctrine', 'Atomic Energy Act (1946)', 'Hydrogen bomb (1952)', 'Fukushima & Chernobyl — nuclear fear persists'],
+    description: 'The United States dropped an atomic bomb on Hiroshima on August 6, 1945, killing an estimated 140,000 people. Three days later, Nagasaki was destroyed. Japan surrendered on August 15, ending WWII. Humanity had entered an age from which there was no return — the nuclear age.',
+    cosmicLink: 'Pluto had just entered Leo — the sign of power, rulership, and the creative will. Leo is also the Sun, the atomic source of all energy. Pluto\'s ingress into Leo coincided exactly with the discovery and use of atomic power: the transformation (Pluto) of the Sun\'s own force (Leo) as a weapon. The age of human nuclear fire had begun.',
+    historicalParallel: 'Pluto\'s ingress into a new sign always marks a multi-decade transformation. In Leo (1937-1958), it brought total war, nuclear weapons, and the birth of the television age. In Scorpio (1983-1995), it brought AIDS, the fall of the USSR, and the internet. In Capricorn (2008-2024), it brought financial collapse and institutional crisis.'
+  },
+  {
+    id: 'titanic', year: 1912, date: 'April 15, 1912',
+    celestialEvent: 'Saturn in Gemini (Technology Fails)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'RMS Titanic Sinks',
+    category: 'deaths',
+    image: './images/titanic.jpg',
+    significance: 2,
+    rippleEffects: ['International Ice Patrol established (1914)', 'SOLAS maritime safety convention', 'Lifeboat requirements overhauled worldwide', 'End of Gilded Age hubris'],
+    description: 'The RMS Titanic, the largest ship afloat and touted as unsinkable, struck an iceberg at 11:40 PM on April 14 and sank at 2:20 AM on April 15, 1912. More than 1,500 of the 2,224 passengers and crew died. The disaster shattered the industrial age\'s faith in technological invincibility.',
+    cosmicLink: 'Saturn in Gemini — the sign of transportation, communication, and dual nature — creates conditions where the structures (Saturn) of travel and technology (Gemini) are severely tested. The Titanic was humanity\'s greatest technological achievement of the era, and Saturn dismantled it to remind us of our hubris.',
+    historicalParallel: '1986: Space Shuttle Challenger exploded under Saturn in Sagittarius (long-distance travel). 2003: Columbia disaster. Saturn\'s recurring message: our proudest technological achievements are our most vulnerable.'
+  },
+  {
+    id: 'french-rev', year: 1789, date: 'July 14, 1789',
+    celestialEvent: 'Pluto in Capricorn (Death of Monarchical Order)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'French Revolution — Bastille Stormed',
+    category: 'geopolitical',
+    image: './images/french-rev.jpg',
+    significance: 5,
+    rippleEffects: ['Execution of Louis XVI (1793)', 'Reign of Terror — 17,000 guillotined', 'Rise of Napoleon Bonaparte', 'Abolition of feudalism across Europe', 'Modern democracy and human rights declarations'],
+    description: 'On July 14, 1789, Parisian revolutionaries stormed the Bastille prison — the symbol of royal tyranny. The French Revolution that followed upended the old monarchical order, guillotined a king and queen, and planted the seeds of modern democracy across the Western world.',
+    cosmicLink: 'Pluto in Capricorn — the exact same transit as 2008-2024 — is the cosmic signature of the death of institutional power structures. Capricorn rules monarchy, government, and the hierarchies that organize society. Pluto\'s passage destroys and transforms them. The French Revolution and the Global Financial Crisis/pandemic era share the same celestial DNA.',
+    historicalParallel: '2008-2024: Pluto in Capricorn again — financial crisis, institutional collapse, pandemic, political upheaval. The 248-year Pluto cycle returned to the same degree of the zodiac that it occupied during the American and French Revolutions. History rhymes.'
+  },
+  {
+    id: 'plague', year: 1347, date: 'October 1347',
+    celestialEvent: 'Jupiter-Pluto Conjunction (Plague at Civilizational Scale)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'The Black Death Arrives in Europe',
+    category: 'pandemic',
+    image: './images/plague.jpg',
+    significance: 5,
+    rippleEffects: ['Feudalism collapses — labor shortage empowers peasants', 'Peasants\' Revolt (1381)', 'Renaissance begins — death breeds rebirth', 'Jewish communities scapegoated across Europe', 'Modern quarantine practices invented (Ragusa, 1377)'],
+    description: 'In October 1347, twelve Genoese trading ships docked at Messina, Sicily. Most of the sailors aboard were dead; those still alive were covered in black, pus-filled boils. The Black Death had arrived. Within five years it would kill one-third to one-half of Europe\'s entire population — the most devastating pandemic in human history.',
+    cosmicLink: 'Jupiter-Pluto conjunctions amplify death and disease to mass scale. Jupiter expands everything it touches; Pluto rules mass death and transformation. Their conjunction in 1347 turned a localized plague into a continental apocalypse. The Jupiter-Pluto conjunction of April 2020 coincided exactly with COVID-19\'s first global peak.',
+    historicalParallel: 'April 2020: Jupiter-Pluto conjunction coincided exactly with the first peak of COVID-19. 1918: Jupiter-Pluto aspects accompanied the Spanish flu. The 13-year Jupiter-Pluto cycle is the recurring signature of mass mortality events.'
+  },
+  {
+    id: 'russian-rev', year: 1917, date: 'November 7, 1917',
+    celestialEvent: 'Uranus-Pluto Cycle (Revolutionary Transformation)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Russian Revolution',
+    category: 'geopolitical',
+    image: './images/russian-rev.jpg',
+    significance: 4,
+    rippleEffects: ['Russian Civil War (1917–1922)', 'USSR formed — communist superpower', 'Stalin\'s purges — millions dead', 'Cold War ideological divide (1947–1991)', 'Inspired communist revolutions worldwide — China, Cuba, Vietnam'],
+    description: 'On October 25/November 7, 1917, the Bolsheviks seized power in Petrograd, overthrowing the Provisional Government and establishing the world\'s first communist state. The Russian Revolution would define the geopolitical landscape of the entire 20th century.',
+    cosmicLink: 'The Uranus-Pluto cycle that began in 1850 was reaching its opposition (180°) phase in 1917 — maximum tension between revolutionary innovation (Uranus) and destructive transformation (Pluto). Oppositions are confrontations; they force resolution through crisis. The tsarist order could not survive the pressure.',
+    historicalParallel: '1963-1966: Uranus-Pluto conjunction brought the 1960s counterculture revolution. 2011-2015: Their square brought the Arab Spring, Occupy, and the rise of authoritarian populism. The Uranus-Pluto dynamic always reshapes the social order.'
+  },
+  {
+    id: 'dday', year: 1944, date: 'June 6, 1944',
+    celestialEvent: 'Saturn in Cancer (Invasion of Homeland Security)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'D-Day — Normandy Invasion',
+    category: 'geopolitical',
+    image: './images/dday.jpg',
+    significance: 3,
+    rippleEffects: ['Liberation of Paris (August 1944)', 'Nazi Germany collapses within a year', 'Nuremberg Trials — war crimes prosecuted', 'Marshall Plan rebuilds Europe', 'NATO alliance born from wartime cooperation'],
+    description: 'On June 6, 1944, the Allied forces launched the largest seaborne invasion in history: 156,000 troops across five Normandy beaches in German-occupied France. D-Day turned the tide of World War II and began the liberation of Western Europe from Nazi occupation.',
+    cosmicLink: 'Saturn in Cancer — the sign of home, security, and borders — creates the conditions where the defense of homeland becomes the supreme struggle. The Allied forces crossed water (Cancer rules the sea) to reclaim the homeland (Cancer) from authoritarian occupation (Saturn as oppressor). The cosmic signature of the defense of civilization.',
+    historicalParallel: 'The last time Saturn was in Cancer before 1944 was during WWI (1914-1916), when the same themes of invasion and homeland defense defined the European theater. Saturn in Cancer always tests the meaning of belonging and national identity.'
+  },
+  {
+    id: 'great-fire', year: 1666, date: 'September 2, 1666',
+    celestialEvent: 'Saturn in Virgo (Systems Destroyed and Rebuilt)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'Great Fire of London',
+    category: 'cultural',
+    image: './images/great-fire.jpg',
+    significance: 2,
+    rippleEffects: ['Christopher Wren rebuilds London — St. Paul\'s Cathedral', 'First building codes and urban planning', 'Modern fire insurance invented', 'End of medieval London\'s timber architecture'],
+    description: 'Starting in a bakery on Pudding Lane, the Great Fire of London burned for four days, September 2-6, 1666, destroying 13,200 houses, 87 parish churches, St. Paul\'s Cathedral, and most of the buildings of the City of London. The city was rebuilt entirely — leading to the modern city we know today.',
+    cosmicLink: 'The year 1666 was numerologically charged — 666 as the "number of the beast." Saturn in Virgo destroys existing systems (Virgo = order, systems) and forces their rational reconstruction. The fire was catastrophic but London emerged as a planned, organized modern city. Destruction as a prerequisite for better systems: the essential Saturn-Virgo message.',
+    historicalParallel: 'The Great Fire led directly to the first building codes, the concept of urban planning, and modern fire insurance. From Saturn\'s destruction comes organized structure — its highest expression.'
+  },
+  {
+    id: 'jan6', year: 2021, date: 'January 6, 2021',
+    celestialEvent: 'Saturn Square Uranus (Authority Violently Challenged)', celestialType: 'square', symbol: '□',
+    worldEvent: 'January 6 — Capitol Riot',
+    category: 'geopolitical',
+    image: './images/jan6.jpg',
+    significance: 3,
+    rippleEffects: ['Second Trump impeachment (January 13, 2021)', 'January 6 Committee investigation', '900+ rioters criminally charged', 'Social media deplatforming wave', 'Trump indicted on federal conspiracy charges (2023)'],
+    description: 'On January 6, 2021, supporters of President Donald Trump stormed the US Capitol building in an attempt to prevent the certification of the 2020 presidential election. It was the first breach of the Capitol since 1814. Five people died. American democracy faced its most direct challenge in modern history.',
+    cosmicLink: 'Saturn square Uranus is the classic aspect of established authority (Saturn) meeting sudden, disruptive rebellion (Uranus). The square — a 90° angle — is the most volatile geometric relationship, forcing confrontation. In 2021, this played out as the literal storming of the institution (Saturn = Capitol, government) by a revolutionary mob (Uranus = chaos, disruption).',
+    historicalParallel: '1989-1991: Previous Saturn-Uranus opposition coincided with the collapse of communist governments worldwide. 1966-1967: Their conjunction preceded the 1968 uprisings. The 45-year Saturn-Uranus cycle governs the rhythm of institutional revolution.'
+  },
+  {
+    id: 'fukushima', year: 2011, date: 'March 11, 2011',
+    celestialEvent: 'Mercury Retrograde in Pisces (Danger Signals Ignored)', celestialType: 'retrograde', symbol: '℞',
+    worldEvent: 'Fukushima Nuclear Disaster',
+    category: 'scientific',
+    image: './images/fukushima.jpg',
+    significance: 2,
+    rippleEffects: ['Germany abandons nuclear energy entirely', 'Global nuclear power backlash', 'Japan\'s energy crisis and economic contraction', 'Fukushima exclusion zone — still uninhabitable'],
+    description: 'A magnitude 9.0 earthquake struck off Japan\'s coast on March 11, 2011, triggering a massive tsunami that killed nearly 20,000 people and triggered a nuclear meltdown at the Fukushima Daiichi plant. It was the worst nuclear disaster since Chernobyl and triggered a global debate about nuclear energy.',
+    cosmicLink: 'Mercury retrograde in Pisces — the sign of water, illusion, and what is hidden — is the signature of communication failures in murky conditions. After the earthquake, warnings about the nuclear plant\'s vulnerability were delayed, misread, and misunderstood. The invisible (Pisces) danger (retrograde reversals) overwhelmed the visible.',
+    historicalParallel: '1986: Chernobyl disaster occurred during a similarly afflicted Mercury retrograde period. The recurring pattern: technological disasters involving water or invisible forces align with Mercury\'s retrograde in water or mutable signs.'
+  },
+  {
+    id: 'rome', year: 476, date: 'September 4, 476',
+    celestialEvent: 'Saturn in Aries (Death of Empire Cycle)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'Fall of the Western Roman Empire',
+    category: 'geopolitical',
+    image: './images/rome.jpg',
+    significance: 5,
+    rippleEffects: ['Dark Ages begin — literacy and infrastructure collapse', 'Feudalism replaces centralized governance', 'Byzantine Empire persists as Eastern Rome until 1453', 'Barbarian kingdoms reshape European borders', 'Catholic Church becomes sole unifying institution in the West'],
+    description: 'On September 4, 476 AD, the Germanic chieftain Odoacer deposed the last Roman Emperor, Romulus Augustulus. This date is traditionally cited as the fall of the Western Roman Empire and the end of classical antiquity. A civilization that had endured for over a thousand years simply ceased to exist.',
+    cosmicLink: 'Saturn in Aries — a sign of debility for Saturn — marks the end of civilizational cycles. Saturn rules time and empire; Aries is the first sign, representing raw beginnings. When Saturn enters Aries, it signals the exhaustion of the old order and the harsh, unformed beginning of something new. Rome did not collapse suddenly — it dissolved across centuries, but this was the final symbolic moment.',
+    historicalParallel: 'Every major "fall of civilization" event in history correlates with difficult Saturn transits through fire signs. The pattern: Saturn in Aries or squared by outer planets marks the end of imperial cycles. The 2025-2026 Saturn ingress into Aries returns to this same cosmic territory.'
+  },
+  {
+    id: 'magna-carta', year: 1215, date: 'June 15, 1215',
+    celestialEvent: 'Saturn in Gemini (Law Constrains Power)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'Magna Carta Signed',
+    category: 'geopolitical',
+    image: './images/magna-carta.jpg',
+    significance: 3,
+    rippleEffects: ['English Parliament created (1265)', 'Habeas corpus principle established', 'Foundation for US Constitution and Bill of Rights', 'Rule of law over divine right of kings'],
+    description: 'On June 15, 1215, King John of England was forced by rebellious barons to seal the Magna Carta at Runnymede. The Great Charter established for the first time that the king was subject to the rule of law — a principle that became the foundation of constitutional democracy worldwide.',
+    cosmicLink: 'Saturn in Gemini — the sign of documents, communication, and contracts — is the cosmic signature of law being written and enforced. Saturn (limitation, structure, accountability) in Gemini (written word, agreements) produced the most consequential document in legal history: the first written constraint on royal power.',
+    historicalParallel: '1776: American Declaration of Independence written under similar Saturn configurations. 1789: French Declaration of the Rights of Man. The recurring Saturn-Gemini theme: written documents that permanently limit the power of the state over the individual.'
+  },
+  {
+    id: 'trump-attempt', year: 2024, date: 'July 13, 2024',
+    celestialEvent: 'Mars-Saturn Square (Assassination Attempt Configuration)', celestialType: 'square', symbol: '□',
+    worldEvent: 'Trump Assassination Attempt',
+    category: 'deaths',
+    image: './images/trump.jpg',
+    significance: 2,
+    rippleEffects: ['Trump\'s "Fight! Fight!" moment becomes iconic', 'Secret Service overhaul demanded', 'Political violence normalization in US discourse', 'Trump wins 2024 presidential election'],
+    description: 'On July 13, 2024, a gunman opened fire at a Donald Trump campaign rally in Butler, Pennsylvania. A bullet grazed Trump\'s ear. One rally-goer was killed, two others critically injured. It was the most serious assassination attempt against a US presidential candidate in modern history.',
+    cosmicLink: 'Mars square Saturn is historically one of the most dangerous configurations — aggressive force (Mars) meeting restrictive authority (Saturn) at a right angle creates violent confrontation. Mars in Aries (its rulership) amplified violent potential. Saturn in Libra created the political/legal consequence. The bullet missed by millimeters.',
+    historicalParallel: '1981: Reagan assassination attempt under Mars-Saturn afflictions. 1963: JFK assassination under similar configurations. 1981 also had Saturn in Libra, precisely echoing 2024. The Mars-Saturn square returns every ~2 years, but only specific configurations activate the presidential vulnerability pattern.'
+  },
+  {
+    id: 'columbus', year: 1492, date: 'October 12, 1492',
+    celestialEvent: 'Jupiter-Saturn Conjunction (New World, New Age)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Columbus Reaches the Americas',
+    category: 'geopolitical',
+    image: './images/columbus.jpg',
+    significance: 4,
+    rippleEffects: ['Columbian Exchange — crops, diseases, animals cross oceans', 'Indigenous population collapse (90% mortality from disease)', 'Spanish Empire rises — gold and silver flood Europe', 'Transatlantic slave trade begins', 'Modern globalization\'s origin point'],
+    description: 'On October 12, 1492, Christopher Columbus made landfall in the Bahamas, becoming the first European since the Norse to reach the Americas. The "Columbian Exchange" that followed permanently transformed both worlds: plants, animals, cultures, and diseases crossing the Atlantic in both directions.',
+    cosmicLink: 'Jupiter-Saturn conjunctions are the "Great Conjunctions" — the celestial clock that marks the major chapters of civilization every 20 years. The 1484 conjunction (just 8 years before Columbus) had fired the starting gun on the Age of Exploration. Jupiter expands the known world; Saturn provides the practical structure — ships, navigation, empire — to contain and exploit it.',
+    historicalParallel: 'The 1484 Great Conjunction in Scorpio opened a multi-decade window of oceanic exploration. The 2020 Great Conjunction in Aquarius — occurring at 0° Aquarius for the first time since 1405 — similarly opens a new age of technological and social exploration. New worlds, always, when Jupiter meets Saturn.'
+  },
+  {
+    id: 'george-floyd', year: 2020, date: 'May 25, 2020',
+    celestialEvent: 'Chiron at 7° Aries (Wounding of Identity & Justice)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'George Floyd Murder — BLM Movement',
+    category: 'geopolitical',
+    image: './images/george-floyd.jpg',
+    significance: 2,
+    rippleEffects: ['Derek Chauvin convicted of murder (2021)', 'Police reform legislation nationwide', 'Corporate DEI pledges — billions committed', 'Confederate statues toppled across the South', 'Global protests in 60+ countries'],
+    description: 'On May 25, 2020, Minneapolis police officer Derek Chauvin knelt on George Floyd\'s neck for 9 minutes and 29 seconds, killing him. The murder was recorded and shared globally, triggering the largest protest movement in American history — an estimated 15-26 million people taking to the streets.',
+    cosmicLink: 'Chiron in Aries — the sign of identity, the individual, and the right to exist — is the signature of the collective wound around personhood and racial identity. Chiron is the "wounded healer"; in Aries, the wound is existential: who gets to be seen as fully human? The Floyd murder and BLM movement were a Chiron-in-Aries wound forcing national reckoning.',
+    historicalParallel: '1968: Civil Rights movement peak under Saturn-Chiron configurations. 1992: LA Riots after Rodney King verdict. The recurring American wound around race and justice surfaces in intense form every time Chiron transits through Aries or interacts with the US natal chart.'
+  },
+  {
+    id: 'akkadian-collapse', year: -2134, date: 'October 22, 2134 BC',
+    celestialEvent: 'Total Solar Eclipse over Mesopotamia', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Collapse of the Akkadian Empire',
+    category: 'geopolitical',
+    significance: 5,
+    image: './images/akkadian-collapse.jpg',
+    rippleEffects: ['World\'s first empire disintegrates', 'Third Dynasty of Ur rises from the ashes', '4.2 kiloyear climate event devastates Fertile Crescent'],
+    description: 'The Akkadian Empire, the world\'s first true empire founded by Sargon the Great, collapses around 2134 BC amid drought, famine, and internal revolt. The 4.2 kiloyear climate event devastates agriculture across the Fertile Crescent. Regional powers fragment into warring city-states, ushering in the Third Dynasty of Ur.',
+    cosmicLink: 'Ancient Mesopotamian omen texts record solar eclipses as harbingers of royal downfall. A total solar eclipse visible over the Akkadian heartland coincides with the empire\'s terminal crisis — the sun\'s disappearance mirroring the extinction of centralized power in the world\'s first empire.',
+    historicalParallel: '476 AD: Fall of the Western Roman Empire; 1991: Collapse of the Soviet Union — both followed prolonged institutional decay amplified by environmental and economic stress.'
+  },
+  {
+    id: 'hammurabi-code', year: -1792, date: 'c. 1792 BC',
+    celestialEvent: 'Jupiter-Saturn Conjunction in Taurus', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Hammurabi\'s Code — First Written Law',
+    category: 'geopolitical',
+    significance: 5,
+    image: './images/hammurabi-code.jpg',
+    rippleEffects: ['Legal codes spread across ancient Near East', 'Foundation for Biblical law (Mosaic Code)', 'Concept of justice as written, public standard'],
+    description: 'Hammurabi, king of Babylon, codifies 282 laws on a black diorite stele, establishing the first comprehensive written legal code in human history. The laws cover property, commerce, family, and criminal justice. The principle of \'an eye for an eye\' becomes foundational to Western legal tradition.',
+    cosmicLink: 'Jupiter-Saturn conjunctions mark the establishment of enduring social structures. Jupiter\'s principle of justice meets Saturn\'s principle of codified law — their union in Taurus, the sign of permanence and material inscription, manifests as law literally carved in stone for all to see.',
+    historicalParallel: '1215: Magna Carta signed under Saturn in Gemini; 1789: French Declaration of the Rights of Man; both moments where legal codes reshaped the relationship between power and the governed.'
+  },
+  {
+    id: 'thera-eruption', year: -1500, date: 'c. 1500 BC',
+    celestialEvent: 'Total Solar Eclipse over Egypt (approximate)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Eruption of Thera / Collapse of Minoan Civilization',
+    category: 'geopolitical',
+    significance: 5,
+    image: './images/thera-eruption.jpg',
+    rippleEffects: ['Minoan civilization enters terminal decline', 'Mycenaean Greeks fill power vacuum', 'Possible origin of Plato\'s Atlantis legend'],
+    description: 'The volcanic island of Thera (Santorini) erupts in one of the largest volcanic events in recorded history, generating massive tsunamis that devastate Minoan Crete. The eruption buries the thriving city of Akrotiri under volcanic ash, creating a Bronze Age Pompeii. Minoan civilization — Europe\'s first advanced society — enters terminal decline, opening the way for Mycenaean Greek dominance.',
+    cosmicLink: 'Eclipse cycles active over the Eastern Mediterranean coincide with the catastrophic eruption that destroys Europe\'s first civilization. The darkening of the sky by volcanic ash — which may have persisted for years — mirrors the eclipse\'s temporary darkness, but on a civilizational timescale. Some scholars identify this event as the origin of Plato\'s Atlantis legend.',
+    historicalParallel: '79 AD: Vesuvius destroys Pompeii; 1883: Krakatoa eruption causes global climate effects. Volcanic catastrophes at the margins of eclipse cycles recur throughout history.'
+  },
+  {
+    id: 'bronze-age-collapse', year: -1177, date: 'c. 1178 BC',
+    celestialEvent: 'Total Solar Eclipse (April 16, 1178 BC)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Bronze Age Collapse — Sea Peoples Destroy Civilization',
+    category: 'geopolitical',
+    significance: 5,
+    image: './images/bronze-age-collapse.jpg',
+    rippleEffects: ['Mycenaean Greece falls — Greek Dark Ages', 'Hittite Empire vanishes from history', 'Iron Age begins — new technology emerges from ruins', 'Phoenician alphabet spreads into power vacuum'],
+    description: 'Between 1200 and 1150 BC, nearly every major civilization in the Eastern Mediterranean collapses. The Hittite Empire falls, Mycenaean Greece disintegrates, Egyptian power wanes, and Ugarit is burned. Mysterious \'Sea Peoples\' raid coastlines. Trade networks that sustained interconnected Bronze Age kingdoms shatter, plunging the region into a dark age lasting centuries.',
+    cosmicLink: 'A total solar eclipse visible across the Eastern Mediterranean in 1178 BC arrives amid cascading civilizational failure. In the ancient world, a darkened sun over multiple kingdoms simultaneously was the ultimate omen — and here, it proved prophetic. The interconnected world went dark, just as the sun did.',
+    historicalParallel: '2008: Global financial crisis cascades through interconnected economies; 476 AD: Fall of Rome. Both demonstrate how interconnected systems amplify collapse rather than resilience.'
+  },
+  {
+    id: 'solomons-temple', year: -957, date: 'c. 957 BC',
+    celestialEvent: 'Jupiter-Saturn Conjunction in Pisces', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Solomon\'s Temple Constructed in Jerusalem',
+    category: 'religious',
+    significance: 5,
+    image: './images/solomons-temple.jpg',
+    rippleEffects: ['Ark of the Covenant enshrined', 'Jerusalem becomes spiritual capital of Judaism', 'Temple model influences Christian and Islamic sacred architecture'],
+    description: 'King Solomon completes the First Temple in Jerusalem, creating the spiritual center of Israelite religion. The Temple houses the Ark of the Covenant and becomes the focal point of Jewish worship, sacrifice, and pilgrimage. Its construction represents the apex of the united Kingdom of Israel under Davidic dynasty.',
+    cosmicLink: 'Jupiter-Saturn conjunctions in water signs have historically accompanied the founding of sacred institutions. In Pisces — the sign of spiritual transcendence and divine connection — the conjunction manifests as the construction of humanity\'s most symbolically potent sacred structure, a dwelling place for the divine on earth.',
+    historicalParallel: '325 AD: Council of Nicaea codifies Christian doctrine; 622 AD: Muhammad\'s Hijra establishes Islam\'s institutional foundation. Each marks the architectural moment of a faith tradition.'
+  },
+  {
+    id: 'assyrian-eclipse', year: -763, date: 'June 15, 763 BC',
+    celestialEvent: 'Total Solar Eclipse over Assyria (Bur-Sagale Eclipse)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'The Assyrian Eclipse — Anchor of Ancient Chronology',
+    category: 'scientific',
+    significance: 4,
+    image: './images/assyrian-eclipse.jpg',
+    rippleEffects: ['Anchors entire ancient Near Eastern chronology', 'Earliest precisely dated celestial event in human records', 'Validates Assyrian Eponym Canon dating system'],
+    description: 'A total solar eclipse is recorded in the Assyrian Eponym Canon, providing one of the most precisely dated events in ancient history. The eclipse occurs during a period of plague and revolt in the Assyrian Empire. This single astronomical observation anchors the entire chronology of the ancient Near East, allowing historians to date events centuries before and after.',
+    cosmicLink: 'The Bur-Sagale eclipse of June 15, 763 BC is among the earliest precisely dated celestial events in human records. Assyrian astrologers interpreted the darkened sun as divine displeasure — and indeed, revolt and pestilence followed. The eclipse became a fixed point in time around which all ancient Near Eastern chronology revolves.',
+    historicalParallel: '585 BC: Thales predicts an eclipse, halting a battle between Lydia and Media — another moment where celestial mechanics intersected with the course of nations.'
+  },
+  {
+    id: 'solomons-temple-destroyed', year: -586, date: 'July 18, 586 BC',
+    celestialEvent: 'Lunar Eclipse (July 4, 587 BC)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Destruction of Solomon\'s Temple by Nebuchadnezzar',
+    category: 'religious',
+    significance: 5,
+    image: './images/solomons-temple-destroyed.jpg',
+    rippleEffects: ['Babylonian Captivity transforms Judaism', 'Torah compiled during exile', 'Judaism becomes portable religion of text and prayer', 'Diaspora consciousness born'],
+    description: 'Nebuchadnezzar II of Babylon besieges Jerusalem, breaches its walls, and destroys Solomon\'s Temple — the spiritual heart of Judaism. The Jewish elite are deported to Babylon in what becomes known as the Babylonian Captivity. This catastrophe transforms Judaism from a temple-based sacrificial religion into a portable faith of scripture, synagogue, and prayer.',
+    cosmicLink: 'A lunar eclipse recorded in Babylonian astronomical diaries falls within months of the Temple\'s destruction. For both Babylonians and Israelites, a blood-red moon was an omen of royal catastrophe. The eclipse over Babylon as its armies destroyed Jerusalem\'s holiest site was interpreted as cosmic confirmation of divine judgment.',
+    historicalParallel: '70 AD: Romans destroy the Second Temple; 1948: Israel refounded after two millennia. The destruction-exile-return cycle defines Jewish historical consciousness.'
+  },
+  {
+    id: 'eclipse-of-thales', year: -585, date: 'May 28, 585 BC',
+    celestialEvent: 'Total Solar Eclipse (predicted by Thales)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Eclipse of Thales — Birth of Scientific Prediction',
+    category: 'scientific',
+    significance: 4,
+    image: './images/eclipse-of-thales.jpg',
+    rippleEffects: ['First successful scientific prediction in Western history', 'Founding moment of Greek natural philosophy', 'War halted by celestial event'],
+    description: 'The Greek philosopher Thales of Miletus reportedly predicts a solar eclipse that occurs during a battle between the Lydians and the Medes along the Halys River. Both armies, terrified by the sudden darkness, lay down their arms and negotiate peace. This is traditionally considered the first successful scientific prediction in Western history and a founding moment of Greek natural philosophy.',
+    cosmicLink: 'A total solar eclipse halts a war — but more significantly, it is allegedly predicted by human reason rather than divine revelation. Thales uses Babylonian astronomical records to anticipate the eclipse, marking the moment when celestial observation transitions from omen-reading to science. The heavens obey mathematical law, and a philosopher proves it.',
+    historicalParallel: '1919: Eclipse confirms Einstein\'s general relativity; 2017: Great American Eclipse. Solar eclipses continue to serve as proving grounds for scientific theories.'
+  },
+  {
+    id: 'fall-of-babylon', year: -539, date: 'October 29, 539 BC',
+    celestialEvent: 'Lunar Eclipse (October 9, 539 BC)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Fall of Babylon to Cyrus the Great',
+    category: 'geopolitical',
+    significance: 5,
+    image: './images/fall-of-babylon.jpg',
+    rippleEffects: ['Jews return to rebuild Temple', 'Persian Empire introduces religious tolerance', 'Cyrus Cylinder — first human rights declaration'],
+    description: 'Cyrus the Great of Persia captures Babylon without significant battle, as recorded in the Cyrus Cylinder. He frees the Jewish captives and permits the rebuilding of the Temple in Jerusalem. Cyrus establishes the Achaemenid Empire, the largest empire the world has yet seen, and introduces a revolutionary policy of religious tolerance.',
+    cosmicLink: 'A lunar eclipse recorded in Babylonian astronomical tablets precedes the fall of the city by mere weeks. Babylonian astrologers, the most sophisticated in the ancient world, would have read the eclipse as an omen of their own kingdom\'s doom. The empire that perfected celestial observation could not avert what the heavens foretold.',
+    historicalParallel: '1989: Fall of the Berlin Wall and collapse of Soviet client states — another empire dissolved with surprising speed, freeing captive peoples and redrawing the map of the world.'
+  },
+  {
+    id: 'roman-republic', year: -509, date: '509 BC',
+    celestialEvent: 'Jupiter-Saturn Conjunction in Taurus', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Founding of the Roman Republic',
+    category: 'geopolitical',
+    significance: 5,
+    image: './images/roman-republic.jpg',
+    rippleEffects: ['Republican governance model endures nearly 500 years', 'Senate and citizen assemblies inspire democratic thought', 'Roman law becomes foundation of Western legal systems'],
+    description: 'Roman nobles overthrow the last Etruscan king, Tarquinius Superbus, and establish the Roman Republic. The new system of elected consuls, a senate, and citizen assemblies creates the governance model that will endure for nearly 500 years and inspire democratic thought for millennia. The Republic\'s founding mythology — the rape of Lucretia, the oath of Brutus — becomes central to Western political consciousness.',
+    cosmicLink: 'Jupiter-Saturn conjunctions in Taurus establish enduring material and political foundations. Jupiter\'s expansive vision of governance meets Saturn\'s structural discipline in the sign of permanence and stability. The Republic\'s framework — built to last, rooted in law and tradition — reflects Taurus\'s fixed-earth quality. The foundation proves so durable it shapes governance to this day.',
+    historicalParallel: '1776: American Republic founded with explicit reference to Roman precedent; 1789: French Republic overthrows monarchy. The Roman model of republican government echoes across 2,500 years.'
+  },
+  {
+    id: 'thermopylae', year: -480, date: 'c. 480 BC',
+    celestialEvent: 'Solar Eclipse (February 17, 478 BC) / Eclipse of Xerxes', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Battle of Thermopylae — 300 Spartans Against Persia',
+    category: 'geopolitical',
+    significance: 5,
+    image: './images/thermopylae.jpg',
+    rippleEffects: ['Battle of Salamis saves Greek civilization', 'Golden Age of Athens follows', 'Democracy, philosophy, and theater flourish', 'Western civilization preserved'],
+    description: 'King Leonidas and 300 Spartans make their legendary last stand at the narrow pass of Thermopylae against Xerxes\' massive Persian army. Though the Greeks fall, their sacrifice buys time for Athens to evacuate and the Greek fleet to regroup at Salamis. The subsequent Greek naval victory at Salamis saves Western civilization from Persian conquest.',
+    cosmicLink: 'Herodotus records that a solar eclipse occurred as Xerxes\' army departed from Sardis — the sun vanishing as the great invasion force set out. Persian magi interpreted the eclipse as the gods extinguishing the cities of Greece, but the omen proved to be for Persia itself. The sun went dark on Xerxes\' ambitions.',
+    historicalParallel: '1940: Battle of Britain — another small force holds against an overwhelming invasion, buying time for the free world. Dunkirk\'s spirit echoes Thermopylae\'s sacrifice.'
+  },
+  {
+    id: 'socrates-execution', year: -399, date: '399 BC',
+    celestialEvent: 'Saturn in Aquarius (restriction of intellectual freedom)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'Trial and Execution of Socrates',
+    category: 'cultural',
+    significance: 4,
+    image: './images/socrates-execution.jpg',
+    rippleEffects: ['Founding martyrdom of Western philosophy', 'Plato immortalizes trial in the Apology', 'Socratic method becomes bedrock of critical thinking'],
+    description: 'Athens condemns Socrates to death by hemlock on charges of impiety and corrupting the youth. His student Plato immortalizes the trial in the \'Apology,\' making Socrates\' death the founding martyrdom of Western philosophy. Socrates\' method of questioning — the Socratic method — becomes the bedrock of critical thinking, science, and legal reasoning.',
+    cosmicLink: 'Saturn in Aquarius restricts the very intellectual freedom Aquarius represents. Saturn\'s authority punishes Aquarian innovation and questioning. Socrates — the embodiment of Aquarian intellectual rebellion — is executed by the Saturnian state. The tension between social order and free thought, between authority and inquiry, crystallizes in a cup of hemlock.',
+    historicalParallel: '1633: Galileo forced to recant by the Church; 1966: Chinese Cultural Revolution persecutes intellectuals. The state\'s suppression of dangerous thinkers recurs across civilizations.'
+  },
+  {
+    id: 'alexander-birth', year: -356, date: 'July 20, 356 BC',
+    celestialEvent: 'Mars-Jupiter Conjunction in Leo', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Birth of Alexander the Great',
+    category: 'geopolitical',
+    significance: 4,
+    image: './images/alexander-birth.jpg',
+    rippleEffects: ['Temple of Artemis burns on night of his birth', 'Most studied birth chart in ancient astrology', 'Military genius reshapes the known world'],
+    description: 'Alexander is born in Pella, Macedonia, to King Philip II and Olympias. Legend holds that on the night of his birth, the Temple of Artemis at Ephesus — one of the Seven Wonders — burns to the ground. Alexander will become history\'s most celebrated conqueror, creating an empire stretching from Greece to India before his death at age 32.',
+    cosmicLink: 'Mars, the god of war, conjoins Jupiter, the king of the gods, in Leo — the sign of royalty, glory, and conquest. This conjunction of martial ambition and kingly expansion in the sign of the lion prefigures a life defined by military genius and imperial vision. Alexander\'s birth chart became the most studied in ancient astrology.',
+    historicalParallel: '1769: Birth of Napoleon Bonaparte under similar martial aspects; both commanders conquered vast empires, exported culture through conquest, and died relatively young.'
+  },
+  {
+    id: 'gaugamela', year: -331, date: 'September 20, 331 BC',
+    celestialEvent: 'Lunar Eclipse (September 20, 331 BC)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Battle of Gaugamela — Alexander Defeats Persia',
+    category: 'geopolitical',
+    significance: 5,
+    image: './images/gaugamela.jpg',
+    rippleEffects: ['Achaemenid Persian Empire destroyed', 'Alexander becomes master of the known world', 'Hellenistic age begins'],
+    description: 'Eleven days after a total lunar eclipse visible to both armies, Alexander the Great decisively defeats the Persian King Darius III at the Battle of Gaugamela in modern Iraq. Despite being outnumbered perhaps five to one, Alexander\'s tactical genius destroys the Achaemenid Empire. The victory makes Alexander master of the known world from Egypt to India.',
+    cosmicLink: 'A total lunar eclipse eleven days before the battle terrifies the Persian and Macedonian armies alike. Alexander\'s seer Aristander declares the eclipse portends doom for the Persians — and history proves him right. The blood moon over Mesopotamia marks the end of the Persian Empire and the beginning of the Hellenistic age, as one civilization\'s eclipse becomes another\'s dawn.',
+    historicalParallel: '1945: Atomic bombs end WWII and Japanese Empire; 1991: Desert Storm destroys Iraqi army in Kuwait. Overwhelming military technology meets ancient empires in Mesopotamia.'
+  },
+  {
+    id: 'alexander-death', year: -323, date: 'June 11, 323 BC',
+    celestialEvent: 'Lunar Eclipse (June 1, 323 BC)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Death of Alexander the Great',
+    category: 'deaths',
+    significance: 5,
+    image: './images/alexander-death.jpg',
+    rippleEffects: ['Empire splits among warring generals', 'Hellenistic civilization spreads Greek culture to Asia', 'Alexandria founded — center of learning for centuries', 'Greek becomes lingua franca of ancient world'],
+    description: 'Alexander the Great dies in Babylon at age 32 after a mysterious fever lasting ten days. His empire — stretching from Greece to the Indus Valley — immediately fractures among his warring generals, the Diadochi. The successor kingdoms that emerge (Ptolemaic Egypt, Seleucid Persia, Antigonid Greece) shape the Mediterranean world for centuries.',
+    cosmicLink: 'Babylonian astronomical diaries record a lunar eclipse in the weeks surrounding Alexander\'s death in Babylon. The conqueror who had claimed divine ancestry dies in the very city whose astrologers were the ancient world\'s finest — and a darkened moon marks the moment the greatest empire of antiquity begins its dissolution.',
+    historicalParallel: '1821: Death of Napoleon in exile; 1945: Death of FDR as WWII nears its end. Both moments where a singular leader\'s death reshapes geopolitical order.'
+  },
+  {
+    id: 'punic-wars', year: -264, date: '264 BC',
+    celestialEvent: 'Mars-Pluto Conjunction in Capricorn', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'First Punic War Begins — Rome vs. Carthage',
+    category: 'geopolitical',
+    significance: 4,
+    image: './images/punic-wars.jpg',
+    rippleEffects: ['Century of existential warfare between superpowers', 'Carthage ultimately destroyed (146 BC)', 'Rome transforms from regional to Mediterranean power'],
+    description: 'Rome and Carthage, the Mediterranean\'s two superpowers, begin a century of existential warfare known as the Punic Wars. The conflict will culminate in Carthage\'s total destruction in 146 BC, with Rome salting the earth. The Punic Wars transform Rome from a regional Italian power into the dominant force of the ancient world, setting the stage for empire.',
+    cosmicLink: 'Mars-Pluto conjunctions in Capricorn generate total war between rival empires. Mars\'s aggression meets Pluto\'s annihilating force in the sign of imperial ambition. The conjunction manifests as a conflict so absolute that one civilization must be utterly destroyed for the other to survive. Carthage delenda est — Carthage must be destroyed — becomes Rome\'s defining obsession.',
+    historicalParallel: '1914: WWI begins rivalry between European empires; 1947: Cold War begins between USA and USSR. Great power rivalries under Mars-Pluto aspects tend toward existential conflict.'
+  },
+  {
+    id: 'qin-shi-huang', year: -221, date: '221 BC',
+    celestialEvent: 'Saturn-Pluto Conjunction', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Qin Shi Huang Unifies China',
+    category: 'geopolitical',
+    significance: 5,
+    image: './images/qin-shi-huang.jpg',
+    rippleEffects: ['Great Wall construction begins', 'Terracotta Army built', 'Chinese writing, currency, and measures standardized', 'Book burnings — dissenting thought crushed', 'Template for 2000 years of Chinese imperial rule'],
+    description: 'Ying Zheng conquers the last of the Warring States and proclaims himself Qin Shi Huang — First Emperor of China. He standardizes writing, currency, weights, and measures. He begins construction of the Great Wall and builds the terracotta army. His brutal but transformative rule creates the template for Chinese imperial governance that endures two millennia.',
+    cosmicLink: 'Saturn-Pluto conjunctions mark the forcible restructuring of civilizational order through concentrated power. Saturn\'s authority meets Pluto\'s ruthless transformation — manifesting as the first emperor to unify China through iron will, burning dissenting books, burying scholars alive, and forging a single state from chaos through sheer authoritarian force.',
+    historicalParallel: '1947: Partition of India and founding of modern states; 1914: WWI restructures European empires. Saturn-Pluto conjunctions consistently mark the violent birth of new political orders.'
+  },
+  {
+    id: 'library-alexandria', year: -48, date: 'c. 48 BC',
+    celestialEvent: 'Solar Eclipse (March 7, 51 BC)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Destruction of the Library of Alexandria',
+    category: 'cultural',
+    significance: 4,
+    image: './images/library-alexandria.jpg',
+    rippleEffects: ['Irreplaceable ancient texts lost forever', 'Roman dominance of Egypt begins', 'Knowledge preservation becomes fragile'],
+    description: 'During Caesar\'s Alexandrian War, fire spreads to warehouses near the harbor and destroys a significant portion of the Library of Alexandria\'s collection. The Library — the ancient world\'s greatest repository of knowledge, containing perhaps 400,000 scrolls — suffers irreplaceable losses. Works by Sappho, Euripides, and countless others are lost forever to humanity.',
+    cosmicLink: 'An eclipse cycle active over the Mediterranean accompanies the burning of the ancient world\'s accumulated knowledge. The dimming of the sun parallels the dimming of human wisdom — as scrolls containing centuries of philosophy, science, and literature are consumed by flame, a light goes out that can never be rekindled.',
+    historicalParallel: '1258 AD: Mongols destroy Baghdad\'s House of Wisdom; 1933: Nazi book burnings. The deliberate or accidental destruction of accumulated knowledge recurs as civilization\'s recurring nightmare.'
+  },
+  {
+    id: 'caesars-comet', year: -44, date: 'March 15, 44 BC',
+    celestialEvent: 'Caesar\'s Comet (Great Comet, appeared July 44 BC)', celestialType: 'conjunction', symbol: '☄',
+    worldEvent: 'Caesar\'s Comet — The Deification of Julius Caesar',
+    category: 'cultural',
+    significance: 4,
+    image: './images/caesars-comet.jpg',
+    rippleEffects: ['Caesar declared divine (Divus Iulius)', 'Augustus claims title Son of the Divine', 'Comet placed on Caesar\'s statues and coins'],
+    description: 'Four months after Caesar\'s assassination on the Ides of March, a daylight-visible comet appears during funeral games held in his honor. The Roman people interpret it as Caesar\'s soul ascending to heaven. Augustus exploits the omen to declare Caesar divine (Divus Iulius) and himself \'Son of the Divine.\' The comet becomes the most politically consequential celestial event in Roman history.',
+    cosmicLink: 'The Great Comet of 44 BC — visible for seven days in broad daylight — arrives at the precise political moment to transform a murdered dictator into a god. Augustus places the comet on Caesar\'s statues and coins, making celestial observation into political propaganda. The heavens provide the ultimate endorsement: Caesar\'s soul, blazing across the sky for all Rome to witness.',
+    historicalParallel: '1066: Halley\'s Comet before Norman Conquest; 1811: Great Comet during Napoleonic Wars. Bright comets at moments of regime change reinforce the ancient link between sky and sovereignty.'
+  },
+  {
+    id: 'herod-death', year: -4, date: 'March 20, 4 BC',
+    celestialEvent: 'Total Lunar Eclipse (March 13, 4 BC)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Death of Herod the Great',
+    category: 'deaths',
+    significance: 3,
+    image: './images/herod-death.jpg',
+    rippleEffects: [],
+    description: 'Herod the Great, the Roman-appointed King of Judea who ordered the Massacre of the Innocents according to Matthew\'s Gospel, dies shortly after a lunar eclipse recorded by the historian Josephus. His death triggers a succession crisis that leads to the partition of his kingdom among his sons and ultimately to direct Roman rule — setting the political stage for the ministry of Jesus.',
+    cosmicLink: 'Josephus explicitly connects Herod\'s death to a lunar eclipse, making this one of the few ancient events anchored to a specific astronomical observation. The blood moon over Judea as the tyrant dies prefigures the transformation of his kingdom — from client state to Roman province — and the emergence of a revolutionary religious movement in the power vacuum.',
+    historicalParallel: '2022: Death of Queen Elizabeth II under rare planetary alignments; 1953: Death of Stalin. The death of a long-reigning ruler under celestial signs triggers succession crises and era changes.'
+  },
+  {
+    id: 'crucifixion', year: 33, date: 'April 3, 33 AD',
+    celestialEvent: 'Lunar Eclipse in Libra (April 3, 33 AD)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Crucifixion of Jesus Christ',
+    category: 'religious',
+    significance: 5,
+    image: './images/crucifixion.jpg',
+    rippleEffects: ['Christianity founded — world\'s largest religion', 'Apostles spread faith across Roman Empire', 'Martyrdom tradition established', 'Western art, law, and morality transformed'],
+    description: 'Jesus of Nazareth is crucified by Roman authorities in Jerusalem under Pontius Pilate. The Gospels record that darkness fell over the land for three hours. His death and reported resurrection become the founding event of Christianity, a faith that will reshape Western civilization, law, art, philosophy, and the concept of individual worth.',
+    cosmicLink: 'NASA\'s eclipse catalog confirms a lunar eclipse visible from Jerusalem on April 3, 33 AD — the most widely accepted date for the Crucifixion. The \'blood moon\' rising over Golgotha as described in Acts 2:20 (\'the moon turned to blood\') aligns precisely with this astronomical event. Peter\'s Pentecost sermon explicitly cites celestial signs accompanying the Crucifixion.',
+    historicalParallel: '632 AD: Death of Prophet Muhammad transforms Arabia; 1947: Dead Sea Scrolls discovered. The death of a religious founder radiates consequences across millennia.'
+  },
+  {
+    id: 'great-fire-rome', year: 64, date: 'July 18, 64 AD',
+    celestialEvent: 'Saturn-Mars Conjunction in Cancer', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Great Fire of Rome Under Nero',
+    category: 'geopolitical',
+    significance: 4,
+    image: './images/great-fire-rome.jpg',
+    rippleEffects: ['First Roman persecution of Christians begins', 'Nero rebuilds Rome with opulent Domus Aurea', 'Ten of fourteen districts destroyed'],
+    description: 'A devastating fire burns for six days, destroying ten of Rome\'s fourteen districts. Emperor Nero infamously \'fiddles while Rome burns\' — though he likely played the lyre. He blames Christians for the fire, initiating the first Roman persecution of the young faith. Nero rebuilds Rome in grander style, constructing his opulent Domus Aurea (Golden House) on the ruins.',
+    cosmicLink: 'Saturn and Mars conjoin in Cancer — the sign of home, hearth, and the motherland. Mars brings fire and destruction; Saturn brings systematic consequence. Their union in Cancer manifests as the literal burning of the mother city, the destruction of Roman homes, and the beginning of a systematic (Saturn) campaign of violence (Mars) against an emerging faith.',
+    historicalParallel: '1666: Great Fire of London destroys medieval city; 1906: San Francisco earthquake and fire. Cities consumed by flame, then rebuilt grander — destruction as prerequisite for transformation.'
+  },
+  {
+    id: 'second-temple-destroyed', year: 70, date: 'August 30, 70 AD',
+    celestialEvent: 'Jupiter-Saturn Opposition', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'Destruction of the Second Temple in Jerusalem',
+    category: 'religious',
+    significance: 5,
+    image: './images/second-temple-destroyed.jpg',
+    rippleEffects: ['Jewish diaspora disperses worldwide', 'Rabbinic Judaism replaces Temple worship', 'Masada last stand (73 AD)', 'Bar Kokhba revolt (132 AD) — final attempt at independence'],
+    description: 'Roman legions under Titus breach Jerusalem\'s walls and destroy the Second Temple, fulfilling Jesus\'s prophecy recorded in the Gospels. The Temple\'s destruction ends sacrificial Judaism and disperses the Jewish people into a two-thousand-year diaspora. Only the Western Wall survives. The event reshapes Judaism into a religion of text, prayer, and memory rather than temple sacrifice.',
+    cosmicLink: 'Jupiter and Saturn stand in opposition — the two great chronocrators (time-lords) of ancient astrology pulling in opposite directions. This cosmic tension between expansion and contraction, growth and destruction, manifests as the ultimate rupture: the destruction of the center of Jewish spiritual life, scattering a people between the opposing poles of exile and memory.',
+    historicalParallel: '586 BC: Destruction of Solomon\'s First Temple by Babylon; 1948: State of Israel founded, reuniting the diaspora. The destruction-exile-return pattern spans 2,500 years.'
+  },
+  {
+    id: 'edict-of-milan', year: 313, date: 'February 313 AD',
+    celestialEvent: 'Jupiter-Saturn Conjunction in Capricorn', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Edict of Milan — Christianity Legalized',
+    category: 'religious',
+    significance: 5,
+    image: './images/edict-of-milan.jpg',
+    rippleEffects: ['Christianity becomes state religion (380 AD)', 'Pagan temples closed across empire', 'Church gains enormous political power', 'Monastic movement preserves classical learning'],
+    description: 'Roman emperors Constantine and Licinius issue the Edict of Milan, granting religious tolerance throughout the Roman Empire and specifically legalizing Christianity. After three centuries of intermittent persecution, the faith that began with a crucified carpenter becomes the favored religion of the world\'s most powerful empire. Constantine\'s conversion reshapes Western civilization.',
+    cosmicLink: 'Jupiter-Saturn conjunctions in Capricorn — Saturn\'s own sign of governmental authority — mark the fusion of spiritual vision with institutional power. Jupiter\'s faith meets Saturn\'s state in the sign of empire itself. Christianity transforms from persecuted sect to state religion, gaining the institutional structure (Saturn) to expand (Jupiter) across the known world.',
+    historicalParallel: '380 AD: Christianity becomes Rome\'s official state religion; 1517: Reformation breaks church-state fusion. The marriage of spiritual power and governmental authority oscillates across centuries.'
+  },
+  {
+    id: 'library-alexandria-final', year: 391, date: '391 AD',
+    celestialEvent: 'Saturn-Neptune Square in Pisces-Sagittarius', celestialType: 'square', symbol: '□',
+    worldEvent: 'Final Destruction of the Library of Alexandria',
+    category: 'cultural',
+    significance: 4,
+    image: './images/library-alexandria-final.jpg',
+    rippleEffects: ['Classical intellectual tradition suffers irreversible blow', 'Pagan temples destroyed across empire', 'Christian orthodoxy replaces pluralistic scholarship'],
+    description: 'Emperor Theodosius I decrees Christianity as Rome\'s sole legal religion and orders the destruction of pagan temples. The Serapeum in Alexandria — housing the last major remnant of the Great Library — is destroyed by a Christian mob led by Bishop Theophilus. Centuries of accumulated Greek, Egyptian, and Roman knowledge are lost. The classical intellectual tradition suffers an irreversible blow.',
+    cosmicLink: 'Saturn-Neptune squares pit institutional authority against transcendent ideals. Saturn\'s rigid orthodoxy squares Neptune\'s dissolution of the past — manifesting as a new religious authority systematically destroying the accumulated wisdom of the pagan world. The tension between new faith and old knowledge resolves through annihilation.',
+    historicalParallel: '1258: Mongol destruction of Baghdad\'s House of Wisdom; 1966: Chinese Cultural Revolution destroys temples and libraries. Ideological purity movements consistently target repositories of prior knowledge.'
+  },
+  {
+    id: 'sack-of-rome', year: 410, date: 'August 24, 410 AD',
+    celestialEvent: 'Saturn-Pluto Square in Leo-Scorpio', celestialType: 'square', symbol: '□',
+    worldEvent: 'Sack of Rome by the Visigoths',
+    category: 'geopolitical',
+    significance: 5,
+    image: './images/sack-of-rome.jpg',
+    rippleEffects: ['Augustine writes City of God', 'Western Roman Empire enters terminal decline', 'Migration period transforms Europe', 'Classical world order replaced by feudal Christianity'],
+    description: 'Alaric and his Visigoth army breach the walls of Rome and sack the Eternal City for three days — the first time Rome has fallen to a foreign enemy in 800 years. The psychological shock reverberates across the empire. Saint Augustine writes \'The City of God\' in response, arguing that the earthly city was always destined to fall. The Western Empire enters terminal decline.',
+    cosmicLink: 'Saturn-Pluto squares generate crises of power where existing structures face existential threat. Saturn in Leo — the sign of imperial pride and authority — squares Pluto\'s destructive force. The empire that called itself eternal is humiliated. The square\'s tension between pride and annihilation manifests as Rome\'s 800-year invincibility shattering in three days.',
+    historicalParallel: '1453: Fall of Constantinople; 2001: 9/11 attacks on symbols of American power. The sacking of a civilization\'s symbolic heart traumatizes collective identity.'
+  },
+  {
+    id: 'hijra', year: 622, date: 'September 24, 622 AD',
+    celestialEvent: 'Jupiter Ingress into Aries', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'Prophet Muhammad\'s Hijra to Medina',
+    category: 'religious',
+    significance: 5,
+    image: './images/hijra.jpg',
+    rippleEffects: ['Islamic calendar begins', 'Muslim community-state founded in Medina', 'Islam spreads from Spain to India within a century', 'Golden Age of Islamic science and philosophy'],
+    description: 'Muhammad and his followers emigrate from Mecca to Medina, an event known as the Hijra. This migration marks the founding of the first Islamic community (ummah) and becomes Year One of the Islamic calendar. In Medina, Muhammad establishes a political-spiritual state that will, within a century of his death, stretch from Spain to Central Asia.',
+    cosmicLink: 'Jupiter\'s ingress into Aries — the first sign of the zodiac, the point of new beginnings — coincides with Islam\'s foundational migration. Aries represents the bold leap into the unknown, the warrior\'s journey, the birth of something entirely new. Jupiter expands this Arian energy into a civilization-founding movement that begins with a single journey across the desert.',
+    historicalParallel: '1620: Mayflower voyage to Plymouth — another small band of religious dissidents whose migration founds a civilization. Both the Hijra and the Pilgrim voyage begin with exile and end with empire.'
+  },
+  {
+    id: 'charlemagne', year: 800, date: 'December 25, 800 AD',
+    celestialEvent: 'Jupiter-Saturn Conjunction in Pisces', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Charlemagne Crowned Holy Roman Emperor',
+    category: 'geopolitical',
+    significance: 4,
+    image: './images/charlemagne.jpg',
+    rippleEffects: ['Concept of unified Christian European empire revived', 'Carolingian Renaissance preserves classical learning', 'Foundation for medieval European political order'],
+    description: 'Pope Leo III crowns Charlemagne as Emperor of the Romans on Christmas Day in St. Peter\'s Basilica. The coronation revives the concept of a unified Christian European empire for the first time since Rome\'s fall. Charlemagne\'s realm spans modern France, Germany, and Italy. The Carolingian Renaissance preserves classical learning through monastic scriptoria.',
+    cosmicLink: 'Jupiter-Saturn conjunctions in Pisces — the sign of spiritual transcendence and universal vision — mark the birth of sacred empires. The fusion of Jupiter\'s kingship with Saturn\'s institutional authority in the sign of faith manifests as the crowning of a Christian emperor on the holiest day of the calendar. Spiritual and temporal power unite under the fishes.',
+    historicalParallel: '962 AD: Otto I crowned Holy Roman Emperor; 1804: Napoleon crowns himself Emperor. The recurring dream of a unified European empire haunts the continent for a millennium.'
+  },
+  {
+    id: 'crab-nebula', year: 1054, date: 'July 4, 1054',
+    celestialEvent: 'Supernova in Taurus (Crab Nebula) — Guest Star', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Crab Nebula Supernova Observed Worldwide',
+    category: 'scientific',
+    significance: 4,
+    image: './images/crab-nebula.jpg',
+    rippleEffects: ['Visible in daylight for 23 days', 'Recorded by Chinese, Japanese, Arab, and Native American astronomers', 'Creates the Crab Nebula (M1)'],
+    description: 'Chinese, Japanese, Arab, and possibly Native American astronomers record a \'guest star\' in Taurus so bright it is visible in daylight for 23 days and at night for nearly two years. This is the supernova that creates the Crab Nebula (M1). It occurs the same year as the Great Schism between Catholic and Orthodox churches — a cosmic coincidence that would have stunned medieval observers.',
+    cosmicLink: 'The appearance of a new star visible in broad daylight — an event occurring perhaps once per millennium — coincides with Christianity\'s greatest rupture. Medieval minds would have read the supernova as a divine sign. A new light appears in the heavens precisely as the unified Church splits in two, as if the cosmos itself were marking the fracture.',
+    historicalParallel: '1572: Tycho\'s supernova challenges Aristotelian cosmology; 1604: Kepler\'s supernova appears during another period of religious upheaval. Supernovae arrive at civilizational turning points.'
+  },
+  {
+    id: 'great-schism', year: 1054, date: 'July 16, 1054',
+    celestialEvent: 'SN 1054 Supernova + Saturn in Aries', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'Great Schism — East-West Church Split',
+    category: 'religious',
+    significance: 3,
+    image: './images/great-schism.jpg',
+    rippleEffects: [],
+    description: 'On July 16, 1054, the Pope and the Patriarch of Constantinople excommunicate each other, splitting Christianity into Catholic and Orthodox branches. The schism occurs the same year as the brightest supernova in recorded history, visible in daylight. The division shapes religious and geopolitical history for a millennium.',
+    cosmicLink: 'Saturn in Aries creates division and schism in authority structures. Aries rules conflict and separation. The simultaneous appearance of a supernova — a new star visible in daylight — marks this as a cosmic-scale event. Medieval observers would have connected the unprecedented celestial phenomenon with the unprecedented ecclesiastical rupture.',
+    historicalParallel: '1517: Martin Luther\'s Reformation under Uranus in Gemini; 2026: Saturn-Neptune conjunction at 0 Aries echoes this schismatic energy.'
+  },
+  {
+    id: 'halleys-comet-1066', year: 1066, date: 'April 1066',
+    celestialEvent: 'Halley\'s Comet Apparition', celestialType: 'conjunction', symbol: '☄',
+    worldEvent: 'Halley\'s Comet Heralds the Norman Conquest',
+    category: 'geopolitical',
+    significance: 4,
+    image: './images/halleys-comet-1066.jpg',
+    rippleEffects: ['Norman Conquest transforms English language and culture', 'Bayeux Tapestry immortalizes the comet', 'Feudal system imposed on England'],
+    description: 'Halley\'s Comet blazes across the sky in April 1066, just months before William the Conqueror invades England. The comet is depicted in the Bayeux Tapestry alongside terrified English onlookers and the Latin inscription \'they marvel at the star.\' Harold II sees it as an omen of doom; William interprets it as divine approval for his invasion.',
+    cosmicLink: 'Halley\'s Comet — the most famous periodic comet, returning every 75-76 years — arrives precisely as medieval England faces its existential moment. Comets were universally interpreted as omens of regime change and royal death. The Bayeux Tapestry immortalizes the celestial visitor alongside the human drama, binding astronomical observation to political fate in embroidered silk.',
+    historicalParallel: '1682: Halley\'s Comet returns as Newton develops gravitational theory; 1910: Halley\'s return coincides with death of Edward VII and end of an era. The comet consistently marks transitions.'
+  },
+  {
+    id: 'first-crusade', year: 1095, date: 'November 27, 1095',
+    celestialEvent: 'Mars-Saturn Conjunction in Aries', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Pope Urban II Calls the First Crusade',
+    category: 'religious',
+    significance: 5,
+    image: './images/first-crusade.jpg',
+    rippleEffects: ['Jerusalem captured (1099) — 40,000 killed', 'Crusader states established in Holy Land', 'East-West knowledge transfer accelerates', 'Military orders born (Templars, Hospitallers)'],
+    description: 'At the Council of Clermont, Pope Urban II delivers a thunderous speech calling Christendom to arms, urging the faithful to recapture Jerusalem from Muslim control. The crowd erupts with cries of \'Deus vult!\' (\'God wills it!\'). The First Crusade launches, and in 1099, Crusaders capture Jerusalem in a brutal siege. Two centuries of holy war reshape the medieval world.',
+    cosmicLink: 'Mars and Saturn conjoin in Aries — the most martial configuration possible. Mars, god of war, meets Saturn, lord of religious authority, in the sign of the warrior and the pioneer. This celestial call to arms manifests as a pope commanding an entire civilization to wage holy war, sending hundreds of thousands on a violent pilgrimage to the other side of the known world.',
+    historicalParallel: '2001: War on Terror begins under Saturn-Pluto opposition — another moment where religious framing drives military campaigns across civilizational boundaries.'
+  },
+  {
+    id: 'mongol-baghdad', year: 1258, date: 'February 10, 1258',
+    celestialEvent: 'Saturn-Neptune Conjunction in Sagittarius', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Mongol Destruction of Baghdad / House of Wisdom',
+    category: 'cultural',
+    significance: 5,
+    image: './images/mongol-baghdad.jpg',
+    rippleEffects: ['Islamic Golden Age ends', 'Abbasid Caliphate extinguished', 'Millions killed across Central Asia', 'Trade routes disrupted for decades'],
+    description: 'Hulagu Khan\'s Mongol army sacks Baghdad, the jewel of the Islamic Golden Age. The Abbasid Caliphate, which had ruled for 500 years, is extinguished. The Mongols destroy the House of Wisdom, the world\'s greatest library, reportedly throwing so many books into the Tigris that the river runs black with ink. An estimated 200,000 to 2 million inhabitants are massacred.',
+    cosmicLink: 'Saturn-Neptune conjunctions dissolve existing institutional and spiritual orders. In Sagittarius — the sign of higher learning, philosophy, and foreign cultures — this dissolution manifests as the annihilation of the Islamic world\'s greatest center of scholarship by foreign invaders. Neptune\'s waters turn black with the ink of destroyed knowledge; Saturn\'s structures crumble to dust.',
+    historicalParallel: '48 BC: Library of Alexandria partially destroyed; 1933: Nazi book burnings. The destruction of centers of learning marks civilizational inflection points from which recovery takes centuries.'
+  },
+  {
+    id: 'mongol-china', year: 1279, date: 'March 19, 1279',
+    celestialEvent: 'Jupiter-Pluto Conjunction in Aries', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Mongol Conquest of China — Yuan Dynasty Founded',
+    category: 'geopolitical',
+    significance: 4,
+    image: './images/mongol-china.jpg',
+    rippleEffects: ['First non-Han Chinese rule of all China', 'Kublai Khan builds new capital at Beijing', 'Largest contiguous land empire in history'],
+    description: 'Kublai Khan\'s forces defeat the last Song Dynasty remnants at the naval Battle of Yamen, completing the Mongol conquest of China. The Yuan Dynasty is established — the first time a non-Han Chinese people rule all of China. Kublai Khan builds a new capital at Khanbaliq (Beijing) and presides over the largest contiguous land empire in history.',
+    cosmicLink: 'Jupiter-Pluto conjunctions in Aries generate empire through overwhelming force. Jupiter\'s expansive ambition meets Pluto\'s annihilating power in the sign of the conqueror. The Mongol empire — which already spans from Korea to Hungary — completes its most significant conquest, absorbing the world\'s most populous and sophisticated civilization through sheer martial dominance.',
+    historicalParallel: '221 BC: Qin Shi Huang unifies China through conquest; 1949: Mao\'s Communist Revolution establishes People\'s Republic. China\'s dynastic cycles mirror celestial cycles of destruction and renewal.'
+  },
+  {
+    id: 'fall-of-constantinople', year: 1453, date: 'May 22, 1453',
+    celestialEvent: 'Lunar Eclipse over Constantinople (May 22, 1453)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Blood Moon Over Constantinople — Final Days of Byzantium',
+    category: 'geopolitical',
+    significance: 5,
+    image: './images/fall-of-constantinople.jpg',
+    rippleEffects: ['Byzantine Empire ends after 1100 years', 'Greek scholars flee to Italy — fuel Renaissance', 'Ottoman Empire dominates Eastern Mediterranean', 'Age of Exploration spurred by lost trade routes'],
+    description: 'A lunar eclipse turns the moon blood-red over Constantinople just seven days before the city falls to Ottoman Sultan Mehmed II on May 29. An ancient prophecy held that Constantinople would not fall while the moon shone full — and on the night of the eclipse, it appeared to vanish. Defenders and attackers alike interpreted the celestial sign as the empire\'s death sentence.',
+    cosmicLink: 'A blood moon eclipse one week before the fall of the Eastern Roman Empire fulfills an ancient prophecy with astronomical precision. Byzantine defenders watched the moon darken and knew their 1,100-year empire was ending. The cosmos provided a seven-day countdown to the death of the medieval world — the moon itself mourning the passing of Rome\'s last heir.',
+    historicalParallel: '586 BC: Lunar eclipse accompanies destruction of Solomon\'s Temple; 70 AD: Eclipse cycle around destruction of Second Temple. Sacred cities fall under darkened moons.'
+  },
+  {
+    id: 'newtons-principia', year: 1687, date: 'July 5, 1687',
+    celestialEvent: 'Jupiter-Saturn Conjunction in Aries', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Newton Publishes Principia Mathematica',
+    category: 'scientific',
+    significance: 5,
+    image: './images/newtons-principia.jpg',
+    rippleEffects: ['Laws of motion become foundation of physics', 'Scientific Revolution accelerates', 'Enlightenment thinking spreads across Europe', 'Space exploration becomes theoretically possible'],
+    description: 'Isaac Newton publishes \'Philosophiae Naturalis Principia Mathematica,\' laying out the laws of motion and universal gravitation. The Principia explains the orbits of planets, the motion of comets, the tides, and the shape of the Earth. It becomes the foundation of classical physics and the most influential scientific work ever published, transforming humanity\'s understanding of the universe.',
+    cosmicLink: 'Jupiter-Saturn conjunctions mark civilizational paradigm shifts. Newton\'s Principia reveals the very laws governing the movements of Jupiter and Saturn themselves — the master planets whose conjunctions astrologers had tracked for millennia. In a supreme irony, the celestial conjunction coincides with a work that replaces astrological interpretation with mathematical law.',
+    historicalParallel: '1905: Einstein publishes special relativity; 1610: Galileo publishes telescopic observations. Each publication redefines humanity\'s relationship to the cosmos.'
+  },
+  {
+    id: 'great-pyramid', year: -2560, date: 'c. 2560 BC',
+    celestialEvent: 'Saturn-Jupiter Conjunction in Leo', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Construction of the Great Pyramid of Giza',
+    category: 'cultural',
+    image: './images/great-pyramid.jpg',
+    significance: 5,
+    rippleEffects: ['Largest structure on Earth for 3,800 years', 'Aligned to cardinal directions and Orion\'s Belt', 'Centralized state labor reshapes Egyptian society', 'Template for monumental architecture worldwide'],
+    description: 'Pharaoh Khufu commissions the Great Pyramid at Giza, the last surviving Wonder of the Ancient World. Requiring 2.3 million limestone blocks over 20 years, it represents the apex of Old Kingdom Egypt\'s engineering and spiritual ambition.',
+    cosmicLink: 'Jupiter-Saturn conjunctions mark the founding of enduring institutions. In Leo — kingship and creative power — the conjunction manifests as royal will made permanent in stone, aligned to the stars.',
+    historicalParallel: '800 AD: Charlemagne crowned under Jupiter-Saturn aspects — empire stamping authority through monumental acts.'
+  },
+  {
+    id: 'exodus', year: -1250, date: 'c. 1250 BC',
+    celestialEvent: 'Total Solar Eclipse over Egypt', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'The Exodus — Israelites Leave Egypt',
+    category: 'religious',
+    image: './images/exodus.jpg',
+    significance: 5,
+    rippleEffects: ['Foundation narrative of Judaism, Christianity, and Islam', 'Mosaic Law shapes Western legal tradition', 'Liberation archetype becomes universal', 'Israel established as covenant nation'],
+    description: 'Moses leads the Israelites out of Egyptian bondage during Ramesses II\'s reign. The Exodus becomes the foundational narrative of three world religions and the archetype of liberation from oppression.',
+    cosmicLink: 'Solar eclipses in Egypt meant the temporary death of Ra. An eclipse mirrors the Biblical plagues of darkness and the defeat of Pharaoh\'s divine order.',
+    historicalParallel: '1947: Partition of India and creation of Israel — mass migrations driven by religious identity and imperial collapse.'
+  },
+  {
+    id: 'cleopatra-falls', year: -30, date: 'August 12, 30 BC',
+    celestialEvent: 'Saturn-Neptune Conjunction (dynasty dissolves)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Death of Cleopatra — Egypt Falls to Rome',
+    category: 'geopolitical',
+    image: './images/cleopatra-falls.jpg',
+    significance: 4,
+    rippleEffects: ['Three-thousand-year pharaonic civilization ends', 'Rome becomes Mediterranean superpower', 'Egypt becomes Rome\'s grain supply', 'Hellenistic Age ends'],
+    description: 'Cleopatra VII dies by suicide after Octavian defeats her and Mark Antony. Three thousand years of pharaonic civilization end. Egypt becomes a Roman province.',
+    cosmicLink: 'Saturn-Neptune conjunctions dissolve ancient structures. Cleopatra\'s death marks the dissolution of the oldest continuous civilization into the Roman imperial system.',
+    historicalParallel: '1989: Berlin Wall falls under Saturn-Neptune — another ancient order dissolved.'
+  },
+  {
+    id: 'star-of-bethlehem', year: -7, date: 'c. 7 BC',
+    celestialEvent: 'Triple Jupiter-Saturn Conjunction in Pisces', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Star of Bethlehem — Birth of Jesus',
+    category: 'religious',
+    image: './images/star-of-bethlehem.jpg',
+    significance: 5,
+    rippleEffects: ['Christianity reshapes Western civilization', 'Calendar recentered (AD/BC)', 'Universal human dignity enters Western thought', 'Church dominates for 1,500+ years'],
+    description: 'Jupiter and Saturn conjoin three times in Pisces — a rare triple conjunction visible as a brilliant "star." Many astronomers identify this as the Star of Bethlehem. The birth of Jesus becomes the most consequential event in Western history.',
+    cosmicLink: 'Jupiter (kingship), Saturn (Israel in Hellenistic astrology), and Pisces (spirituality) announced to the Magi the birth of a spiritual king among the Jews.',
+    historicalParallel: '622 AD: Muhammad\'s Hijra marks Islam\'s birth under celestial signs. Moments when sky events mark permanent spiritual fractures.'
+  },
+  {
+    id: 'vesuvius', year: 79, date: 'August 24, 79 AD',
+    celestialEvent: 'Mars-Saturn Conjunction in Leo', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Eruption of Vesuvius — Pompeii Destroyed',
+    category: 'deaths',
+    image: './images/vesuvius.jpg',
+    significance: 3,
+    rippleEffects: ['Two Roman cities preserved as time capsules', 'Over 2,000 killed in hours', 'Pliny the Elder dies — gives name to eruption type'],
+    description: 'Vesuvius erupts, burying Pompeii and Herculaneum. Pliny the Elder dies attempting rescue. The cities remain sealed until the 18th century, preserving Roman daily life in extraordinary detail.',
+    cosmicLink: 'Mars-Saturn conjunctions in fire signs create destructive force. In Leo (spectacle), catastrophe paradoxically preserves its victims in eternal tableau.',
+    historicalParallel: '1883: Krakatoa kills 36,000. 2011: Fukushima — nature overwhelming human infrastructure.'
+  },
+  {
+    id: 'muhammad-death', year: 632, date: 'June 8, 632 AD',
+    celestialEvent: 'Solar Eclipse visible over Arabia', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Death of Prophet Muhammad',
+    category: 'religious',
+    image: './images/muhammad-death.jpg',
+    significance: 5,
+    rippleEffects: ['Sunni-Shia split — still active today', 'Rashidun Caliphate expands Islam', 'Arabic becomes scholarly lingua franca', 'Islamic Golden Age begins within decades'],
+    description: 'Prophet Muhammad dies in Medina, leaving no clear successor. The Sunni-Shia schism that divides Islam to this day begins. Within a century, Islamic civilization stretches from Spain to Central Asia.',
+    cosmicLink: 'Eclipses at the death of founders mark permanent civilizational schism. The eclipse mirrors the loss of prophetic light.',
+    historicalParallel: '33 AD: Crucifixion of Jesus under eclipse traditions — founders\' deaths accompanied by celestial darkness.'
+  },
+  {
+    id: 'justinian-plague', year: 541, date: '541 AD',
+    celestialEvent: 'Saturn-Jupiter Conjunction in Capricorn', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Plague of Justinian — First Bubonic Plague',
+    category: 'pandemic',
+    image: './images/justinian-plague.jpg',
+    significance: 4,
+    rippleEffects: ['25-50 million dead', 'Byzantine Empire permanently weakened', 'Justinian\'s reconquest fails', 'Recurring waves for 200 years'],
+    description: 'The Plague of Justinian strikes the Byzantine Empire during Justinian\'s reconquest. 25-50 million die. Justinian contracts the plague but survives; his dreams of restoring Rome die with his subjects.',
+    cosmicLink: 'Saturn-Jupiter in Capricorn produces institutional pandemics — plagues that destroy governmental capacity. Jupiter spreads; Saturn kills through structural collapse.',
+    historicalParallel: '1347: Black Death. 2020: COVID under Saturn-Pluto in Capricorn. Plague aligns with malefic conjunctions in Capricorn.'
+  },
+  {
+    id: 'viking-age', year: 793, date: 'June 8, 793 AD',
+    celestialEvent: 'Mars-Jupiter Conjunction (expansion through conquest)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Viking Raid on Lindisfarne — Viking Age Begins',
+    category: 'geopolitical',
+    image: './images/viking-age.jpg',
+    significance: 3,
+    rippleEffects: ['Norse raids terrorize Europe for 250 years', 'Vikings reshape England, France, Russia', 'Norse reach North America c. 1000 AD'],
+    description: 'Norse warriors raid Lindisfarne monastery, shocking Christendom. The Anglo-Saxon Chronicle records "dire portents" in the sky. The Viking Age transforms European politics for 250 years.',
+    cosmicLink: 'Mars-Jupiter conjunctions mark aggressive expansion — Mars provides violence, Jupiter the ambition for territory.',
+    historicalParallel: '1095: First Crusade. 1206: Genghis Khan — steppe warriors reshaping the world, as Vikings did by sea.'
+  },
+  {
+    id: 'genghis-khan', year: 1206, date: '1206',
+    celestialEvent: 'Jupiter-Saturn Conjunction (new empire cycle)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Genghis Khan Founds the Mongol Empire',
+    category: 'geopolitical',
+    image: './images/genghis-khan.jpg',
+    significance: 5,
+    rippleEffects: ['Largest contiguous land empire ever', 'Silk Road reopened', '40 million killed', 'Black Death spreads along Mongol routes', '1 in 200 men descend from Genghis Khan'],
+    description: 'Temujin unites the Mongol tribes as Genghis Khan — "Universal Ruler." He builds the largest contiguous land empire in history, stretching from Korea to Hungary.',
+    cosmicLink: 'Jupiter-Saturn conjunctions inaugurate new imperial orders. Genghis Khan\'s empire is the conjunction principle at its most extreme: old order destroyed, new order imposed.',
+    historicalParallel: '221 BC: Qin Shi Huang unifies China. 800 AD: Charlemagne crowned. The conjunction produces universal rulers.'
+  },
+  {
+    id: 'gutenberg', year: 1455, date: 'c. 1455',
+    celestialEvent: 'Jupiter-Uranus Opposition (knowledge revolution)', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'Gutenberg Prints the Bible — Printing Revolution',
+    category: 'scientific',
+    image: './images/gutenberg.jpg',
+    significance: 5,
+    rippleEffects: ['Book costs drop 80%', 'Literacy climbs for centuries', 'Reformation made possible by printing', 'Scientific Revolution accelerated', 'First information technology'],
+    description: 'Gutenberg prints the Bible using movable type. Within 50 years, 20 million volumes are printed, ending the Church\'s monopoly on knowledge.',
+    cosmicLink: 'Jupiter-Uranus aspects mark quantum leaps. Jupiter distributes; Uranus revolutionizes. Their opposition creates tension between manuscript culture and the printing revolution.',
+    historicalParallel: '1969: Moon landing under Jupiter-Uranus. 1991: World Wide Web. 2022: ChatGPT. Each cycle permanently expands human knowledge.'
+  },
+  {
+    id: 'reformation', year: 1517, date: 'October 31, 1517',
+    celestialEvent: 'Saturn-Pluto Square (institutional destruction)', celestialType: 'square', symbol: '□',
+    worldEvent: 'Martin Luther\'s 95 Theses — Reformation',
+    category: 'religious',
+    image: './images/reformation.jpg',
+    significance: 5,
+    rippleEffects: ['Western Christianity splits permanently', 'Wars of Religion for 130 years', 'Individual conscience over institutional authority', 'Modern secular state emerges'],
+    description: 'Luther nails his 95 Theses to the church door in Wittenberg. Printed copies spread across Europe in weeks. The Reformation permanently splits Western Christianity.',
+    cosmicLink: 'Saturn-Pluto squares mark violent destruction of corrupt institutions. Saturn rules the Church as hierarchy; Pluto exposes rot and demands transformation. Luther is Pluto\'s instrument.',
+    historicalParallel: '2020: Saturn-Pluto triggers COVID. 1789: French Revolution destroys monarchy. The cycle reveals institutions as hollow.'
+  },
+  {
+    id: 'spanish-armada', year: 1588, date: 'August 1588',
+    celestialEvent: 'Saturn-Jupiter-Mars Triple Conjunction', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Defeat of the Spanish Armada',
+    category: 'geopolitical',
+    image: './images/spanish-armada.jpg',
+    significance: 4,
+    rippleEffects: ['Spanish naval dominance broken', 'England emerges as sea power', 'Protestant Europe survives', 'British Empire foundations laid'],
+    description: 'Philip II sends 130 ships to invade England. The Armada is defeated by fireships and storms. Spain declines; England\'s naval rise begins.',
+    cosmicLink: 'Triple conjunctions concentrate imperial ambition, military force, and structural consequence into one explosive moment — marking the transfer of imperial destiny.',
+    historicalParallel: '1805: Trafalgar confirms British supremacy. 1945: WWII transfers power to the US. Empire transfers through maritime defeat.'
+  },
+  {
+    id: 'galileo', year: 1633, date: 'June 22, 1633',
+    celestialEvent: 'Saturn Opposition Uranus (authority vs. discovery)', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'Galileo\'s Trial — Science vs. Church',
+    category: 'scientific',
+    image: './images/galileo.jpg',
+    significance: 4,
+    rippleEffects: ['House arrest for life', 'Heliocentrism triumphs', 'Science gains independence from theology', 'Catholic Church apologizes in 1992'],
+    description: 'The Inquisition finds Galileo "vehemently suspect of heresy." Forced to recant, he reportedly mutters "Eppur si muove" — "And yet it moves."',
+    cosmicLink: 'Saturn-Uranus oppositions create maximum tension between authority and revolutionary truth. Saturn is the Church; Uranus is the telescope\'s revelation.',
+    historicalParallel: '1859: Darwin challenges religious authority. The recurring tension between evidence and dogma.'
+  },
+  {
+    id: 'westphalia', year: 1648, date: 'October 24, 1648',
+    celestialEvent: 'Saturn-Jupiter Trine in Earth Signs', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Treaty of Westphalia — Modern Nation-State Born',
+    category: 'geopolitical',
+    image: './images/westphalia.jpg',
+    significance: 4,
+    rippleEffects: ['Thirty Years\' War ends — 8 million dead', 'National sovereignty established', 'Religious wars end in Europe', 'International law formalized'],
+    description: 'The Peace of Westphalia ends the Thirty Years\' War (which killed one-third of Germany) and establishes state sovereignty, religious tolerance, and the modern nation-state system.',
+    cosmicLink: 'Saturn-Jupiter harmonious aspects create enduring institutions through pragmatic negotiation — borders, treaties, and written law.',
+    historicalParallel: '1945: UN founded. 1815: Congress of Vienna. Each great peace settlement attempts to build order preventing the next war.'
+  },
+  {
+    id: 'charles-executed', year: 1649, date: 'January 30, 1649',
+    celestialEvent: 'Solar Eclipse preceding regicide', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Execution of Charles I — English Civil War',
+    category: 'geopolitical',
+    image: './images/charles-executed.jpg',
+    significance: 4,
+    rippleEffects: ['First European monarch publicly executed', 'Commonwealth under Cromwell', 'Divine right of kings weakened', 'Influences American and French revolutions'],
+    description: 'Charles I is beheaded at Whitehall — the first time a European monarch is tried and executed by his own people. Parliamentary sovereignty is born.',
+    cosmicLink: 'Solar eclipses mark the deaths of kings since Mesopotamia. The Sun (sovereign) is eclipsed by the Moon (the people).',
+    historicalParallel: '1789: Louis XVI executed. 1917: Tsar Nicholas overthrown. The cycle of regicide accelerates.'
+  },
+  {
+    id: 'lisbon-earthquake', year: 1755, date: 'November 1, 1755',
+    celestialEvent: 'Saturn-Pluto Square (catastrophe of faith)', celestialType: 'square', symbol: '□',
+    worldEvent: 'Great Lisbon Earthquake — Enlightenment Crisis',
+    category: 'religious',
+    image: './images/lisbon-earthquake.jpg',
+    significance: 3,
+    rippleEffects: ['30,000-50,000 killed on All Saints\' Day', 'Voltaire writes Candide', 'Birth of modern seismology', 'First modern urban planning in rebuild'],
+    description: 'Earthquake, tsunamis, and fires destroy Lisbon on All Saints\' Day while churches are packed. The disaster provokes a philosophical crisis: how could God allow such suffering?',
+    cosmicLink: 'Saturn-Pluto squares destroy certainties. Churches collapse on the faithful. The philosophical aftermath births Enlightenment skepticism.',
+    historicalParallel: '2004: Indian Ocean tsunami kills 230,000 — another catastrophe challenging divine order.'
+  },
+  {
+    id: 'american-independence', year: 1776, date: 'July 4, 1776',
+    celestialEvent: 'Pluto at 27° Capricorn (national birth)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'American Declaration of Independence',
+    category: 'geopolitical',
+    image: './images/american-independence.jpg',
+    significance: 5,
+    rippleEffects: ['First modern democratic republic', 'Inspires French Revolution', 'Constitutional governance exported worldwide', 'Slavery contradiction embedded in founding'],
+    description: 'The Continental Congress adopts the Declaration of Independence. "All men are created equal" becomes the foundational text of modern democracy, despite its contradictions.',
+    cosmicLink: 'The US natal Pluto at 27° Capricorn defines America\'s relationship with power and transformation. The Pluto return in 2022 echoes this founding energy.',
+    historicalParallel: '1789: French Revolution. 1947: Indian Independence. 2022: US Pluto return — confronting founding contradictions 246 years later.'
+  },
+  {
+    id: 'uranus-discovered', year: 1781, date: 'March 13, 1781',
+    celestialEvent: 'Uranus Discovered — Planet of Revolution', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Discovery of Uranus — Industrial Revolution Accelerates',
+    category: 'scientific',
+    image: './images/uranus-discovered.jpg',
+    significance: 4,
+    rippleEffects: ['First new planet since antiquity', 'Steam engine transforms manufacturing', 'Urbanization reshapes settlement', 'Working class created'],
+    description: 'Herschel discovers Uranus — the first new planet since antiquity. Its discovery coincides with the Industrial Revolution\'s acceleration. The planet of revolution arrives as revolution transforms the world.',
+    cosmicLink: 'A planet\'s discovery marks the moment its archetype becomes conscious. Uranus — revolution and technology — is discovered as the Industrial Revolution accelerates.',
+    historicalParallel: '1930: Pluto discovered as fascism and nuclear physics emerge. 1846: Neptune during Romanticism and photography.'
+  },
+  {
+    id: 'napoleon-rise', year: 1799, date: 'November 9, 1799',
+    celestialEvent: 'Jupiter-Pluto Conjunction (absolute power)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Napoleon\'s Coup — Rise of the Emperor',
+    category: 'geopolitical',
+    image: './images/napoleon-rise.jpg',
+    significance: 4,
+    rippleEffects: ['Republic replaced by military dictatorship', 'Napoleonic Code reshapes European law', 'Continental warfare for 15 years', 'Nationalism spreads through conquered lands'],
+    description: 'Napoleon seizes power in the coup of 18 Brumaire. Within five years he crowns himself Emperor. His reign reshapes law, politics, and warfare across Europe.',
+    cosmicLink: 'Jupiter-Pluto conjunctions concentrate maximum power in singular figures — visionary ambition fused with ruthless will. Napoleon is the archetypal Jupiter-Pluto figure.',
+    historicalParallel: '1933: Hitler rises under Jupiter-Pluto. 1949: Mao declares PRC. The conjunction produces absolute rulers.'
+  },
+  {
+    id: 'haitian-revolution', year: 1804, date: 'January 1, 1804',
+    celestialEvent: 'Uranus in Libra (revolutionary justice)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'Haitian Independence — First Slave Revolution',
+    category: 'geopolitical',
+    image: './images/haitian-revolution.jpg',
+    significance: 4,
+    rippleEffects: ['First Black republic', 'Napoleon sells Louisiana to US', 'Terrifies slaveholding nations', 'Haiti punished with debt for 122 years'],
+    description: 'Dessalines declares Haitian independence — the only successful large-scale slave revolution. Formerly enslaved people defeat Napoleon\'s army and establish the first Black republic.',
+    cosmicLink: 'Uranus in Libra places revolutionary energy in the sign of justice. The enslaved seize liberty and demand the scales be rebalanced through force.',
+    historicalParallel: '1776: American Revolution. 1789: French Revolution. Haiti completes the triad — the only one led by enslaved people, and the most radical.'
+  },
+  {
+    id: 'napoleon-waterloo', year: 1815, date: 'June 18, 1815',
+    celestialEvent: 'Saturn-Neptune Opposition (imperial dissolution)', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'Napoleon Defeated at Waterloo',
+    category: 'geopolitical',
+    image: './images/napoleon-waterloo.jpg',
+    significance: 4,
+    rippleEffects: ['Congress of Vienna redraws Europe', 'Century of relative peace begins', 'British supremacy confirmed', 'Nationalism spreads from Napoleonic reforms'],
+    description: 'Napoleon is defeated at Waterloo by Wellington and Blucher, ending the Napoleonic Wars. The Congress of Vienna redraws Europe\'s borders.',
+    cosmicLink: 'Saturn-Neptune oppositions collapse grand visions. Neptune represents Napoleon\'s illusory empire; Saturn the coalition\'s structured resistance.',
+    historicalParallel: '1989: Berlin Wall falls under Saturn-Neptune. 1953: Death of Stalin. The cycle marks the end of strongman regimes.'
+  },
+  {
+    id: 'abolition', year: 1833, date: 'August 28, 1833',
+    celestialEvent: 'Uranus-Neptune Square (idealism meets upheaval)', celestialType: 'square', symbol: '□',
+    worldEvent: 'British Abolition of Slavery Act',
+    category: 'geopolitical',
+    image: './images/abolition.jpg',
+    significance: 4,
+    rippleEffects: ['800,000 freed across British Empire', 'Abolitionist movement gains momentum', 'Plantation model begins to collapse', 'Sets stage for US Civil War'],
+    description: 'Parliament emancipates 800,000 enslaved people across the British Empire. While imperfect, it marks a turning point in the global struggle against slavery.',
+    cosmicLink: 'Uranus-Neptune squares create tension between revolutionary action and humanitarian ideals. The abolition movement channels Neptune\'s compassion through Uranus\'s demand for change.',
+    historicalParallel: '1865: 13th Amendment. 1948: Universal Declaration of Human Rights. The arc of abolition bends slowly.'
+  },
+  {
+    id: 'darwin', year: 1859, date: 'November 24, 1859',
+    celestialEvent: 'Saturn-Uranus Conjunction (revolutionary structure)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Darwin Publishes On the Origin of Species',
+    category: 'scientific',
+    image: './images/darwin.jpg',
+    significance: 5,
+    rippleEffects: ['Theory of evolution established', 'Religious creation narratives challenged', 'Modern biology and genetics founded', 'Social Darwinism misapplied for imperialism'],
+    description: 'Darwin publishes On the Origin of Species, presenting evolution by natural selection. The book sells out on its first day and reshapes humanity\'s understanding of nature.',
+    cosmicLink: 'Saturn-Uranus conjunctions produce breakthroughs that permanently restructure understanding. Saturn provides empirical structure; Uranus shatters paradigms.',
+    historicalParallel: '1687: Newton. 1905: Einstein. Each Saturn-Uranus cycle replaces the previous framework of reality.'
+  },
+  {
+    id: 'civil-war-us', year: 1861, date: 'April 12, 1861',
+    celestialEvent: 'Saturn-Pluto Conjunction in Virgo', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'American Civil War Begins',
+    category: 'geopolitical',
+    image: './images/civil-war-us.jpg',
+    significance: 5,
+    rippleEffects: ['750,000 dead — deadliest US conflict', 'Slavery abolished (13th Amendment)', 'Federal supremacy over states', 'Reconstruction fails — Jim Crow begins'],
+    description: 'Fort Sumter is fired upon. Over four years, 750,000 die. The war ends slavery and redefines the nation, though Reconstruction\'s failure plants seeds of lasting injustice.',
+    cosmicLink: 'Saturn-Pluto in Virgo (labor, service) manifests as a war over forced labor. Saturn is the institution of slavery; Pluto demands its annihilation.',
+    historicalParallel: '2020: Saturn-Pluto triggers COVID and George Floyd protests — America confronting systemic injustice again.'
+  },
+  {
+    id: 'emancipation', year: 1863, date: 'January 1, 1863',
+    celestialEvent: 'Uranus-Pluto Conjunction (revolutionary transformation)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Emancipation Proclamation',
+    category: 'geopolitical',
+    image: './images/emancipation.jpg',
+    significance: 4,
+    rippleEffects: ['3.5 million legally freed', 'War reframed for abolition', '180,000 Black soldiers join Union Army', '13th Amendment follows (1865)'],
+    description: 'Lincoln declares enslaved people in rebel states "forever free." The Civil War becomes explicitly a war for liberation, and 180,000 Black men join the Union Army.',
+    cosmicLink: 'Uranus-Pluto conjunctions mark the most profound revolutionary transformations. The 1860s conjunction also produces the Meiji Restoration and European unification.',
+    historicalParallel: '1789: French Revolution abolishes feudalism. 1960s: Uranus-Pluto produces the civil rights movement. Radical liberation repeats every 110-140 years.'
+  },
+  {
+    id: 'suez-canal', year: 1869, date: 'November 17, 1869',
+    celestialEvent: 'Jupiter-Saturn Conjunction in Sagittarius', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Suez Canal Opens — Global Trade Transformed',
+    category: 'financial',
+    image: './images/suez-canal.jpg',
+    significance: 3,
+    rippleEffects: ['Europe-Asia travel cut dramatically', 'British Empire\'s strategic lifeline', 'Egypt becomes geopolitical flashpoint', 'Suez Crisis of 1956 ends British Empire'],
+    description: 'The Suez Canal connects Mediterranean and Red Seas, eliminating the need to sail around Africa and becoming the world\'s most strategic waterway.',
+    cosmicLink: 'Jupiter-Saturn in Sagittarius (long-distance travel) manifests as a physical passage expanding global reach. Jupiter\'s expansion meets Saturn\'s infrastructure.',
+    historicalParallel: '1914: Panama Canal opens. 1492: Columbus. The conjunction produces moments when humanity connects separated worlds.'
+  },
+  {
+    id: 'electricity-age', year: 1882, date: 'September 4, 1882',
+    celestialEvent: 'Uranus in Virgo (technology systems revolution)', celestialType: 'ingress', symbol: '☀',
+    worldEvent: 'Edison Opens Pearl Street Station — Electric Age',
+    category: 'scientific',
+    image: './images/electricity-age.jpg',
+    significance: 4,
+    rippleEffects: ['Electric light replaces gas and candle', 'Tesla vs Edison "War of Currents"', 'Second Industrial Revolution', 'Foundation for electronic civilization'],
+    description: 'Edison opens Pearl Street station in Manhattan. Tesla\'s alternating current proves superior. The "War of Currents" shapes modern infrastructure.',
+    cosmicLink: 'Uranus is electricity itself. In Virgo (practical systems), it manifests as revolutionary technology made functional for the public. The light bulb is Uranus made visible.',
+    historicalParallel: '1995: Internet commercialized. 2025: AI under Uranus in Gemini. Each Uranus cycle produces a civilization-defining platform.'
+  },
+  {
+    id: 'krakatoa', year: 1883, date: 'August 27, 1883',
+    celestialEvent: 'Neptune-Pluto Conjunction approaching (492-year cycle)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Krakatoa Eruption — Global Climate Impact',
+    category: 'scientific',
+    image: './images/krakatoa.jpg',
+    significance: 3,
+    rippleEffects: ['36,000+ killed', 'Global temperatures drop 1.2°C', 'Blood-red sunsets inspire art (Munch\'s The Scream)', 'First disaster reported via telegraph'],
+    description: 'Krakatoa erupts with 200 megatons of force — the loudest sound in history, heard 3,000 miles away. Global temperatures drop; sunsets turn blood red for years.',
+    cosmicLink: 'The Neptune-Pluto conjunction (rarest cycle, 492 years) was approaching. Pluto rules volcanic forces; Neptune the oceans. Their merger manifests as oceanic volcanic catastrophe.',
+    historicalParallel: '79 AD: Vesuvius. 1815: Tambora\'s "Year Without a Summer." Mega-eruptions cluster near outer-planet conjunctions.'
+  },
+  {
+    id: 'wright-brothers', year: 1903, date: 'December 17, 1903',
+    celestialEvent: 'Jupiter-Uranus Opposition in Sagittarius-Gemini', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'Wright Brothers — First Powered Flight',
+    category: 'scientific',
+    image: './images/wright-brothers.jpg',
+    significance: 4,
+    rippleEffects: ['Human flight achieved', 'Aviation transforms warfare', 'Commercial flight makes world accessible', 'Space exploration within 66 years'],
+    description: 'The Wrights achieve first sustained powered flight at Kitty Hawk — 12 seconds, 120 feet. Within 66 years, humans walk on the Moon.',
+    cosmicLink: 'Jupiter-Uranus in Sagittarius-Gemini (travel and communication) produces transportation breakthroughs. Jupiter amplifies vision; Uranus provides innovation.',
+    historicalParallel: '1969: Moon landing under Jupiter-Uranus. 1927: Lindbergh crosses the Atlantic. Each cycle extends human flight.'
+  },
+  {
+    id: 'einstein', year: 1905, date: '1905',
+    celestialEvent: 'Neptune opposite Uranus (invisible structures revealed)', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'Einstein\'s Annus Mirabilis — Relativity Born',
+    category: 'scientific',
+    image: './images/einstein.jpg',
+    significance: 5,
+    rippleEffects: ['Special relativity revolutionizes physics', 'E=mc² predicts nuclear energy', 'Photoelectric effect founds quantum mechanics', 'GPS, lasers, nuclear power all trace to 1905'],
+    description: 'A 26-year-old patent clerk publishes four papers that demolish and rebuild physics: special relativity, the photoelectric effect, Brownian motion, and E=mc².',
+    cosmicLink: 'Neptune-Uranus oppositions create tension between the known and the unknown. Einstein\'s Neptunian thought experiments dissolve what Uranus had built.',
+    historicalParallel: '1687: Newton. 1859: Darwin. Each generation discovers a deeper layer of reality\'s hidden architecture.'
+  },
+  {
+    id: 'wwi', year: 1914, date: 'July 28, 1914',
+    celestialEvent: 'Saturn-Pluto Opposition in Cancer-Capricorn', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'World War I Begins',
+    category: 'geopolitical',
+    image: './images/wwi.jpg',
+    significance: 5,
+    rippleEffects: ['20 million dead', 'Four empires collapse', 'Treaty of Versailles seeds WWII', 'Spanish Flu kills 50-100 million'],
+    description: 'The assassination of Archduke Ferdinand cascades into the most destructive war in history to that point. Trench warfare and industrial killing claim 20 million lives. Four empires collapse.',
+    cosmicLink: 'Saturn-Pluto oppositions in Cancer-Capricorn (homeland and government) — nations destroy each other\'s populations and structures simultaneously.',
+    historicalParallel: '2001: September 11 under Saturn-Pluto opposition. The most reliable marker of world-historical violence.'
+  },
+  {
+    id: 'spanish-flu', year: 1918, date: 'Spring 1918',
+    celestialEvent: 'Saturn conjunct Neptune (mass dissolution)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Spanish Flu Pandemic — 50-100 Million Dead',
+    category: 'pandemic',
+    image: './images/spanish-flu.jpg',
+    significance: 5,
+    rippleEffects: ['More deaths than WWI combat', 'Public health modernized', 'Wartime censorship hides pandemic', 'Collective trauma suppressed'],
+    description: 'H1N1 influenza kills 50-100 million worldwide — far more than the war. Unusually lethal to young adults, it spreads along troop movements.',
+    cosmicLink: 'Saturn-Neptune conjunctions dissolve boundaries between life and death at mass scale. The pandemic moves along wartime networks — Neptune\'s dissolution amplified by Saturn\'s machinery.',
+    historicalParallel: '2020: COVID under Saturn-Pluto. 1347: Black Death under Jupiter-Pluto. Mass plague aligns with outer planet conjunctions.'
+  },
+  {
+    id: 'wall-street-crash', year: 1929, date: 'October 29, 1929',
+    celestialEvent: 'Saturn-Pluto Square (wealth destruction)', celestialType: 'square', symbol: '□',
+    worldEvent: 'Wall Street Crash — Great Depression Begins',
+    category: 'financial',
+    image: './images/wall-street-crash.jpg',
+    significance: 5,
+    rippleEffects: ['Global GDP drops 15%', 'US unemployment at 25%', '9,000 banks close', 'Fascism rises from desperation', 'New Deal reshapes government'],
+    description: '"Black Tuesday" — the market loses $14 billion in a day. The Great Depression follows: a decade of devastation that fuels extremism and sets the stage for WWII.',
+    cosmicLink: 'Saturn-Pluto squares destroy economic structures. Speculative excess meets Plutonian annihilation — the entire economic order is vaporized.',
+    historicalParallel: '2008: Financial crisis. 2020: COVID crash. Every Saturn-Pluto hard aspect produces financial crisis that reshapes systems.'
+  },
+  {
+    id: 'pearl-harbor', year: 1941, date: 'December 7, 1941',
+    celestialEvent: 'Saturn square Uranus in Gemini', celestialType: 'square', symbol: '□',
+    worldEvent: 'Attack on Pearl Harbor — US Enters WWII',
+    category: 'geopolitical',
+    image: './images/pearl-harbor.jpg',
+    significance: 5,
+    rippleEffects: ['US enters WWII', 'American isolationism ends permanently', 'War economy creates superpower', 'Japanese internment — civil liberties violated'],
+    description: 'Japan strikes Pearl Harbor, killing 2,403 Americans. Roosevelt calls it "a date which will live in infamy." American isolationism ends overnight.',
+    cosmicLink: 'Saturn-Uranus squares produce sudden shocks to established security. Saturn in Taurus (material security) meets Uranus in Gemini (surprise aerial attack). Invulnerability shattered.',
+    historicalParallel: '2001: September 11 — another surprise attack ending perceived security and launching prolonged wars.'
+  },
+  {
+    id: 'indian-partition', year: 1947, date: 'August 15, 1947',
+    celestialEvent: 'Saturn-Pluto Opposition (imperial collapse)', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'Indian Independence and Partition',
+    category: 'geopolitical',
+    image: './images/indian-partition.jpg',
+    significance: 4,
+    rippleEffects: ['British Empire decolonizes', '1-2 million killed in Partition', '15 million displaced', 'Kashmir dispute — still unresolved'],
+    description: 'India gains independence from Britain. Partition into India and Pakistan triggers violence that kills 2 million and displaces 15 million.',
+    cosmicLink: 'Saturn-Pluto oppositions tear apart power structures. The line drawn through the subcontinent becomes a wound that bleeds for generations.',
+    historicalParallel: '1989: Soviet empire dissolves. 1776: American independence. Saturn-Pluto accelerates imperial collapse.'
+  },
+  {
+    id: 'transistor', year: 1947, date: 'December 23, 1947',
+    celestialEvent: 'Saturn-Pluto Opposition in Leo-Aquarius', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'Invention of the Transistor — Digital Age Foundations',
+    category: 'scientific',
+    image: './images/transistor.jpg',
+    significance: 4,
+    rippleEffects: ['Electronics miniaturized', 'Silicon Valley born', 'Computers: room-sized to pocket-sized', 'Moore\'s Law drives exponential growth'],
+    description: 'Bardeen, Brattain, and Shockley demonstrate the first transistor at Bell Labs. Without it, no computers, no smartphones, no internet, no digital civilization.',
+    cosmicLink: 'Saturn-Pluto in Leo-Aquarius creates tension between individual brilliance (Leo) and collective technology (Aquarius). Three scientists create a device reshaping all civilization.',
+    historicalParallel: '1882: Edison\'s grid. 1991: World Wide Web. 2022: ChatGPT. Each builds on the transistor.'
+  },
+  {
+    id: 'china-revolution', year: 1949, date: 'October 1, 1949',
+    celestialEvent: 'Saturn square Neptune (revolutionary idealism)', celestialType: 'square', symbol: '□',
+    worldEvent: 'Chinese Communist Revolution — Mao Declares PRC',
+    category: 'geopolitical',
+    image: './images/china-revolution.jpg',
+    significance: 5,
+    rippleEffects: ['World\'s largest nation goes communist', 'Cold War goes global', 'Taiwan crisis begins', 'Great Leap Forward kills tens of millions'],
+    description: 'Mao proclaims the People\'s Republic of China. One quarter of humanity enters a communist system. The Cold War becomes global.',
+    cosmicLink: 'Saturn-Neptune squares create tension between order and revolutionary idealism. In Virgo (labor) square Libra (justice) — laboring classes demand justice through revolution.',
+    historicalParallel: '1917: Russian Revolution. 1789: French Revolution. Saturn-Neptune produces revolutions promising utopia, delivering authoritarianism.'
+  },
+  {
+    id: 'dna-discovery', year: 1953, date: 'April 25, 1953',
+    celestialEvent: 'Neptune trine Uranus (invisible structures revealed)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Watson and Crick Discover DNA Structure',
+    category: 'scientific',
+    image: './images/dna-discovery.jpg',
+    significance: 4,
+    rippleEffects: ['Genetic code deciphered', 'Human Genome Project follows', 'CRISPR enables DNA manipulation', 'Forensic DNA transforms justice'],
+    description: 'Watson and Crick, building on Rosalind Franklin\'s X-ray work, publish the double helix structure of DNA — the code of life itself.',
+    cosmicLink: 'Neptune reveals the invisible; Uranus provides revolutionary insight. Their harmony produces a discovery of something always present but never seen.',
+    historicalParallel: '1859: Darwin reveals evolution. 1905: Einstein reveals relativity. Each generation uncovers deeper architecture.'
+  },
+  {
+    id: 'cuban-missile-crisis', year: 1962, date: 'October 16-28, 1962',
+    celestialEvent: 'Saturn-Pluto Square (nuclear brinkmanship)', celestialType: 'square', symbol: '□',
+    worldEvent: 'Cuban Missile Crisis — Nuclear War Averted',
+    category: 'geopolitical',
+    image: './images/cuban-missile-crisis.jpg',
+    significance: 4,
+    rippleEffects: ['Closest to nuclear war ever', 'Washington-Moscow hotline created', 'Nuclear Test Ban Treaty (1963)', 'MAD doctrine solidified'],
+    description: 'For thirteen days, the US and USSR stand at nuclear brink over Soviet missiles in Cuba. Humanity comes closer to extinction than at any other moment.',
+    cosmicLink: 'Saturn-Pluto squares create existential confrontation. Saturn represents survival; Pluto the power to annihilate. Two superpowers face each other with civilization-ending capability.',
+    historicalParallel: '2022: Russia invades Ukraine with nuclear threats. 1914: July Crisis. Saturn-Pluto creates moments where civilization confronts extinction.'
+  },
+  {
+    id: 'chernobyl', year: 1986, date: 'April 26, 1986',
+    celestialEvent: 'Saturn conjunct Galactic Center', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Chernobyl Nuclear Disaster',
+    category: 'scientific',
+    image: './images/chernobyl.jpg',
+    significance: 4,
+    rippleEffects: ['350,000+ evacuated', 'Anti-nuclear movement surges', 'Soviet credibility fatally damaged', 'Contributes to Soviet dissolution'],
+    description: 'Chernobyl\'s Reactor 4 melts down, releasing 400x more radiation than Hiroshima. The Soviet cover-up fails. The fallout contaminates Europe and undermines Soviet legitimacy.',
+    cosmicLink: 'Saturn at the Galactic Center creates civilizational-significance events. A nuclear system fails, and invisible radiation spreads across a continent.',
+    historicalParallel: '2011: Fukushima. 1979: Three Mile Island. Nuclear disasters cluster at Saturn transits, exposing technological hubris.'
+  },
+  {
+    id: 'world-wide-web', year: 1991, date: 'August 6, 1991',
+    celestialEvent: 'Uranus-Neptune Conjunction in Capricorn (171-year cycle)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'World Wide Web Launched — Internet Age',
+    category: 'scientific',
+    image: './images/world-wide-web.jpg',
+    significance: 5,
+    rippleEffects: ['Information universally accessible', 'E-commerce transforms economy', 'Social media reshapes politics', 'Surveillance capitalism emerges'],
+    description: 'Berners-Lee makes the World Wide Web public. HTTP and HTML create a universal information system that transforms every aspect of civilization within a generation.',
+    cosmicLink: 'The Uranus-Neptune conjunction (every 171 years) — Uranus rules networks, Neptune dissolves boundaries. In Capricorn (infrastructure), they create technology dissolving all existing barriers.',
+    historicalParallel: '1821: Previous conjunction accompanied electromagnetism and photography. 1455: Gutenberg\'s press. Each information revolution is more profound.'
+  },
+  {
+    id: 'rwanda', year: 1994, date: 'April 7, 1994',
+    celestialEvent: 'Pluto in Scorpio square Mars', celestialType: 'square', symbol: '□',
+    worldEvent: 'Rwanda Genocide — 800,000 in 100 Days',
+    category: 'deaths',
+    image: './images/rwanda.jpg',
+    significance: 4,
+    rippleEffects: ['800,000 murdered', 'UN fails catastrophically', '"Never Again" revealed as empty', 'Congo Wars follow — 5 million die'],
+    description: 'In 100 days, Hutu extremists murder 800,000 Tutsis while the world watches. The UN peacekeeping force is ordered not to engage. The starkest failure of "Never Again."',
+    cosmicLink: 'Pluto in Scorpio (its home sign) at maximum intensity, squared by Mars — genocide: Pluto\'s absolute destruction channeled through Mars\'s violence.',
+    historicalParallel: '1945: Holocaust revealed. 1975: Cambodian genocide. Industrial-scale murder finds new expressions despite humanity\'s resolve.'
+  },
+  {
+    id: 'diana', year: 1997, date: 'August 31, 1997',
+    celestialEvent: 'Saturn-Mars Opposition (violent death)', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'Death of Princess Diana',
+    category: 'deaths',
+    image: './images/diana.jpg',
+    significance: 2,
+    rippleEffects: [],
+    description: 'Diana dies in a Paris car crash at 36. 2.5 billion watch her funeral. Her death permanently changes the monarchy\'s relationship with public emotion.',
+    cosmicLink: 'Saturn-Mars oppositions create violent confrontation between authority and reckless speed. Mars\'s velocity meets Saturn\'s fatal consequence.',
+    historicalParallel: '1963: JFK assassination — death of a charismatic figure traumatizing a generation.'
+  },
+  {
+    id: 'iraq-war', year: 2003, date: 'March 20, 2003',
+    celestialEvent: 'Saturn opposite Pluto in Gemini-Sagittarius', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'US Invades Iraq — War on Terror Expands',
+    category: 'geopolitical',
+    image: './images/iraq-war.jpg',
+    significance: 4,
+    rippleEffects: ['No WMDs found', 'Hundreds of thousands killed', 'ISIS emerges from power vacuum', 'US credibility damaged'],
+    description: 'The US invades Iraq claiming WMDs. None found. The war destabilizes the Middle East, creates ISIS, and becomes the defining foreign policy catastrophe of the 21st century.',
+    cosmicLink: 'Saturn in Gemini (intelligence) opposite Pluto in Sagittarius (ideology) — war launched on false intelligence in the name of ideological conviction.',
+    historicalParallel: '2001: September 11 under the same Saturn-Pluto opposition — Iraq War is its direct consequence.'
+  },
+  {
+    id: 'financial-crisis', year: 2008, date: 'September 15, 2008',
+    celestialEvent: 'Saturn-Uranus Opposition (system shock)', celestialType: 'opposition', symbol: '☍',
+    worldEvent: '2008 Financial Crisis — Lehman Collapses',
+    category: 'financial',
+    image: './images/financial-crisis.jpg',
+    significance: 4,
+    rippleEffects: ['$10 trillion destroyed', '"Too big to fail" bailouts', 'Bitcoin whitepaper (October 2008)', 'Institutional trust permanently damaged'],
+    description: 'Lehman Brothers collapses, triggering the worst crisis since 1929. Systemic fraud exposed. Banks bailed out with trillions while millions lose homes and savings.',
+    cosmicLink: 'Saturn-Uranus oppositions create maximum tension between structures and disruption. Institutions that seemed permanent vanish overnight.',
+    historicalParallel: '1929: Wall Street Crash. 2020: COVID crash. Outer planet aspects expose fraud underlying artificial stability.'
+  },
+  {
+    id: 'arab-spring', year: 2011, date: 'January 14, 2011',
+    celestialEvent: 'Jupiter-Uranus Conjunction in Aries', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Arab Spring — Revolution Sweeps Middle East',
+    category: 'geopolitical',
+    image: './images/arab-spring.jpg',
+    significance: 4,
+    rippleEffects: ['Tunisia\'s Ben Ali overthrown', 'Egypt\'s Mubarak ousted', 'Libyan civil war', 'Syrian civil war — 500,000+ dead'],
+    description: 'Popular uprisings sweep the Arab world. Dictators toppled in weeks. Social media proves revolutionary, but many revolts end in civil war or renewed authoritarianism.',
+    cosmicLink: 'Jupiter-Uranus in Aries (initiative, new beginnings) produces explosive revolutionary energy. Wildfire that spreads faster than institutions can respond.',
+    historicalParallel: '1789: French Revolution. 1848: European revolutions. 1989: Fall of communism. Cross-border revolution recurs at Jupiter-Uranus conjunctions.'
+  },
+  {
+    id: 'isis-caliphate', year: 2014, date: 'June 29, 2014',
+    celestialEvent: 'Mars-Pluto Square (extremist violence)', celestialType: 'square', symbol: '□',
+    worldEvent: 'ISIS Declares Caliphate',
+    category: 'geopolitical',
+    image: './images/isis-caliphate.jpg',
+    significance: 3,
+    rippleEffects: ['Territory larger than Britain seized', 'European refugee crisis', 'Global anti-ISIS coalition', 'Surveillance expanded permanently'],
+    description: 'ISIS declares a caliphate, claims authority over all Muslims, conducts mass atrocities, destroys ancient sites, and triggers the largest refugee crisis since WWII.',
+    cosmicLink: 'Mars-Pluto squares produce extreme violence and fanaticism — aggression fused with apocalyptic intensity, seeking dominion through terror.',
+    historicalParallel: '1258: Mongols destroy Baghdad. Power vacuums in the Middle East produce civilizational crises.'
+  },
+  {
+    id: 'brexit', year: 2016, date: 'June 23, 2016',
+    celestialEvent: 'Saturn-Neptune Square (dissolution of unions)', celestialType: 'square', symbol: '□',
+    worldEvent: 'Brexit — UK Votes to Leave EU',
+    category: 'geopolitical',
+    image: './images/brexit.jpg',
+    significance: 3,
+    rippleEffects: ['UK leaves EU after 47 years', 'Scottish independence reinvigorated', 'Populism surges globally', 'Trump elected five months later'],
+    description: 'The UK votes 52-48% to leave the EU. Brexit signals the broader crisis of the post-Cold War liberal order.',
+    cosmicLink: 'Saturn-Neptune squares dissolve institutional bonds. Saturn represents the EU; Neptune dissolves it through nostalgia and the fantasy of sovereign independence.',
+    historicalParallel: '1989: Berlin Wall falls under Saturn-Neptune — integration\'s triumph. 2016: The square begins to reverse it.'
+  },
+  {
+    id: 'us-iran-war', year: 2025, date: '2025-2026',
+    celestialEvent: 'Saturn-Neptune at 0° Aries + Mars in Cancer', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'US-Israel War with Iran — Middle East Escalation',
+    category: 'geopolitical',
+    image: './images/us-iran-war.jpg',
+    significance: 4,
+    rippleEffects: ['Direct US-Israel vs. Iran confrontation', 'Strait of Hormuz threatened', 'Iran\'s nuclear program targeted', 'Khamenei\'s death triggers succession crisis'],
+    description: 'The US-Israel alliance and Iran reach a breaking point. Military strikes, proxy wars, and nuclear ambitions converge under Saturn-Neptune at the zodiac\'s most volatile degree.',
+    cosmicLink: 'Saturn-Neptune at 0° Aries dissolves security structures while igniting new conflicts. At the "world axis," dissolution is explosive. Mars in Cancer amplifies nationalistic confrontation.',
+    historicalParallel: '1989: Saturn-Neptune accompanies Khomeini\'s death. 2003: Iraq War under Saturn-Pluto. The 37-year cycle returns to Iran.'
+  },
+  {
+    id: 'womens-suffrage', year: 1920, date: 'August 18, 1920',
+    celestialEvent: 'Jupiter square Neptune (idealism enacted)', celestialType: 'square', symbol: '□',
+    worldEvent: '19th Amendment — Women Win the Vote',
+    category: 'geopolitical',
+    image: './images/womens-suffrage.jpg',
+    significance: 3,
+    rippleEffects: ['26 million women gain voting rights', '72-year movement culminates', 'Women enter political life', 'Inspires suffrage globally'],
+    description: 'The 19th Amendment is ratified. Tennessee provides the decisive vote when a legislator changes his mind after a letter from his mother.',
+    cosmicLink: 'Jupiter-Neptune squares create tension between idealism and the dream of justice. Jupiter in Virgo represents systematic reform; Neptune in Leo the dream of full dignity.',
+    historicalParallel: '1865: 13th Amendment. 1964: Civil Rights Act. 2015: Marriage equality. Decades of struggle, then sudden breakthrough.'
+  },
+  {
+    id: 'trump-born', year: 1946, date: 'June 14, 1946',
+    celestialEvent: 'Total Lunar Eclipse in Sagittarius (Blood Moon)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Donald Trump Born on Blood Moon Eclipse',
+    category: 'geopolitical',
+    image: './images/trump-born.jpg',
+    significance: 3,
+    rippleEffects: ['Born during total lunar eclipse — "king under eclipse" archetype', 'Sun conjunct Uranus in Gemini (disruptor)', 'North Node in Gemini (media destiny)', 'Mars in Leo rising (combative showmanship)'],
+    description: 'Donald John Trump was born in Queens, New York, at 10:54 AM — the same day a total lunar eclipse (blood moon) reached totality at 6:39 PM. In mundane astrology, leaders born under eclipses carry an outsized, fated role in history. His chart features Sun conjunct Uranus (the revolutionary) and Mars in Leo on the Ascendant (the performer-warrior).',
+    cosmicLink: 'Eclipse births are rare and historically loaded. The blood moon in Sagittarius opposed his Gemini Sun — a lifelong tension between truth and narrative, belief and information. Sun conjunct Uranus at birth marks the disruptor archetype. Mars rising in Leo gives the "fight" instinct that defined his political career.',
+    historicalParallel: 'Napoleon was born under a solar eclipse. Alexander the Great\'s birth coincided with the burning of the Temple of Artemis — both events framed as omens. Eclipse-born leaders throughout history share a pattern: they arrive during periods of upheaval and become lightning rods for transformation.'
+  },
+  {
+    id: 'charlie-kirk', year: 2025, date: 'September 10, 2025',
+    celestialEvent: 'Total Lunar Eclipse in Pisces (Blood Moon Aftermath)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Assassination of Charlie Kirk',
+    category: 'deaths',
+    image: './images/charlie-kirk.jpg',
+    significance: 3,
+    rippleEffects: ['National manhunt for shooter Tyler Robinson', 'Political violence normalization accelerates', 'Turning Point USA movement galvanized', 'Campus free speech debate intensifies', 'Death penalty sought for attacker'],
+    description: 'Conservative activist Charlie Kirk was assassinated at Utah Valley University in Orem, Utah, on September 10, 2025 — three days after a total lunar eclipse. A 22-year-old gunman positioned on a rooftop fired a single fatal shot during a Turning Point USA campus debate attended by 3,000 people. The killing shocked the nation and deepened America\'s crisis of political violence.',
+    cosmicLink: 'The assassination occurred exactly 3 days after the September 7 total lunar eclipse (blood moon) at 15° Pisces — within the eclipse\'s activation window. Pisces eclipses dissolve boundaries and expose hidden rage. Saturn had just retrograded back into Pisces on September 1, bringing the weight of consequences. Eclipse windows are historically when political assassinations cluster.',
+    historicalParallel: '1963: JFK assassinated under eclipse activation. 1968: RFK and MLK killed in an eclipse year. 1981: Reagan shot weeks after a solar eclipse. 2024: Trump assassination attempt under Mars-Saturn square. The pattern of political violence clustering around eclipse seasons is one of mundane astrology\'s most documented correlations.'
+  },
+  {
+    id: 'epstein-arrest', year: 2019, date: 'July 6, 2019',
+    celestialEvent: 'Total Solar Eclipse in Cancer (Exposure of Hidden Power)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Jeffrey Epstein Arrested — Elite Trafficking Exposed',
+    category: 'geopolitical',
+    image: './images/epstein.jpg',
+    significance: 4,
+    rippleEffects: ['Epstein found dead in cell August 10, 2019', '"Epstein didn\'t kill himself" becomes global meme', 'Ghislaine Maxwell arrested July 2020', 'Client list partially released 2024', 'Global reckoning with elite impunity'],
+    description: 'Jeffrey Epstein was arrested on July 6, 2019, on federal sex trafficking charges involving dozens of minors. Five weeks later, on August 10, he was found dead in his Manhattan jail cell — officially ruled a suicide. The case exposed a network of powerful figures and became the defining conspiracy of the modern era. His associate Ghislaine Maxwell was later convicted on five counts.',
+    cosmicLink: 'The July 2, 2019, total solar eclipse at 10° Cancer fell directly on the US natal Sun (July 4, 1776) — eclipses on a nation\'s Sun expose its deepest corruption. Cancer rules family, children, and hidden domestic affairs. Pluto in Capricorn (institutional rot) opposed the eclipse degree. His death on August 10 occurred during the Mercury retrograde shadow — communication breakdown, evidence questions.',
+    historicalParallel: 'Watergate break-in preceded a Cancer solar eclipse by weeks. The Panama Papers leaked after a Pisces solar eclipse. Eclipses on Cancer consistently expose what powerful institutions have hidden — especially regarding the abuse of the vulnerable.'
+  },
+  {
+    id: 'russia-ukraine', year: 2022, date: 'February 24, 2022',
+    celestialEvent: 'Mars-Venus-Pluto Conjunction in Capricorn', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Russia Invades Ukraine — Largest European War Since WWII',
+    category: 'geopolitical',
+    image: './images/russia-ukraine.jpg',
+    significance: 4,
+    rippleEffects: ['Largest land war in Europe since 1945', 'NATO expansion — Finland and Sweden join', 'Global energy crisis and food shortages', 'Nuclear escalation threats', 'Refugee crisis — 6 million displaced'],
+    description: 'On February 24, 2022, Russia launched a full-scale invasion of Ukraine, shattering the post-Cold War security order in Europe. What Moscow expected to be a days-long operation became the largest and deadliest European conflict since World War II. The war triggered a global energy crisis, food shortages, and brought the threat of nuclear escalation closer than any point since the Cuban Missile Crisis.',
+    cosmicLink: 'Mars (war) conjunct Venus (diplomacy destroyed) conjunct Pluto (total power/destruction) in Capricorn (nations, borders, authority) — a rare triple conjunction concentrating military aggression, the death of diplomacy, and institutional transformation into a single degree. Pluto at 27° Capricorn was within 1° of the US natal Pluto, triggering the American Pluto Return simultaneously.',
+    historicalParallel: '1939: WWII began under Mars-Saturn-Pluto configurations. 1914: WWI under Saturn-Pluto. Major European wars consistently coincide with Pluto activations in cardinal signs. The Capricorn emphasis mirrors the 1989 Saturn-Neptune dissolution of the Soviet Union — the cycle comes full circle.'
+  },
+  {
+    id: 'snowden', year: 2013, date: 'June 5, 2013',
+    celestialEvent: 'Uranus-Pluto Square (Liberty vs. Power)', celestialType: 'square', symbol: '□',
+    worldEvent: 'Snowden Reveals NSA Mass Surveillance',
+    category: 'geopolitical',
+    image: './images/snowden.jpg',
+    significance: 3,
+    rippleEffects: ['PRISM program exposed — NSA spying on millions', 'Global diplomatic fallout', 'Snowden granted asylum in Russia', 'Encryption and privacy movement accelerates', 'Tech companies forced to respond'],
+    description: 'Edward Snowden, a 29-year-old NSA contractor, leaked classified documents revealing that the US government was conducting mass surveillance on its own citizens and allies worldwide. The PRISM program collected data directly from tech giants. Snowden fled to Hong Kong, then Moscow, where he remains. The revelations fundamentally changed the global conversation about privacy, security, and state power.',
+    cosmicLink: 'The Uranus-Pluto square — the defining transit of 2012–2015 — pits individual liberty and revolutionary disclosure (Uranus) against institutional power and surveillance (Pluto). This exact aspect produced the Arab Spring, Occupy Wall Street, and now the exposure of the surveillance state itself. A grand cross activated the eclipse degree on the day of the leak.',
+    historicalParallel: '1960s: The previous Uranus-Pluto conjunction produced COINTELPRO, the Pentagon Papers, and Watergate-era surveillance. The square (2012-2015) brought the reckoning. Every Uranus-Pluto cycle exposes the mechanisms of state control — then forces a collective choice between security and freedom.'
+  },
+  {
+    id: 'mkultra', year: 1953, date: 'April 13, 1953',
+    celestialEvent: 'Saturn-Neptune Conjunction in Libra (Institutional Deception)', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'CIA Approves MKUltra — Mind Control Program',
+    category: 'geopolitical',
+    image: './images/mkultra.jpg',
+    significance: 3,
+    rippleEffects: ['LSD tested on unwitting citizens', 'Universities and hospitals co-opted', 'Program ran until 1973', 'Director Helms orders files destroyed', 'Congressional hearings expose fragments in 1977'],
+    description: 'CIA Director Allen Dulles authorized Project MKUltra, a covert program to develop mind control techniques using LSD, sensory deprivation, hypnosis, and psychological torture — often on unwitting subjects. The program operated through 150+ sub-projects at 80+ institutions. Most records were destroyed in 1973, but surviving documents revealed in 1977 confirmed the scope of the program.',
+    cosmicLink: 'Saturn-Neptune conjunctions dissolve the boundary between authority and deception. In Libra (justice, law), the conjunction enabled the legal architecture of secret programs — authority (Saturn) wielding illusion (Neptune) behind the facade of justice. The same cycle that produced Cold War paranoia enabled the state to experiment on its own people.',
+    historicalParallel: '1989: Saturn-Neptune conjunction accompanies the fall of the Soviet Union — another system built on institutional deception collapses. 2025-2026: The next Saturn-Neptune conjunction at 0° Aries. Each cycle exposes the previous cycle\'s secrets.'
+  },
+  {
+    id: 'operation-paperclip', year: 1945, date: 'July 20, 1945',
+    celestialEvent: 'Total Solar Eclipse at 13° Cancer (National Secrets)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Operation Paperclip — US Recruits Nazi Scientists',
+    category: 'geopolitical',
+    image: './images/paperclip.jpg',
+    significance: 3,
+    rippleEffects: ['1,500+ Nazi scientists imported to US', 'Werner von Braun leads NASA\'s rocket program', 'War crimes records whitewashed', 'Foundation of US missile and space technology', 'Ethical compromise shapes Cold War science'],
+    description: 'Eleven days after a total solar eclipse, the US Joint Chiefs launched Operation Overcast (later renamed Paperclip), secretly importing over 1,500 Nazi scientists, engineers, and technicians. Their war crimes records were erased or falsified. Among them: Werner von Braun, who would build the Saturn V rocket that took Americans to the Moon.',
+    cosmicLink: 'The July 9, 1945 total solar eclipse at 13° Cancer fell exactly opposite the US natal Sun at 13° Cancer — eclipses on a nation\'s Sun reveal its shadow. Cancer rules homeland and hidden domestic affairs. The same Saros series (145) produced eclipses before both the Hiroshima bombing and the JFK assassination.',
+    historicalParallel: 'The pattern of empires absorbing the knowledge of their defeated enemies recurs throughout history. Rome absorbed Greek scholars. The Islamic Golden Age preserved and expanded classical knowledge. America absorbed Nazi rocket science — and the moral compromises that came with it.'
+  },
+  {
+    id: 'federal-reserve', year: 1913, date: 'December 23, 1913',
+    celestialEvent: 'Pluto in Cancer (Transformation of National Wealth)', celestialType: 'ingress', symbol: '♇',
+    worldEvent: 'Federal Reserve Act — Private Banking Seizes Control',
+    category: 'financial',
+    image: './images/federal-reserve.jpg',
+    significance: 4,
+    rippleEffects: ['Private banking cartel controls US currency', 'Gold standard gradually abandoned', 'Enables deficit spending and modern warfare', 'Income tax introduced same year (16th Amendment)', 'Foundation of modern financial system'],
+    description: 'Signed by Woodrow Wilson on December 23, 1913 — after most Congress members had left for Christmas recess — the Federal Reserve Act created a private central banking system with the power to issue currency and set interest rates. Critics then and now argue it transferred monetary sovereignty from the people to private banking interests. Wilson himself later expressed regret.',
+    cosmicLink: 'Pluto\'s ingress into Cancer (the nation, homeland, resources) in 1912-1913 transformed how nations controlled their wealth. Cancer rules financial security and the domestic foundation. Pluto in Cancer (1912-1939) produced: the Federal Reserve, World War I, the Roaring Twenties, and the Great Depression — a complete cycle of national wealth creation and destruction.',
+    historicalParallel: 'The Bank of England (1694) was founded under similar outer planet configurations. Every central banking revolution coincides with Pluto transiting cardinal signs — Capricorn (institutions) or Cancer (national resources). The 2008 crisis began as Pluto entered Capricorn — opposing the 1913 Cancer position.'
+  },
+  {
+    id: 'gulf-of-tonkin', year: 1964, date: 'August 2, 1964',
+    celestialEvent: 'Eclipse Season + Mars-Saturn Opposition (Fabricated War)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Gulf of Tonkin Incident — Vietnam War Fabrication',
+    category: 'geopolitical',
+    image: './images/gulf-tonkin.jpg',
+    significance: 3,
+    rippleEffects: ['Gulf of Tonkin Resolution passes — blank check for war', '58,000 Americans killed in Vietnam', '2-3 million Vietnamese dead', 'Anti-war movement transforms American culture', 'Pentagon Papers later confirm deception'],
+    description: 'On August 2 and 4, 1964, the US government claimed North Vietnamese forces attacked USS Maddox in the Gulf of Tonkin. The second attack, used to justify full-scale war, never happened — confirmed decades later by Secretary McNamara and declassified documents. The Gulf of Tonkin Resolution gave President Johnson unlimited war powers. The Vietnam War lasted 11 more years.',
+    cosmicLink: 'The incident occurred during the June-July 1964 eclipse season — total lunar eclipse June 24, partial solar eclipse July 9. Eclipse windows create openings for deception and hidden agendas to catalyze irreversible events. Mars opposite Saturn (military force meeting political authority) activated the eclipse degrees.',
+    historicalParallel: 'Iraq WMDs (2003) — fabricated evidence justifying war under Saturn-Pluto. USS Maine (1898) — disputed explosion used to start the Spanish-American War. The pattern: manufactured incidents during eclipse seasons provide pretexts for wars that reshape generations.'
+  },
+  {
+    id: 'oklahoma-city', year: 1995, date: 'April 19, 1995',
+    celestialEvent: 'Eclipse Season — Between Two Eclipses', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Oklahoma City Bombing',
+    category: 'geopolitical',
+    image: './images/oklahoma.jpg',
+    significance: 3,
+    rippleEffects: ['168 killed including 19 children', 'Largest domestic terrorism attack in US history', 'Federal building security permanently changed', 'Militia movement investigated', 'Anti-government sentiment enters mainstream'],
+    description: 'Timothy McVeigh detonated a truck bomb at the Alfred P. Murrah Federal Building in Oklahoma City, killing 168 people — including 19 children in the building\'s daycare center. The bombing fell precisely between two eclipses: a lunar eclipse on April 15 (4 days before) and a solar eclipse on April 29 (10 days after). It was timed to the 2nd anniversary of the Waco siege.',
+    cosmicLink: 'The bombing occurred in the exact center of an eclipse corridor — lunar eclipse April 15, solar eclipse April 29. Being sandwiched between eclipses amplifies the destructive potential of this window. Pluto in Sagittarius (ideological extremism) had just begun its transit. Mars was conjunct the eclipse degree.',
+    historicalParallel: '9/11 occurred under Saturn-Pluto opposition. The Waco siege (April 19, 1993) shares the exact calendar date. April 19 carries historical weight: Lexington and Concord (1775), Warsaw Ghetto Uprising (1943). Political violence clusters on these charged dates.'
+  },
+  {
+    id: 'panama-papers', year: 2016, date: 'April 3, 2016',
+    celestialEvent: 'Solar Eclipse in Pisces + Jupiter-Neptune Opposition', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Panama Papers — Elite Financial Secrets Exposed',
+    category: 'financial',
+    image: './images/panama-papers.jpg',
+    significance: 3,
+    rippleEffects: ['11.5 million documents leaked', '12 current or former world leaders exposed', 'Iceland PM forced to resign', 'Global tax reform pressure', 'Journalist Daphne Caruana Galizia assassinated'],
+    description: 'The largest data leak in history exposed the offshore financial dealings of 12 world leaders, 128 public officials, and hundreds of wealthy elites. 11.5 million documents from Panamanian law firm Mossack Fonseca revealed how the global elite hid wealth, evaded taxes, and laundered money. The journalist who led Malta\'s investigation, Daphne Caruana Galizia, was later killed by a car bomb.',
+    cosmicLink: 'The March 8, 2016, total solar eclipse in Pisces (Neptune\'s sign — secrets, hidden flows, the ocean of money) preceded the leak by weeks. Jupiter opposed Neptune exactly — expansion of hidden truth vs. institutional deception. Pluto in Capricorn continued its 16-year demolition of institutional trust. Pisces eclipses dissolve what was concealed in dark waters.',
+    historicalParallel: 'WikiLeaks (2010) under Uranus-Pluto activation. Snowden revelations (2013) under Uranus-Pluto square. The 2010s produced an unprecedented cycle of institutional exposure — each major leak coinciding with outer planet tensions.'
+  },
+  {
+    id: 'maxwell-trial', year: 2021, date: 'December 29, 2021',
+    celestialEvent: 'Trial Between Two Eclipses (Exposure Window)', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Ghislaine Maxwell Found Guilty — Epstein Network Convicted',
+    category: 'geopolitical',
+    image: './images/maxwell.jpg',
+    significance: 3,
+    rippleEffects: ['Convicted on 5 of 6 counts', 'Sentenced to 20 years in prison', 'Client list demands intensify', 'Partial document release January 2024', 'Elite accountability remains incomplete'],
+    description: 'Ghislaine Maxwell was found guilty of sex trafficking and conspiracy on December 29, 2021. Her trial took place precisely between two eclipses — a lunar eclipse on November 19 and a total solar eclipse on December 4. The conviction of Epstein\'s closest associate confirmed the trafficking network but left the larger question unanswered: who were the clients?',
+    cosmicLink: 'The trial unfolded in the exact window between two eclipses — lunar eclipse November 19 (exposure of hidden truth) and total solar eclipse December 4 (powerful figures in shadow). Eclipses are the cosmos\'s exposure mechanism. Her arrest on July 2, 2020, also fell on a solar eclipse. The eclipse pattern followed her case at every critical juncture.',
+    historicalParallel: 'Nuremberg Trials (1945-1946) under Saturn-Pluto dynamics. Truth and Reconciliation hearings in South Africa under Saturn-Pluto conjunction. Major accountability proceedings for systemic abuse consistently coincide with eclipse activation and Saturn-Pluto cycles.'
+  },
+  {
+    id: 'ufo-disclosure', year: 2017, date: 'December 16, 2017',
+    celestialEvent: 'Saturn Ingress Capricorn (Government Accountability)', celestialType: 'ingress', symbol: '♄',
+    worldEvent: 'Pentagon UFO Program Revealed — UAP Disclosure Begins',
+    category: 'scientific',
+    image: './images/ufo.jpg',
+    significance: 2,
+    rippleEffects: ['AATIP program exposed by NYT', 'Navy pilot videos officially released', 'Congressional UAP hearings (2023)', 'NASA establishes UAP research team', 'David Grusch whistleblower testimony (2023)'],
+    description: 'The New York Times published "Glowing Auras and Black Money," revealing the Pentagon\'s secret Advanced Aerospace Threat Identification Program (AATIP). Navy pilots\' infrared footage of unexplained aerial phenomena was officially released. This began a cascade: Congressional hearings, NASA investigations, and whistleblower David Grusch\'s 2023 testimony claiming the US possesses non-human craft.',
+    cosmicLink: 'Published three days before Saturn\'s ingress into Capricorn — the planet of accountability entering the sign of government structures. Saturn in Capricorn (2017-2020) forced government institutions to account for what they\'d hidden. The August 2017 Great American Eclipse preceded this by four months, opening an exposure window over US institutions.',
+    historicalParallel: 'Roswell (1947) occurred under the same Saturn-Pluto dynamic. The 1952 Washington D.C. UFO flap coincided with Saturn-Neptune aspects. Every major UFO disclosure moment correlates with Saturn transiting earth signs — forcing material accountability for phenomena institutions prefer to deny.'
+  },
+  {
+    id: 'iran-contra', year: 1986, date: 'November 3, 1986',
+    celestialEvent: 'Total Solar Eclipse in Libra + Pluto in Scorpio', celestialType: 'eclipse', symbol: '◑',
+    worldEvent: 'Iran-Contra Scandal Exposed',
+    category: 'geopolitical',
+    image: './images/iran-contra.jpg',
+    significance: 3,
+    rippleEffects: ['Reagan administration credibility shattered', 'Oliver North becomes household name', 'CIA drug trafficking allegations surface', 'Constitutional crisis over executive power', 'Template for future covert operations'],
+    description: 'Lebanese magazine Ash-Shiraa revealed that the Reagan administration had been secretly selling arms to Iran — while publicly calling it a terrorist state — and using the profits to illegally fund Contra rebels in Nicaragua. The scandal exposed a shadow government operating outside Congressional oversight. CIA involvement in drug trafficking to fund the Contras was later investigated by journalist Gary Webb.',
+    cosmicLink: 'A total solar eclipse on October 3, 1986, preceded the exposure by exactly one month. Pluto was transiting Scorpio (1983-1995) — its own sign, amplifying themes of hidden power, covert operations, and the exposure of institutional corruption. Eclipse-Pluto combinations are the most powerful exposure configurations in mundane astrology.',
+    historicalParallel: 'Watergate (1972-1974) under Saturn-Neptune. Pentagon Papers (1971) under the same cycle. The pattern: covert government operations are exposed during eclipse seasons while Pluto transits water or earth signs. Each exposure reveals the same template of executive overreach.'
+  },
+  {
+    id: 'bitcoin-whitepaper', year: 2008, date: 'October 31, 2008',
+    celestialEvent: 'Saturn-Uranus Opposition + Pluto enters Capricorn', celestialType: 'opposition', symbol: '☍',
+    worldEvent: 'Bitcoin White Paper Published',
+    category: 'financial',
+    image: './images/bitcoin.jpg',
+    significance: 5,
+    rippleEffects: ['Decentralized currency challenges central banks', 'Blockchain technology revolutionizes finance', 'Crypto market reaches $3 trillion peak', 'El Salvador adopts Bitcoin as legal tender', 'Inspires thousands of cryptocurrencies'],
+    description: 'On Halloween 2008 — just weeks after Lehman Brothers collapsed and the global financial system teetered — an anonymous figure called Satoshi Nakamoto published "Bitcoin: A Peer-to-Peer Electronic Cash System." The 9-page paper proposed a currency requiring no banks, no governments, no trust in institutions. It was a direct response to the bailout era: the Genesis Block famously encoded the headline "Chancellor on brink of second bailout for banks." Nakamoto\'s identity remains unknown to this day.',
+    cosmicLink: 'Saturn opposed Uranus (2008-2010) — the classic tension between old structures (Saturn) and radical innovation (Uranus). Pluto entered Capricorn in January 2008, beginning a 16-year demolition of institutional power structures. Bitcoin emerged at the exact moment these two transits converged: the old financial system failing (Saturn-Uranus opposition) while Pluto began dismantling Capricorn institutions from within.',
+    historicalParallel: 'The Bretton Woods system collapsed under Saturn-Pluto (1971). The Federal Reserve was created under a rare conjunction cycle (1913). Major monetary revolutions coincide with outer planet transits through earth signs. Bitcoin represents the first post-institutional monetary system, born under the same Pluto-in-Capricorn energy that toppled banks.'
+  },
+  {
+    id: 'united-nations', year: 1945, date: 'October 24, 1945',
+    celestialEvent: 'Jupiter-Neptune Conjunction in Libra', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'United Nations Founded',
+    category: 'geopolitical',
+    image: './images/united-nations.jpg',
+    significance: 4,
+    rippleEffects: ['International law framework established', 'Universal Declaration of Human Rights (1948)', 'Peacekeeping operations begin worldwide', 'Decolonization movement accelerated', 'Global health and development institutions created'],
+    description: 'In the aftermath of World War II — with 70 million dead and two atomic bombs freshly detonated — 51 nations ratified the United Nations Charter in San Francisco. The UN represented humanity\'s most ambitious attempt at collective governance, designed to prevent another world war through diplomacy, international law, and collective security. The Security Council gave veto power to five victors, embedding the power dynamics of 1945 into permanent institutional form.',
+    cosmicLink: 'Jupiter conjoined Neptune in Libra — the sign of diplomacy, justice, and partnership. Jupiter-Neptune conjunctions represent the peak of idealistic vision, and in Libra, this idealism was channeled into international cooperation and legal frameworks. The conjunction amplified the collective dream of world peace after the devastation of war. Neptune dissolves boundaries; Jupiter expands vision — together in Libra, they created an institution designed to transcend national borders.',
+    historicalParallel: 'The League of Nations (1920) was founded under a similar Jupiter-Neptune aspect after WWI — and failed. The Congress of Vienna (1815) reorganized Europe after the Napoleonic Wars under Saturn-Neptune. Each post-war institution reflects the astrological moment of its birth: the UN\'s Libra DNA makes it perpetually seek balance and consensus, sometimes to the point of paralysis.'
+  },
+  {
+    id: 'nato-formed', year: 1949, date: 'April 4, 1949',
+    celestialEvent: 'Mars-Saturn Conjunction in Virgo + Pluto in Leo', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'NATO Alliance Formed',
+    category: 'geopolitical',
+    image: './images/nato.jpg',
+    significance: 4,
+    rippleEffects: ['Cold War military architecture solidified', 'Nuclear deterrence doctrine established', 'Article 5 collective defense principle', 'Soviet Union forms Warsaw Pact in response (1955)', 'Expands to 32 members by 2024'],
+    description: 'Twelve Western nations signed the North Atlantic Treaty in Washington, D.C., creating history\'s most powerful military alliance. Born from the fear of Soviet expansion — the Berlin Blockade had just ended — NATO enshrined the principle that an attack on one member was an attack on all (Article 5). The alliance divided Europe into two armed camps and became the backbone of Western defense strategy for 75 years. Article 5 has been invoked only once: after September 11, 2001.',
+    cosmicLink: 'Mars conjoined Saturn in Virgo — Mars (military force) meets Saturn (structure, defense, boundaries) in the sign of strategic organization. This is the quintessential "building a fortress" aspect. Pluto in Leo (1937-1958) placed transformative power in the hands of dominant nations and leaders. The combination created a military structure (Mars-Saturn) designed to project power on behalf of the dominant Western bloc (Pluto in Leo).',
+    historicalParallel: 'The Triple Alliance (1882) and Triple Entente (1907) created the alliance system that triggered WWI. The Warsaw Pact (1955) mirrored NATO under similar aspects. Military alliances formed under Mars-Saturn aspects tend to be rigid and long-lasting — NATO has outlived every competing alliance system of the 20th century.'
+  },
+
+  // ─── SECRET SOCIETIES ─────────────────────────────────────────────────────
+  {
+    id: 'knights-templar', year: 1119, date: 'c. 1119',
+    celestialEvent: 'Jupiter-Saturn Conjunction in Aries', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Knights Templar Founded',
+    category: 'religious',
+    image: './images/knights-templar.jpg',
+    significance: 4,
+    rippleEffects: ['Created first international banking system', 'Built iconic Templar churches with sacred geometry', 'Guarded pilgrim routes to Jerusalem', 'Accumulated vast wealth and political power', 'Violently suppressed on Friday the 13th, 1307'],
+    description: 'Nine French knights led by Hugues de Payens established the Poor Fellow-Soldiers of Christ and of the Temple of Solomon — the Knights Templar — in Jerusalem during the Crusades.',
+    cosmicLink: 'Jupiter and Saturn conjoined in Aries near the founding — the "Great Conjunction" in a fire sign, believed to herald new religious movements and crusading orders.',
+    historicalParallel: 'The Hospitallers (c. 1099) and Teutonic Knights (1190) followed similar patterns of militant religious orders born from Crusade-era fervor.'
+  },
+  {
+    id: 'freemasonry', year: 1717, date: 'June 24, 1717',
+    celestialEvent: 'Near-Full Moon · Jupiter Trine Moon in Cancer', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Freemasonry Grand Lodge Founded',
+    category: 'cultural',
+    image: './images/freemasonry.jpg',
+    significance: 4,
+    rippleEffects: ['Spread Enlightenment ideals across Europe and America', '14 U.S. Presidents were Freemasons', 'Influenced design of Washington D.C. and national symbols', 'Inspired numerous imitation secret societies', 'Became template for modern fraternal organizations'],
+    description: 'Four London lodges united to form the first Grand Lodge of England on St. John the Baptist\'s Day — the summer solstice feast.',
+    cosmicLink: 'Founded on the summer solstice under a near-full Moon with Jupiter trine Moon in Cancer — an astrologically elected date of maximum illumination.',
+    historicalParallel: 'The ancient Mystery Schools of Egypt and Greece used graded initiation rituals remarkably similar to Masonic degrees.'
+  },
+  {
+    id: 'illuminati', year: 1776, date: 'May 1, 1776',
+    celestialEvent: 'Beltane · Moon-Jupiter Trine · Saturn in Libra', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Bavarian Illuminati Founded',
+    category: 'geopolitical',
+    image: './images/illuminati.jpg',
+    significance: 3,
+    rippleEffects: ['Infiltrated Masonic lodges across Europe', 'Accused of instigating French Revolution', 'Banned by Bavarian government in 1785', 'Spawned enduring "New World Order" conspiracy theories', 'Name became synonymous with secret ruling elites'],
+    description: 'Adam Weishaupt founded the Order of the Illuminati on Walpurgis Night with just five members, seeking to promote Enlightenment rationalism.',
+    cosmicLink: 'Founded on Beltane/Walpurgisnacht — an ancient cross-quarter day. Moon-Jupiter trine echoed Freemasonry\'s founding aspect. Saturn in Libra placed structure in the sign of justice.',
+    historicalParallel: 'Founded just 67 days before the American Declaration of Independence — both emerging from the same Enlightenment current.'
+  },
+  {
+    id: 'skull-and-bones', year: 1832, date: 'December 1832',
+    celestialEvent: 'Year of Total Solar Eclipse (July 27) · Saturn-Jupiter Square', celestialType: 'eclipse', symbol: '🝮',
+    worldEvent: 'Skull and Bones Founded at Yale',
+    category: 'cultural',
+    image: './images/skull-and-bones.jpg',
+    significance: 3,
+    rippleEffects: ['Produced 3 U.S. Presidents (Taft, Bush Sr., Bush Jr.)', 'Members dominated CIA, State Department, Wall Street', 'Annual "tap" ritual selects 15 Yale seniors', 'The Tomb — their headquarters — remains sealed to outsiders', 'Inspired dozens of copycat collegiate secret societies'],
+    description: 'William Huntington Russell and Alphonso Taft founded Yale\'s most elite and secretive society, selecting exactly 15 juniors each spring.',
+    cosmicLink: '1832 featured a total solar eclipse on July 27 with 6m46s totality. Eclipses signify hidden power and secrets — the exact dynamic of a secret elite society.',
+    historicalParallel: 'The Bavarian Illuminati (1776) pioneered the model of elite societies infiltrating power structures.'
+  },
+  {
+    id: 'bohemian-grove', year: 1872, date: '1872',
+    celestialEvent: 'Pluto in Taurus · Jupiter-Neptune Conjunction', celestialType: 'conjunction', symbol: '☌',
+    worldEvent: 'Bohemian Club Founded',
+    category: 'cultural',
+    image: './images/bohemian-grove.jpg',
+    significance: 3,
+    rippleEffects: ['Annual retreat hosts U.S. Presidents, corporate CEOs, military leaders', 'Cremation of Care ceremony — 40-foot owl effigy ritual', 'Manhattan Project reportedly discussed at 1942 gathering', 'Became symbol of elite secrecy and conspiracy theories', 'Alex Jones infiltration (2000) brought worldwide attention'],
+    description: 'San Francisco journalists and artists founded the Bohemian Club, which transformed into an exclusive retreat for America\'s most powerful men at 2,700-acre Bohemian Grove.',
+    cosmicLink: 'Founded under Pluto in Taurus — hidden wealth and material power. Jupiter conjoined Neptune, blending expansion with mysticism and secrecy.',
+    historicalParallel: 'The Hellfire Club (1718) similarly brought together powerful men under the guise of revelry. The Bilderberg Group (1954) continues the tradition of elite, invitation-only gatherings.'
+  }
+];
+
+
+// ── COLOR MAP ──
+const TYPE_COLORS = {
+  eclipse: '#E84545',
+  conjunction: '#C9A96E',
+  opposition: '#E07A2F',
+  square: '#8B7EC7',
+  retrograde: '#4A90D9',
+  equinox: '#7ECBA1',
+  ingress: '#6B9E9E'
+};
+
+const TYPE_LABELS = {
+  eclipse: 'Eclipse',
+  conjunction: 'Conjunction',
+  opposition: 'Opposition',
+  square: 'Square',
+  retrograde: 'Retrograde',
+  equinox: 'Equinox',
+  ingress: 'Ingress'
+};
+
+// ── ERA DEFINITIONS ──
+const ERAS = [
+  { name: 'Ancient', min: -500, max: 500, ring: 1 },
+  { name: 'Medieval', min: 500, max: 1500, ring: 2 },
+  { name: 'Pre-Modern', min: 1500, max: 1900, ring: 3 },
+  { name: 'Modern', min: 1900, max: 2000, ring: 4 },
+  { name: '21st Century', min: 2000, max: 2100, ring: 5 }
+];
+
+function getEra(year) {
+  for (let i = ERAS.length - 1; i >= 0; i--) {
+    if (year >= ERAS[i].min) return ERAS[i];
+  }
+  return ERAS[0];
+}
+
+// ── STARFIELD ──
+const sfCanvas = document.getElementById('starfield');
+const sfCtx = sfCanvas.getContext('2d');
+let stars = [];
+
+function initStarfield() {
+  sfCanvas.width = window.innerWidth;
+  sfCanvas.height = window.innerHeight;
+  stars = [];
+  const count = Math.floor((sfCanvas.width * sfCanvas.height) / 3000);
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * sfCanvas.width,
+      y: Math.random() * sfCanvas.height,
+      r: Math.random() * 1.2 + 0.2,
+      a: Math.random() * 0.6 + 0.1,
+      twinkleSpeed: Math.random() * 0.02 + 0.005,
+      twinkleOffset: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function drawStarfield(time) {
+  sfCtx.clearRect(0, 0, sfCanvas.width, sfCanvas.height);
+  for (const s of stars) {
+    const a = s.a * (0.6 + 0.4 * Math.sin(time * s.twinkleSpeed + s.twinkleOffset));
+    sfCtx.beginPath();
+    sfCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    sfCtx.fillStyle = `rgba(232,228,220,${a})`;
+    sfCtx.fill();
+  }
+}
+
+// ── MAIN MAP CANVAS ──
+const canvas = document.getElementById('mapCanvas');
+const ctx = canvas.getContext('2d');
+
+let W, H, cx, cy;
+let zoom = 1;
+let panX = 0, panY = 0;
+let isDragging = false;
+let dragStartX, dragStartY, panStartX, panStartY;
+let hoveredEvent = null;
+let selectedEvent = null;
+let activeFilters = new Set();
+let rotationAngle = 0;
+let eventNodes = [];
+
+function resize() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  cx = W / 2;
+  cy = H / 2 + 15;
+  sfCanvas.width = W;
+  sfCanvas.height = H;
+  initStarfield();
+  computeNodes();
+}
+
+// ── COMPUTE NODE POSITIONS ──
+function computeNodes() {
+  const baseRadius = Math.min(W, H) * 0.43;
+  const ringGap = baseRadius / 6;
+
+  eventNodes = EVENTS.map(ev => {
+    const era = getEra(ev.year);
+    const ringRadius = ringGap * (era.ring + 0.5);
+    // Angle: map year within era to 0..2PI, starting from top (-PI/2)
+    const eraSpan = era.max - era.min;
+    const yearFrac = (ev.year - era.min) / eraSpan;
+    const angle = -Math.PI / 2 + yearFrac * Math.PI * 2;
+
+    // Add slight jitter to prevent overlap
+    const jitter = (hashCode(ev.id) % 20 - 10) * 0.003;
+    const radiusJitter = (hashCode(ev.id + 'r') % 20 - 10) * 0.01 * ringGap;
+
+    const r = ringRadius + radiusJitter;
+    const a = angle + jitter;
+
+    const sig = ev.significance || 3;
+    const nodeRadius = 2 + sig * 1.5;
+    const color = TYPE_COLORS[ev.celestialType] || '#C9A96E';
+
+    return {
+      ...ev,
+      baseX: Math.cos(a) * r,
+      baseY: Math.sin(a) * r,
+      radius: nodeRadius,
+      color,
+      era,
+      ringRadius: r,
+      angle: a,
+      glow: 0
+    };
+  });
+}
+
+function hashCode(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+// ── DRAW ──
+function getTransformedPos(node) {
+  const cos = Math.cos(rotationAngle);
+  const sin = Math.sin(rotationAngle);
+  const rx = node.baseX * cos - node.baseY * sin;
+  const ry = node.baseX * sin + node.baseY * cos;
+  return {
+    x: cx + (rx + panX) * zoom,
+    y: cy + (ry + panY) * zoom
+  };
+}
+
+function drawMap(time) {
+  ctx.clearRect(0, 0, W, H);
+
+  const baseRadius = Math.min(W, H) * 0.43;
+  const ringGap = baseRadius / 6;
+
+  // Draw concentric rings
+  for (const era of ERAS) {
+    const r = ringGap * (era.ring + 0.5) * zoom;
+    // Ring outline
+    ctx.beginPath();
+    ctx.arc(cx + panX * zoom, cy + panY * zoom, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(232,228,220,0.06)';
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([4, 8]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Ring fill band
+    ctx.beginPath();
+    ctx.arc(cx + panX * zoom, cy + panY * zoom, r, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(232,228,220,${0.012 + era.ring * 0.003})`;
+    ctx.lineWidth = ringGap * zoom * 0.7;
+    ctx.stroke();
+
+    // Era label — placed along the 2 o'clock direction so they don't stack
+    const labelAngle = -Math.PI / 5;
+    const labelR = r + 4;
+    const lx = cx + panX * zoom + Math.cos(labelAngle) * labelR;
+    const ly = cy + panY * zoom + Math.sin(labelAngle) * labelR;
+    ctx.save();
+    ctx.font = `${Math.max(7, 9 * zoom)}px 'IBM Plex Mono', monospace`;
+    ctx.fillStyle = 'rgba(232,228,220,0.18)';
+    ctx.textAlign = 'left';
+    ctx.translate(lx, ly);
+    ctx.rotate(labelAngle);
+    ctx.fillText(era.name.toUpperCase(), 6, 0);
+    ctx.restore();
+  }
+
+  // Draw radial guide lines (like a compass rose)
+  const maxR = ringGap * 5.8 * zoom;
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2 - Math.PI / 2;
+    const x1 = cx + panX * zoom + Math.cos(a) * ringGap * 0.8 * zoom;
+    const y1 = cy + panY * zoom + Math.sin(a) * ringGap * 0.8 * zoom;
+    const x2 = cx + panX * zoom + Math.cos(a) * maxR;
+    const y2 = cy + panY * zoom + Math.sin(a) * maxR;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = `rgba(232,228,220,${i % 3 === 0 ? 0.04 : 0.015})`;
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+
+  // Draw center glow
+  const coreX = cx + panX * zoom;
+  const coreY = cy + panY * zoom;
+  const pulse = 0.7 + 0.3 * Math.sin(time * 0.002);
+  const coreR = 18 * zoom * pulse;
+
+  const coreGrad = ctx.createRadialGradient(coreX, coreY, 0, coreX, coreY, coreR * 4);
+  coreGrad.addColorStop(0, `rgba(201,169,110,${0.3 * pulse})`);
+  coreGrad.addColorStop(0.3, `rgba(201,169,110,${0.1 * pulse})`);
+  coreGrad.addColorStop(1, 'rgba(201,169,110,0)');
+  ctx.beginPath();
+  ctx.arc(coreX, coreY, coreR * 4, 0, Math.PI * 2);
+  ctx.fillStyle = coreGrad;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(coreX, coreY, coreR, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(201,169,110,${0.6 * pulse})`;
+  ctx.fill();
+
+  ctx.font = `${Math.max(10, 14 * zoom)}px 'Source Serif 4', serif`;
+  ctx.fillStyle = `rgba(232,228,220,${0.5 * pulse})`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('☉', coreX, coreY + 1);
+
+  // Draw constellation lines (connect events of same type)
+  const typeGroups = {};
+  for (const node of eventNodes) {
+    if (activeFilters.size > 0 && !activeFilters.has(node.celestialType)) continue;
+    if (!typeGroups[node.celestialType]) typeGroups[node.celestialType] = [];
+    typeGroups[node.celestialType].push(node);
+  }
+
+  for (const type in typeGroups) {
+    const group = typeGroups[type].sort((a, b) => a.year - b.year);
+    if (group.length < 2) continue;
+    const color = TYPE_COLORS[type] || '#C9A96E';
+
+    // Draw curved constellation lines between same-type events
+    for (let i = 0; i < group.length - 1; i++) {
+      const p1 = getTransformedPos(group[i]);
+      const p2 = getTransformedPos(group[i + 1]);
+      const midX = (p1.x + p2.x) / 2;
+      const midY = (p1.y + p2.y) / 2;
+      // Curve control point pulled toward center
+      const cpX = midX * 0.85 + coreX * 0.15;
+      const cpY = midY * 0.85 + coreY * 0.15;
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.quadraticCurveTo(cpX, cpY, p2.x, p2.y);
+      const alpha = (activeFilters.size === 0 || activeFilters.has(type)) ? 0.045 : 0.008;
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Draw event nodes
+  for (const node of eventNodes) {
+    const pos = getTransformedPos(node);
+    const isActive = activeFilters.size === 0 || activeFilters.has(node.celestialType);
+    const isHovered = hoveredEvent === node;
+    const isSelected = selectedEvent === node;
+
+    const alpha = isActive ? 1 : 0.12;
+    const r = node.radius * zoom * (isHovered ? 1.6 : 1);
+
+    // Twinkle
+    const twinkle = 0.7 + 0.3 * Math.sin(time * 0.003 + hashCode(node.id));
+
+    // Glow
+    if (isActive) {
+      const glowR = r * (isHovered ? 6 : 3.5) * twinkle;
+      const glow = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, glowR);
+      const glowAlpha = isHovered ? 0.35 : 0.12;
+      glow.addColorStop(0, hexToRgba(node.color, glowAlpha * twinkle));
+      glow.addColorStop(1, hexToRgba(node.color, 0));
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, glowR, 0, Math.PI * 2);
+      ctx.fillStyle = glow;
+      ctx.fill();
+    }
+
+    // Node body
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = hexToRgba(node.color, (isActive ? 0.85 : 0.15) * twinkle);
+    ctx.fill();
+
+    // Bright center
+    if (isActive) {
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, r * 0.45, 0, Math.PI * 2);
+      ctx.fillStyle = hexToRgba(node.color, 0.95 * twinkle);
+      ctx.fill();
+    }
+
+    // Selection ring
+    if (isSelected) {
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, r + 4, 0, Math.PI * 2);
+      ctx.strokeStyle = node.color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // Store screen position for hit testing
+    node._sx = pos.x;
+    node._sy = pos.y;
+    node._sr = r;
+  }
+}
+
+function hexToRgba(hex, a) {
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ── INTERACTION ──
+function hitTest(mx, my) {
+  let closest = null;
+  let closestDist = Infinity;
+  for (const node of eventNodes) {
+    const dx = mx - node._sx;
+    const dy = my - node._sy;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    const hitRadius = Math.max(node._sr + 6, 12);
+    if (dist < hitRadius && dist < closestDist) {
+      closest = node;
+      closestDist = dist;
+    }
+  }
+  return closest;
+}
+
+canvas.addEventListener('mousemove', e => {
+  if (isDragging) return;
+  const hit = hitTest(e.clientX, e.clientY);
+  hoveredEvent = hit;
+  canvas.style.cursor = hit ? 'pointer' : 'grab';
+
+  const tip = document.getElementById('tooltip');
+  if (hit) {
+    document.getElementById('tipYear').textContent = hit.year + (hit.year < 0 ? ' BC' : ' AD');
+    document.getElementById('tipYear').style.color = hit.color;
+    document.getElementById('tipCelestial').textContent = hit.symbol + ' ' + hit.celestialEvent;
+    document.getElementById('tipCelestial').style.color = hexToRgba(hit.color, 0.7);
+    document.getElementById('tipWorld').textContent = hit.worldEvent;
+    tip.classList.add('visible');
+
+    let tx = e.clientX + 16;
+    let ty = e.clientY - 10;
+    if (tx + 320 > W) tx = e.clientX - 336;
+    if (ty + 100 > H) ty = H - 110;
+    if (ty < 10) ty = 10;
+    tip.style.left = tx + 'px';
+    tip.style.top = ty + 'px';
+  } else {
+    tip.classList.remove('visible');
+  }
+});
+
+canvas.addEventListener('mousedown', e => {
+  isDragging = true;
+  dragStartX = e.clientX;
+  dragStartY = e.clientY;
+  panStartX = panX;
+  panStartY = panY;
+  canvas.classList.add('dragging');
+});
+
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  panX = panStartX + (e.clientX - dragStartX) / zoom;
+  panY = panStartY + (e.clientY - dragStartY) / zoom;
+});
+
+window.addEventListener('mouseup', e => {
+  if (isDragging) {
+    const dx = e.clientX - dragStartX;
+    const dy = e.clientY - dragStartY;
+    if (Math.abs(dx) < 4 && Math.abs(dy) < 4) {
+      // It was a click
+      const hit = hitTest(e.clientX, e.clientY);
+      if (hit) {
+        selectEvent(hit);
+      } else {
+        closePanel();
+      }
+    }
+  }
+  isDragging = false;
+  canvas.classList.remove('dragging');
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const delta = -e.deltaY * 0.001;
+  const newZoom = Math.max(0.3, Math.min(5, zoom * (1 + delta)));
+  zoom = newZoom;
+  document.getElementById('zoomLevel').textContent = zoom.toFixed(1) + 'x';
+}, { passive: false });
+
+document.getElementById('zoomIn').addEventListener('click', () => {
+  zoom = Math.min(5, zoom * 1.3);
+  document.getElementById('zoomLevel').textContent = zoom.toFixed(1) + 'x';
+});
+document.getElementById('zoomOut').addEventListener('click', () => {
+  zoom = Math.max(0.3, zoom / 1.3);
+  document.getElementById('zoomLevel').textContent = zoom.toFixed(1) + 'x';
+});
+
+// ── DETAIL PANEL ──
+function selectEvent(ev) {
+  selectedEvent = ev;
+  const panel = document.getElementById('detailPanel');
+  const inner = document.getElementById('detailInner');
+  const color = TYPE_COLORS[ev.celestialType] || '#C9A96E';
+
+  let rippleHtml = '';
+  if (ev.rippleEffects && ev.rippleEffects.length) {
+    rippleHtml = `
+      <div class="detail-section detail-section-ripple">
+        <div class="detail-section-label">Ripple Effects</div>
+        <div class="detail-ripple-timeline">
+          ${ev.rippleEffects.map(r => `<div class="detail-ripple">${r}</div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  const yearLabel = ev.year < 0 ? Math.abs(ev.year) + ' BC' : ev.year;
+  const imageHtml = ev.image ? `
+    <div class="detail-image-wrap">
+      <img src="${ev.image}" alt="${ev.worldEvent}" onerror="this.parentElement.style.display='none'">
+      <div class="detail-image-year" style="color:${color}">${yearLabel}</div>
+    </div>` : '';
+
+  inner.innerHTML = `
+    ${imageHtml}
+    <div class="detail-accent" style="background:${color}"></div>
+    ${!ev.image ? `<div class="detail-year" style="color:${color}">${yearLabel}</div>` : ''}
+    <div class="detail-date">${ev.date || ''}</div>
+    <div class="detail-badge" style="background:${hexToRgba(color, 0.15)};color:${color};border:1px solid ${hexToRgba(color, 0.3)}">${ev.symbol || ''} ${(ev.celestialType || '').toUpperCase()}</div>
+    <div class="detail-celestial">${ev.celestialEvent}</div>
+    <div class="detail-world">${ev.worldEvent}</div>
+    <div class="detail-category">${ev.category || ''}</div>
+    ${ev.description ? `<div class="detail-section"><div class="detail-section-label">Description</div><div class="detail-section-text">${ev.description}</div></div>` : ''}
+    ${ev.cosmicLink ? `<div class="detail-section detail-section-cosmic"><div class="detail-section-label">Cosmic Link</div><div class="detail-section-text">${ev.cosmicLink}</div></div>` : ''}
+    ${ev.historicalParallel ? `<div class="detail-section detail-section-parallel"><div class="detail-section-label">Historical Parallel</div><div class="detail-section-text">${ev.historicalParallel}</div></div>` : ''}
+    ${rippleHtml}
+  `;
+
+  panel.classList.add('open');
+}
+
+function closePanel() {
+  selectedEvent = null;
+  document.getElementById('detailPanel').classList.remove('open');
+}
+
+document.getElementById('detailClose').addEventListener('click', closePanel);
+
+// ── FILTERS ──
+function buildFilters() {
+  const container = document.getElementById('filters');
+  const types = ['eclipse', 'conjunction', 'opposition', 'square', 'retrograde', 'equinox', 'ingress'];
+
+  // All button
+  const allChip = document.createElement('button');
+  allChip.className = 'filter-chip active';
+  allChip.textContent = 'All';
+  allChip.addEventListener('click', () => {
+    activeFilters.clear();
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    allChip.classList.add('active');
+  });
+  container.appendChild(allChip);
+
+  types.forEach(type => {
+    const chip = document.createElement('button');
+    chip.className = 'filter-chip';
+    chip.textContent = TYPE_LABELS[type];
+    chip.style.setProperty('--chip-color', TYPE_COLORS[type]);
+    chip.addEventListener('click', () => {
+      if (activeFilters.has(type)) {
+        activeFilters.delete(type);
+        chip.classList.remove('active');
+      } else {
+        activeFilters.add(type);
+        chip.classList.add('active');
+      }
+      // Update "All" chip
+      allChip.classList.toggle('active', activeFilters.size === 0);
+      // Style active chips with their color
+      document.querySelectorAll('.filter-chip').forEach(c => {
+        if (c !== allChip && c.classList.contains('active')) {
+          const t = types[Array.from(container.children).indexOf(c) - 1];
+          if (t) {
+            c.style.borderColor = TYPE_COLORS[t];
+            c.style.color = TYPE_COLORS[t];
+            c.style.background = hexToRgba(TYPE_COLORS[t], 0.1);
+          }
+        } else if (c !== allChip) {
+          c.style.borderColor = '';
+          c.style.color = '';
+          c.style.background = '';
+        }
+      });
+    });
+    container.appendChild(chip);
+  });
+}
+
+function buildLegend() {
+  const container = document.getElementById('legend');
+  const types = [
+    ['Eclipse', '#E84545'],
+    ['Conjunction', '#C9A96E'],
+    ['Opposition', '#E07A2F'],
+    ['Square', '#8B7EC7'],
+    ['Retrograde', '#4A90D9'],
+    ['Equinox', '#7ECBA1'],
+    ['Ingress', '#6B9E9E']
+  ];
+  // Deduplicate by color
+  const seen = new Set();
+  types.forEach(([label, color]) => {
+    const key = color;
+    if (seen.has(key)) return;
+    seen.add(key);
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<span class="legend-dot" style="background:${color};box-shadow:0 0 6px ${hexToRgba(color,0.5)}"></span>${label}`;
+    container.appendChild(item);
+  });
+}
+
+// ── ANIMATION LOOP ──
+let animFrame;
+function loop(time) {
+  rotationAngle += 0.0001; // Very slow rotation
+  drawStarfield(time);
+  drawMap(time);
+  animFrame = requestAnimationFrame(loop);
+}
+
+// ── INIT ──
+window.addEventListener('resize', resize);
+resize();
+buildFilters();
+buildLegend();
+computeNodes();
+loop(0);
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closePanel();
+});
+
+// Touch support
+let touchStartDist = 0;
+let touchStartZoom = 1;
+
+canvas.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    dragStartX = e.touches[0].clientX;
+    dragStartY = e.touches[0].clientY;
+    panStartX = panX;
+    panStartY = panY;
+  } else if (e.touches.length === 2) {
+    isDragging = false;
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    touchStartDist = Math.sqrt(dx*dx + dy*dy);
+    touchStartZoom = zoom;
+  }
+}, { passive: true });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (e.touches.length === 1 && isDragging) {
+    panX = panStartX + (e.touches[0].clientX - dragStartX) / zoom;
+    panY = panStartY + (e.touches[0].clientY - dragStartY) / zoom;
+  } else if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    zoom = Math.max(0.3, Math.min(5, touchStartZoom * (dist / touchStartDist)));
+    document.getElementById('zoomLevel').textContent = zoom.toFixed(1) + 'x';
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  if (e.touches.length === 0) {
+    isDragging = false;
+  }
+});
+</script>
+</body>
+</html>

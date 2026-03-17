@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cosmos Daily — Why the Sky Still Matters</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200;0,8..60,400;0,8..60,600;1,8..60,300&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & TOKENS ────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:        #07060D;
+  --bg2:       #0D0B1A;
+  --surface:   rgba(255,255,255,0.04);
+  --border:    rgba(255,255,255,0.08);
+  --text:      #E8E6F0;
+  --muted:     #6E6B80;
+  --gold:      #C9A96E;
+  --gold-dim:  rgba(201,169,110,0.15);
+  --red:       #E84545;
+  --violet:    #9B8FD4;
+  --serif:     'Source Serif 4', Georgia, serif;
+  --mono:      'IBM Plex Mono', monospace;
+  --radius:    12px;
+  --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ─── STARFIELD ─────────────────────────────────────────────────── */
+#starfield {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+}
+
+.orb {
+  position: fixed; border-radius: 50%;
+  pointer-events: none; z-index: 0; filter: blur(80px);
+}
+.orb-1 {
+  width: 600px; height: 600px;
+  top: -200px; right: -150px;
+  background: radial-gradient(circle, rgba(232,69,69,0.08) 0%, transparent 70%);
+  animation: drift 14s ease-in-out infinite;
+}
+.orb-2 {
+  width: 700px; height: 700px;
+  bottom: -200px; left: -200px;
+  background: radial-gradient(circle, rgba(139,126,199,0.10) 0%, transparent 70%);
+  animation: drift 18s ease-in-out infinite reverse;
+}
+.orb-3 {
+  width: 500px; height: 500px;
+  top: 50%; left: 60%;
+  background: radial-gradient(circle, rgba(201,169,110,0.06) 0%, transparent 70%);
+  animation: drift 22s ease-in-out infinite;
+}
+@keyframes drift {
+  0%,100% { transform: translate(0,0); }
+  50%      { transform: translate(30px,-40px); }
+}
+
+/* ─── HEADER ────────────────────────────────────────────────────── */
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,6,13,0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1400px; margin: 0 auto;
+  padding: 0 24px;
+  height: 60px;
+  display: flex; align-items: center; gap: 24px;
+}
+.brand {
+  display: flex; flex-direction: column;
+  flex-shrink: 0; text-decoration: none;
+}
+.brand-name {
+  font-family: var(--mono); font-size: 13px; font-weight: 500;
+  letter-spacing: 3px; color: var(--gold);
+  text-transform: uppercase;
+}
+.brand-sub {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 1.5px; color: var(--muted);
+  text-transform: uppercase; line-height: 1;
+}
+.header-nav {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 16px;
+}
+.back-link {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--gold);
+  background: var(--gold-dim); border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 6px; padding: 6px 14px; cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition);
+}
+.back-link:hover { background: rgba(201,169,110,0.25); }
+
+/* ─── ARTICLE LAYOUT ────────────────────────────────────────────── */
+.article {
+  position: relative; z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px 120px;
+}
+
+/* ─── HERO ──────────────────────────────────────────────────────── */
+.hero {
+  padding: 80px 0 64px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 64px;
+}
+.hero-overline {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 24px; display: block;
+}
+.hero-title {
+  font-size: clamp(40px, 6vw, 72px); font-weight: 200;
+  line-height: 1.08; letter-spacing: -1.5px;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+.hero-subtitle {
+  font-size: 19px; font-weight: 400;
+  color: var(--muted); line-height: 1.7;
+  font-style: italic;
+  max-width: 600px;
+}
+
+/* ─── SECTIONS ──────────────────────────────────────────────────── */
+.section { margin-bottom: 64px; }
+
+.section-marker {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 32px;
+}
+.section-number {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 2px; color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid rgba(201,169,110,0.2);
+  border-radius: 4px;
+  padding: 4px 10px;
+  flex-shrink: 0;
+}
+.section-line {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(201,169,110,0.3), transparent);
+}
+
+.section h2 {
+  font-size: clamp(28px, 4vw, 38px); font-weight: 200;
+  line-height: 1.15; letter-spacing: -0.5px;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+.section h2 em {
+  font-style: italic; color: var(--gold); font-weight: 300;
+}
+
+.section p {
+  font-size: 17px; line-height: 1.85;
+  color: rgba(232,230,240,0.78);
+  margin-bottom: 20px;
+}
+.section p:last-child { margin-bottom: 0; }
+
+.section p strong {
+  color: var(--text); font-weight: 600;
+}
+
+/* ─── PULL QUOTE ────────────────────────────────────────────────── */
+.pull-quote {
+  border-left: 3px solid var(--gold);
+  padding: 24px 0 24px 28px;
+  margin: 40px 0;
+}
+.pull-quote p {
+  font-size: 21px; font-weight: 300;
+  line-height: 1.65; font-style: italic;
+  color: var(--text);
+}
+.pull-quote .attribution {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); margin-top: 12px;
+  font-style: normal;
+}
+
+/* ─── DIVIDER ───────────────────────────────────────────────────── */
+.divider {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--gold);
+  font-size: 18px;
+  letter-spacing: 16px;
+  opacity: 0.4;
+}
+
+/* ─── CELESTIAL TYPE LIST ───────────────────────────────────────── */
+.type-list {
+  display: flex; flex-direction: column; gap: 12px;
+  margin: 28px 0;
+}
+.type-item {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  border-left: 3px solid var(--gold);
+}
+.type-item.eclipse { border-left-color: #E84545; }
+.type-item.conjunction { border-left-color: #C9A96E; }
+.type-item.square { border-left-color: #5B8FB9; }
+.type-item.opposition { border-left-color: #E8A545; }
+.type-item.retrograde { border-left-color: #8B7EC7; }
+.type-item.ingress { border-left-color: #D4A574; }
+
+.type-item .type-name {
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text); min-width: 120px;
+}
+.type-item .type-desc {
+  font-size: 14px; color: var(--muted); line-height: 1.5;
+}
+.type-item .type-rank {
+  margin-left: auto; flex-shrink: 0;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--gold); opacity: 0.7;
+}
+
+/* ─── METHOD GRID ───────────────────────────────────────────────── */
+.method-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px; margin: 28px 0;
+}
+.method-card {
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.method-card .method-icon {
+  font-size: 20px; margin-bottom: 12px; display: block;
+  opacity: 0.5;
+}
+.method-card h4 {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 8px;
+}
+.method-card p {
+  font-size: 14px; line-height: 1.65;
+  color: var(--muted); margin-bottom: 0;
+}
+
+/* ─── CTA SECTION ───────────────────────────────────────────────── */
+.cta-section {
+  margin-top: 80px;
+  padding: 48px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.cta-section h3 {
+  font-size: 28px; font-weight: 200;
+  line-height: 1.2; margin-bottom: 12px;
+}
+.cta-section h3 em {
+  font-style: italic; color: var(--gold); font-weight: 300;
+}
+.cta-section p {
+  font-size: 15px; color: var(--muted);
+  line-height: 1.7; margin-bottom: 28px;
+  font-style: italic;
+}
+.cta-btn {
+  display: inline-block;
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--bg); background: var(--gold);
+  padding: 14px 36px; border-radius: 8px;
+  text-decoration: none;
+  transition: all var(--transition);
+}
+.cta-btn:hover {
+  background: #d4b67a;
+  box-shadow: 0 0 30px rgba(201,169,110,0.3);
+}
+
+.email-form {
+  display: flex; gap: 10px;
+  max-width: 400px; margin: 24px auto 0;
+  justify-content: center;
+}
+.email-form input {
+  flex: 1; height: 42px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text);
+  font-family: var(--mono); font-size: 12px;
+  padding: 0 14px;
+  transition: border-color var(--transition);
+}
+.email-form input::placeholder { color: var(--muted); }
+.email-form input:focus {
+  outline: none; border-color: var(--gold);
+  background: rgba(201,169,110,0.06);
+}
+.email-form button {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--gold); background: var(--gold-dim);
+  border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 8px; padding: 0 18px;
+  cursor: pointer; transition: all var(--transition);
+  white-space: nowrap;
+}
+.email-form button:hover { background: rgba(201,169,110,0.25); }
+
+/* ─── FOOTER ────────────────────────────────────────────────────── */
+.site-footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 32px 24px;
+  text-align: center;
+}
+.footer-inner {
+  max-width: 760px; margin: 0 auto;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+}
+.footer-brand {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); opacity: 0.5;
+}
+.footer-note {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 1px; color: var(--muted);
+  line-height: 1.6;
+}
+.footer-note a {
+  color: var(--gold); text-decoration: none;
+}
+.footer-note a:hover { text-decoration: underline; }
+
+/* ─── RESPONSIVE ────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .hero { padding: 48px 0 40px; margin-bottom: 48px; }
+  .hero-title { letter-spacing: -0.5px; }
+  .hero-subtitle { font-size: 16px; }
+  .section { margin-bottom: 48px; }
+  .section h2 { font-size: 26px; }
+  .section p { font-size: 16px; }
+  .pull-quote p { font-size: 18px; }
+  .method-grid { grid-template-columns: 1fr; }
+  .type-item .type-rank { display: none; }
+  .type-item .type-name { min-width: 90px; font-size: 11px; }
+  .cta-section { padding: 32px 20px; }
+  .email-form { flex-direction: column; }
+  .email-form button { height: 42px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- ─── HEADER ─────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="cosmos-daily-v4.html" class="brand">
+      <span class="brand-name">Cosmos Daily</span>
+      <span class="brand-sub">Celestial Chronicle</span>
+    </a>
+    <nav class="header-nav">
+      <a href="cosmos-daily-v4.html" class="back-link">&larr; Back to Archive</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ─── ARTICLE ────────────────────────────────────────────────── -->
+<article class="article">
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="hero-overline">An Editorial</span>
+    <h1 class="hero-title">Why the Sky<br>Still Matters</h1>
+    <p class="hero-subtitle">For four thousand years, humans looked up and found meaning. Then we stopped. Maybe it's time to look up again.</p>
+  </div>
+
+  <!-- SECTION 1: The Ancient Thread -->
+  <section class="section">
+    <div class="section-marker">
+      <span class="section-number">I</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>The <em>Ancient</em> Thread</h2>
+
+    <p>Before there were algorithms, before there were markets, before there were nations as we understand them, there was the sky. And the sky was not decoration. It was the operating system.</p>
+
+    <p>In Babylon, around 1800 BCE, priest-astronomers kept meticulous records of lunar eclipses on clay tablets. These were not academic exercises. When a total eclipse darkened the sky over Mesopotamia, the king went into hiding. A substitute was placed on the throne. If the stand-in died during the eclipse window, the omen was fulfilled and the real king returned. If nothing happened, the substitute was quietly disposed of anyway. The stakes were not philosophical. They were lethal.</p>
+
+    <p>The Egyptians aligned the Great Pyramid of Giza to Orion's Belt with a margin of error that modern surveyors find difficult to improve upon. They oriented their entire civilization, its architecture, its theology, its calendar, around the movements of stars. The heliacal rising of Sirius announced the flooding of the Nile, which determined whether their civilization ate or starved that year.</p>
+
+    <div class="pull-quote">
+      <p>They didn't separate astronomy from meaning. The sky was the map, and the map was the territory.</p>
+    </div>
+
+    <p>In Rome, no major military campaign launched without consulting the augurs. In China, the Mandate of Heaven was literally celestial: a dynasty ruled because the sky permitted it, and unusual astronomical phenomena, comets, eclipses, nova, were evidence that permission was being revoked. The Mayan Long Count calendar tracked cycles within cycles with a precision that wouldn't be matched in Europe for another thousand years.</p>
+
+    <p>This was not superstition in the way we casually dismiss it. It was a framework. These civilizations observed that certain celestial configurations correlated with certain earthly patterns. They built institutions around those observations. They were wrong about the mechanism, perhaps, but they were asking the right question: <strong>is there a relationship between what happens above and what happens below?</strong></p>
+  </section>
+
+  <div class="divider">&#10022; &#10022; &#10022;</div>
+
+  <!-- SECTION 2: The Modern Disconnect -->
+  <section class="section">
+    <div class="section-marker">
+      <span class="section-number">II</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>The Modern <em>Disconnect</em></h2>
+
+    <p>Somewhere around the seventeenth century, we made a decision. The Enlightenment separated the observer from the observed. Astronomy went one way: precise, mathematical, predictive in the mechanical sense. Astrology went the other: marginalized, commercialized, eventually reduced to horoscope columns and personality quizzes.</p>
+
+    <p>We gained extraordinary precision. We can predict a solar eclipse to the second, centuries in advance. We can map the gravitational interactions of planets with stunning accuracy. We sent robots to Mars on trajectories calculated to the meter.</p>
+
+    <p>But we lost something in the separation. We lost the question.</p>
+
+    <div class="pull-quote">
+      <p>We have more data than any civilization in history. And less framework for making sense of any of it.</p>
+    </div>
+
+    <p>The world in 2026 does not feel like a world that has been figured out. Wars grind on across multiple continents. Artificial intelligence is rewriting the economic order faster than institutions can adapt. Financial markets oscillate between euphoria and panic on cycles that resist rational explanation. Trust in institutions, governments, media, science itself, sits at historic lows. The old maps don't work anymore, and we haven't drawn new ones.</p>
+
+    <p>People feel this. The resurgence of interest in astrology over the past decade is not an accident, and dismissing it as a TikTok trend misses the point. People are searching for pattern. For signal in the noise. For some framework, any framework, that helps the chaos cohere into something legible.</p>
+
+    <p>The ancients had one. We threw it away. Maybe not all of it deserved to be discarded.</p>
+  </section>
+
+  <div class="divider">&#10022; &#10022; &#10022;</div>
+
+  <!-- SECTION 3: Why Cosmos Daily Exists -->
+  <section class="section">
+    <div class="section-marker">
+      <span class="section-number">III</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Why <em>Cosmos Daily</em> Exists</h2>
+
+    <p>Let's be clear about what this is and what it isn't.</p>
+
+    <p>We are not predicting the future. We are not claiming that Saturn causes recessions or that eclipses topple governments. Causation is a strong word, and we're not using it.</p>
+
+    <p>What we are doing is mapping. One hundred and six events across four and a half millennia, from the assassination of Julius Caesar in 44 BCE to the transits unfolding right now in 2026. Each event pairs a verified celestial alignment with a documented historical occurrence. The celestial data comes from NASA ephemeris tables. The historical data comes from primary sources. Both are independently verifiable.</p>
+
+    <p>And when you lay them side by side, patterns emerge that are difficult to ignore.</p>
+
+    <div class="pull-quote">
+      <p>Saturn-Neptune conjunctions cluster around moments of institutional collapse and the dissolution of existing orders. Eclipse cycles correlate with the exposure of hidden structural flaws. Uranus transits accompany technological revolution and sudden breaks from precedent.</p>
+    </div>
+
+    <p>Whether you call this causation, correlation, or coincidence is entirely up to you. We are not in the business of telling anyone what to believe. We are in the business of presenting the data clearly enough that the patterns speak for themselves.</p>
+
+    <p>This project exists for people who want to look up again, the way the Babylonians did, the way the Egyptians did, and ask a question that never stopped being relevant: <strong>what is happening in the sky, and what might it mean for us?</strong></p>
+  </section>
+
+  <div class="divider">&#10022; &#10022; &#10022;</div>
+
+  <!-- SECTION 4: The Framework -->
+  <section class="section">
+    <div class="section-marker">
+      <span class="section-number">IV</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>The Framework: <em>Mundane Astrology</em></h2>
+
+    <p>The branch of astrology concerned with world events, rather than individual birth charts, is called mundane astrology. The word "mundane" comes from the Latin <em>mundus</em>, meaning "world." There is nothing trivial about it. For most of astrology's history, this was the main event. Personal horoscopes were a sideshow.</p>
+
+    <p>Mundane astrology tracks the movements and geometric relationships of planets, particularly the slow-moving outer planets (Jupiter, Saturn, Uranus, Neptune, Pluto), and correlates their alignments with shifts in collective human experience: wars, revolutions, economic cycles, pandemics, cultural movements.</p>
+
+    <p>Cosmos Daily tracks six categories of celestial event, ranked roughly by the intensity of their historical correlations:</p>
+
+    <div class="type-list">
+      <div class="type-item eclipse">
+        <span class="type-name">Eclipse</span>
+        <span class="type-desc">Solar and lunar eclipses. The most dramatic alignments, historically associated with the exposure of hidden dynamics and sudden shifts in power.</span>
+        <span class="type-rank">Highest impact</span>
+      </div>
+      <div class="type-item conjunction">
+        <span class="type-name">Conjunction</span>
+        <span class="type-desc">Two planets at the same degree. Marks the beginning of new cycles. The rarer the conjunction, the more significant the shift.</span>
+        <span class="type-rank">High impact</span>
+      </div>
+      <div class="type-item square">
+        <span class="type-name">Square</span>
+        <span class="type-desc">Planets at 90 degrees. Tension, friction, forced change. The crisis points within longer cycles.</span>
+        <span class="type-rank">Moderate-high</span>
+      </div>
+      <div class="type-item opposition">
+        <span class="type-name">Opposition</span>
+        <span class="type-desc">Planets at 180 degrees. Confrontation, culmination, the full expression of forces set in motion at the conjunction.</span>
+        <span class="type-rank">Moderate-high</span>
+      </div>
+      <div class="type-item retrograde">
+        <span class="type-name">Retrograde</span>
+        <span class="type-desc">Apparent backward motion. Periods of review, reversal, and the resurfacing of unresolved issues.</span>
+        <span class="type-rank">Moderate</span>
+      </div>
+      <div class="type-item ingress">
+        <span class="type-name">Ingress</span>
+        <span class="type-desc">A planet entering a new zodiacal sign. Gradual shifts in collective tone, often unfolding over months or years.</span>
+        <span class="type-rank">Gradual</span>
+      </div>
+    </div>
+
+    <p>Significance is rated on a 1&ndash;5 scale, weighted toward outer planet involvement. A Jupiter-Saturn conjunction scores higher than a Mercury retrograde. A total solar eclipse on the degree of a national chart scores highest of all. The further out the planet, the longer and deeper the cycle it governs.</p>
+  </section>
+
+  <div class="divider">&#10022; &#10022; &#10022;</div>
+
+  <!-- SECTION 5: Our Method -->
+  <section class="section">
+    <div class="section-marker">
+      <span class="section-number">V</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Our <em>Method</em></h2>
+
+    <p>Rigor matters. If the correlations we present aren't built on solid data, they're just stories. Stories are valuable, but they're not what we're offering here. We're offering documented patterns, and documented patterns require documented sources.</p>
+
+    <div class="method-grid">
+      <div class="method-card">
+        <span class="method-icon">&#9790;</span>
+        <h4>Celestial Data</h4>
+        <p>All planetary positions and eclipse data sourced from NASA JPL ephemeris tables and the Swiss Ephemeris. Verified to arc-minute precision.</p>
+      </div>
+      <div class="method-card">
+        <span class="method-icon">&#9782;</span>
+        <h4>Historical Events</h4>
+        <p>Every world event independently verified through primary historical sources, academic records, and established reference works.</p>
+      </div>
+      <div class="method-card">
+        <span class="method-icon">&#10023;</span>
+        <h4>Cross-Reference</h4>
+        <p>Celestial and historical data are cross-referenced for temporal accuracy. Alignments must be active at the time of the event.</p>
+      </div>
+      <div class="method-card">
+        <span class="method-icon">&#9883;</span>
+        <h4>Open Interpretation</h4>
+        <p>We present the correlations. We do not prescribe meaning. The interpretation is yours to make.</p>
+      </div>
+    </div>
+
+    <p>We are not cherry-picking events to fit a narrative. The archive includes instances where major alignments corresponded with quiet periods, and instances where significant world events occurred during unremarkable skies. Intellectual honesty requires presenting the full picture, not just the hits.</p>
+  </section>
+
+  <div class="divider">&#10022; &#10022; &#10022;</div>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h3>Explore the <em>Archive</em></h3>
+    <p>106 events. 4,500 years. One question: what patterns emerge<br>when you map the sky to the world below?</p>
+    <a href="cosmos-daily-v4.html" class="cta-btn">Enter the Archive</a>
+    <div class="email-form" style="margin-top: 32px;">
+      <input type="email" placeholder="Your email address" aria-label="Email address">
+      <button type="button">Notify Me</button>
+    </div>
+    <p style="font-size: 11px; margin-top: 12px; margin-bottom: 0; opacity: 0.5; font-style: normal; font-family: var(--mono); letter-spacing: 0.5px;">Get notified when we add new events to the archive.</p>
+  </section>
+
+</article>
+
+<!-- ─── FOOTER ──────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-brand">Cosmos Daily</span>
+    <span class="footer-note">
+      Celestial data via NASA JPL Ephemeris &middot; Historical events independently verified<br>
+      <a href="cosmos-daily-v4.html">Back to Archive</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+// ─── STARFIELD ─────────────────────────────────────────────────────────────
+(function initStarfield() {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function createStars(count) {
+    stars = [];
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.2 + 0.2,
+        alpha: Math.random() * 0.5 + 0.1,
+        delta: (Math.random() - 0.5) * 0.004,
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      s.alpha += s.delta;
+      if (s.alpha <= 0.05 || s.alpha >= 0.65) s.delta *= -1;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(232,230,240,${s.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  createStars(280);
+  draw();
+  window.addEventListener('resize', () => { resize(); createStars(280); });
+})();
+</script>
+</body>
+</html>
