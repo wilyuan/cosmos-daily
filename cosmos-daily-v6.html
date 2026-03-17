@@ -5743,9 +5743,36 @@ buildCards();
     fabAmtBtns.forEach(b => b.classList.remove('selected'));
   });
 
-  // FAB donate button — opens Stripe
-  fabGo.addEventListener('click', () => {
-    window.open('https://donate.stripe.com/8x2dRa4Bi27K90dfMh8AE00', '_blank');
+  // FAB donate button — creates Stripe Checkout session
+  fabGo.addEventListener('click', async () => {
+    const customVal = parseFloat(fabCustom.value);
+    const selectedBtn = fabWrap.querySelector('.donate-fab-amt.selected');
+    const amount = customVal > 0 ? customVal : (selectedBtn ? parseFloat(selectedBtn.dataset.amt) : null);
+    if (!amount || amount < 1) {
+      fabCustom.style.borderColor = '#E84545';
+      setTimeout(() => { fabCustom.style.borderColor = ''; }, 1500);
+      return;
+    }
+    fabGo.textContent = 'Processing...';
+    fabGo.style.opacity = '0.6';
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        // Fallback to static link
+        window.open('https://donate.stripe.com/8x2dRa4Bi27K90dfMh8AE00', '_blank');
+      }
+    } catch {
+      window.open('https://donate.stripe.com/8x2dRa4Bi27K90dfMh8AE00', '_blank');
+    }
+    fabGo.textContent = 'Donate';
+    fabGo.style.opacity = '';
   });
 
   // Close/dismiss FAB
@@ -5800,8 +5827,26 @@ buildCards();
       setTimeout(() => { customInput.style.borderColor = ''; }, 1500);
       return;
     }
-    window.open('https://donate.stripe.com/8x2dRa4Bi27K90dfMh8AE00', '_blank');
-    closeDonate();
+    submitBtn.textContent = 'Processing...';
+    submitBtn.style.opacity = '0.6';
+    fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.url) window.location.href = data.url;
+      else window.open('https://donate.stripe.com/8x2dRa4Bi27K90dfMh8AE00', '_blank');
+    })
+    .catch(() => {
+      window.open('https://donate.stripe.com/8x2dRa4Bi27K90dfMh8AE00', '_blank');
+    })
+    .finally(() => {
+      submitBtn.textContent = 'Donate';
+      submitBtn.style.opacity = '';
+      closeDonate();
+    });
   });
 })();
 </script>

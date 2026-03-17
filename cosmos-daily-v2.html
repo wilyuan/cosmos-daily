@@ -1,0 +1,2526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmos Daily v2 — Interactive Celestial & World Events Database</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital@0;1&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Serif 4', serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1d3a 50%, #0f1629 100%);
+            color: #e8e6e1;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Starfield background */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.8; }
+        }
+
+        .star-twinkle {
+            animation: twinkle 4s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes orbFloat {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(20px, -10px); }
+            50% { transform: translate(0, 0); }
+            75% { transform: translate(-15px, 10px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        @keyframes headerGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(201, 169, 110, 0.3); }
+            50% { text-shadow: 0 0 30px rgba(201, 169, 110, 0.8); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            animation: fadeSlideUp 1s ease-out;
+        }
+
+        .hero-question {
+            font-size: 2.5rem;
+            font-style: italic;
+            color: #C9A96E;
+            margin-bottom: 20px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            animation: headerGlow 4s ease-in-out infinite;
+        }
+
+        .title {
+            font-size: 4rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            color: #e8e6e1;
+            animation: fadeSlideUp 1.2s ease-out;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            color: #9a9690;
+            margin-bottom: 40px;
+            font-family: 'IBM Plex Mono', monospace;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 20px;
+            background: rgba(45, 50, 80, 0.4);
+            border: 1px solid rgba(201, 169, 110, 0.2);
+            border-radius: 8px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            animation: fadeIn 1.8s ease-out;
+        }
+
+        .stat-item {
+            text-align: center;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .stat-number {
+            font-size: 1.4rem;
+            color: #C9A96E;
+            font-weight: 600;
+        }
+
+        /* Today's Sky Panel */
+        .todays-sky {
+            background: rgba(45, 50, 80, 0.6);
+            border: 2px solid #C9A96E;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            animation: fadeSlideUp 1.4s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .todays-sky::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(201, 169, 110, 0.1), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .sky-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sky-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: #C9A96E;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(126, 203, 161, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #7ECBA1;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #7ECBA1;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .sky-date {
+            font-size: 1.1rem;
+            color: #e8e6e1;
+            margin-bottom: 15px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+        }
+
+        .planets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .planet-card {
+            background: rgba(25, 30, 50, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #C9A96E;
+        }
+
+        .planet-name {
+            font-weight: 600;
+            color: #C9A96E;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .planet-position {
+            font-size: 0.9rem;
+            color: #b8b4ad;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .transits-section {
+            background: rgba(25, 30, 50, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 3px solid #E8A545;
+            position: relative;
+            z-index: 1;
+        }
+
+        .transit-title {
+            font-weight: 600;
+            color: #E8A545;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .transit-text {
+            font-size: 0.9rem;
+            color: #b8b4ad;
+            line-height: 1.5;
+        }
+
+        .next-event {
+            background: rgba(25, 30, 50, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #8B7EC7;
+            position: relative;
+            z-index: 1;
+        }
+
+        .event-label {
+            font-weight: 600;
+            color: #8B7EC7;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .event-detail {
+            font-size: 0.9rem;
+            color: #b8b4ad;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            align-items: center;
+            animation: fadeIn 2s ease-out;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #9a9690;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: rgba(45, 50, 80, 0.6);
+            border: 1px solid rgba(201, 169, 110, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .toggle-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            color: #9a9690;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .toggle-btn.active {
+            background: #C9A96E;
+            color: #0a0e27;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(201, 169, 110, 0.2);
+            color: #C9A96E;
+        }
+
+        .filter-pill {
+            padding: 8px 16px;
+            background: rgba(45, 50, 80, 0.6);
+            border: 1px solid rgba(201, 169, 110, 0.2);
+            border-radius: 20px;
+            color: #b8b4ad;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            font-family: 'IBM Plex Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .filter-pill.active {
+            background: #C9A96E;
+            color: #0a0e27;
+            border-color: #C9A96E;
+        }
+
+        .filter-pill:hover {
+            border-color: #C9A96E;
+            color: #C9A96E;
+        }
+
+        /* Timeline View */
+        .timeline-container {
+            position: relative;
+            padding: 40px 0;
+            animation: fadeIn 2.2s ease-out;
+        }
+
+        .timeline-spine {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, rgba(201, 169, 110, 0.5) 0%, rgba(201, 169, 110, 0) 100%);
+        }
+
+        .event-card {
+            margin-bottom: 60px;
+            animation: fadeSlideUp 0.8s ease-out;
+            position: relative;
+        }
+
+        .event-card-content {
+            background: rgba(45, 50, 80, 0.5);
+            border: 1px solid rgba(201, 169, 110, 0.2);
+            border-radius: 8px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-card-content:hover {
+            background: rgba(45, 50, 80, 0.8);
+            border-color: #C9A96E;
+            box-shadow: 0 8px 32px rgba(201, 169, 110, 0.1);
+        }
+
+        .event-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+
+        .event-year {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #C9A96E;
+            min-width: 80px;
+        }
+
+        .event-headline {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #e8e6e1;
+            flex: 1;
+            line-height: 1.3;
+        }
+
+        .event-meta {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .type-badge {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(45, 50, 80, 0.6);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #b8b4ad;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        .category-icon {
+            font-size: 1rem;
+        }
+
+        .event-description {
+            font-size: 0.95rem;
+            color: #b8b4ad;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .celestial-event {
+            font-size: 0.9rem;
+            color: #7ECBA1;
+            font-style: italic;
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 12px;
+            padding-left: 12px;
+            border-left: 2px solid #7ECBA1;
+        }
+
+        .expand-btn {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(201, 169, 110, 0.2);
+            border: 1px solid #C9A96E;
+            border-radius: 4px;
+            color: #C9A96E;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: 'IBM Plex Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .expand-btn:hover {
+            background: #C9A96E;
+            color: #0a0e27;
+        }
+
+        /* Expanded Event Details */
+        .expanded-details {
+            background: rgba(25, 30, 50, 0.8);
+            border: 1px solid #C9A96E;
+            border-radius: 8px;
+            margin-top: 12px;
+            padding: 20px;
+            animation: fadeSlideUp 0.4s ease-out;
+        }
+
+        .details-tab-nav {
+            display: flex;
+            gap: 10px;
+            border-bottom: 1px solid rgba(201, 169, 110, 0.2);
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .details-tab {
+            padding: 10px 12px;
+            background: transparent;
+            border: none;
+            color: #9a9690;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .details-tab.active {
+            color: #C9A96E;
+            border-bottom-color: #C9A96E;
+        }
+
+        .details-tab:hover {
+            color: #C9A96E;
+        }
+
+        .details-content {
+            font-size: 0.95rem;
+            color: #b8b4ad;
+            line-height: 1.7;
+        }
+
+        .details-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: #C9A96E;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cosmic-link {
+            background: rgba(201, 169, 110, 0.1);
+            border-left: 3px solid #C9A96E;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-style: italic;
+        }
+
+        .key-figures {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .figure {
+            background: rgba(45, 50, 80, 0.8);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            border-left: 2px solid #8B7EC7;
+        }
+
+        .deeper-reading {
+            background: rgba(139, 126, 199, 0.1);
+            padding: 12px;
+            border-left: 3px solid #8B7EC7;
+            border-radius: 4px;
+        }
+
+        .deeper-reading li {
+            margin-bottom: 8px;
+            color: #b8b4ad;
+        }
+
+        .related-events {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .related-link {
+            padding: 6px 12px;
+            background: rgba(201, 169, 110, 0.15);
+            border: 1px solid rgba(201, 169, 110, 0.3);
+            border-radius: 4px;
+            color: #C9A96E;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .related-link:hover {
+            background: #C9A96E;
+            color: #0a0e27;
+            border-color: #C9A96E;
+        }
+
+        /* Calendar View */
+        .calendar-container {
+            overflow-x: auto;
+            animation: fadeIn 2.2s ease-out;
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(45, 50, 80, 0.5);
+            border: 1px solid rgba(201, 169, 110, 0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .calendar-table thead {
+            background: rgba(25, 30, 50, 0.8);
+            border-bottom: 2px solid #C9A96E;
+        }
+
+        .calendar-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #C9A96E;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'IBM Plex Mono', monospace;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .calendar-table th:hover {
+            background: rgba(201, 169, 110, 0.1);
+        }
+
+        .calendar-table tbody tr {
+            border-bottom: 1px solid rgba(201, 169, 110, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .calendar-table tbody tr:hover {
+            background: rgba(201, 169, 110, 0.1);
+        }
+
+        .calendar-table td {
+            padding: 12px;
+            color: #b8b4ad;
+            font-size: 0.9rem;
+        }
+
+        .calendar-year {
+            font-weight: 600;
+            color: #C9A96E;
+        }
+
+        .calendar-type-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        /* Glossary */
+        .glossary {
+            margin-top: 60px;
+            padding: 40px;
+            background: rgba(25, 30, 50, 0.6);
+            border: 1px solid rgba(201, 169, 110, 0.2);
+            border-radius: 8px;
+            animation: fadeIn 2.5s ease-out;
+        }
+
+        .glossary-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #C9A96E;
+        }
+
+        .glossary-section {
+            margin-bottom: 30px;
+        }
+
+        .glossary-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #C9A96E;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .glossary-item {
+            margin-bottom: 15px;
+            padding-left: 12px;
+            border-left: 2px solid rgba(201, 169, 110, 0.3);
+        }
+
+        .glossary-term {
+            font-weight: 600;
+            color: #e8e6e1;
+            margin-bottom: 4px;
+        }
+
+        .glossary-def {
+            font-size: 0.9rem;
+            color: #b8b4ad;
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 60px 20px;
+            border-top: 1px solid rgba(201, 169, 110, 0.2);
+            margin-top: 80px;
+            animation: fadeIn 2.8s ease-out;
+        }
+
+        .footer-disclaimer {
+            font-size: 0.9rem;
+            color: #9a9690;
+            margin-bottom: 20px;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        .footer-credit {
+            font-size: 0.85rem;
+            color: #5a5550;
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .footer-span {
+            font-size: 0.8rem;
+            color: #4a4540;
+            margin-top: 15px;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-question {
+                font-size: 1.8rem;
+            }
+
+            .title {
+                font-size: 2.5rem;
+            }
+
+            .timeline-spine {
+                display: none;
+            }
+
+            .planets-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .calendar-table {
+                font-size: 0.75rem;
+            }
+
+            .calendar-table th,
+            .calendar-table td {
+                padding: 8px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .control-group {
+                width: 100%;
+            }
+
+            .filter-pill {
+                flex: 1;
+                min-width: 100px;
+            }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9a9690;
+        }
+
+        .empty-state-text {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useCallback } = React;
+
+        // Comprehensive event database
+        const EVENTS = [
+            // Ancient/Medieval Era
+            {
+                id: 'bethlehem-star',
+                year: -6,
+                yearDisplay: '~7-6 BC',
+                date: 'Approximate',
+                headline: 'Star of Bethlehem',
+                whatHappened: 'Biblical account of a celestial event that guided the Magi (Babylonian astronomers) to witness the birth of Jesus. The most common astronomical theory identifies this as a triple conjunction of Jupiter and Saturn in Pisces, visible three times in 7 BC due to retrograde motion. This would have been extraordinary to observe and held deep astrological significance in Babylonian tradition.',
+                celestialEvent: 'Triple conjunction of Jupiter & Saturn in Pisces (7 BC), visible 3 times that year',
+                celestialType: 'Conjunction',
+                position: 'Pisces',
+                cycle: 'Jupiter-Saturn',
+                category: 'Religious',
+                cosmicLink: 'The leading astronomical theory for the Star of Bethlehem: Jupiter (the "king planet") conjunct Saturn (the "Jewish planet" per Babylonian tradition) in Pisces (the sign associated with the Jews). Babylonian magi — trained in exactly this kind of astrology — would have read this as "a king is born to the Jews." They traveled west.',
+                cycleContext: 'Part of the 20-year Jupiter-Saturn synodic cycle, which was tracked by Babylonian astronomers for over 1,000 years. This particular conjunction in a water sign would have signaled transformation and new dynasties.',
+                keyFigures: ['The Magi', 'Herod', 'Mary and Joseph'],
+                relatedEvents: ['crucifixion-33ad'],
+                deeperReading: [
+                    'Johannes Kepler identified this as a triple Jupiter-Saturn conjunction in Pisces in his 1606 work "De Stella Nova"',
+                    'Babylonian astronomical diaries show continuous Jupiter-Saturn tracking — the Magi would have known this conjunction was coming',
+                    'Pisces ruled the Jewish diaspora in Hellenistic astrology — a perfect sign for this prophecy'
+                ]
+            },
+            {
+                id: 'crucifixion-33ad',
+                year: 33,
+                yearDisplay: '33 AD',
+                date: 'April 3, 33 AD',
+                headline: 'Crucifixion of Jesus',
+                whatHappened: 'The execution of Jesus of Nazareth, a Jewish preacher in Roman-occupied Palestine. The crucifixion became the cornerstone of Christianity and the most consequential death in Western history. The Gospel accounts describe darkness at midday and a "blood-red moon," details that have been interpreted both literally and symbolically by theologians for 2,000 years.',
+                celestialEvent: 'Lunar eclipse April 3, 33 AD (NASA confirmation); Moon "turned to blood"',
+                celestialType: 'Eclipse',
+                position: 'Libra',
+                cycle: 'Saros Series',
+                category: 'Religious',
+                cosmicLink: 'NASA astronomers have confirmed that a partial lunar eclipse was visible from Jerusalem on April 3, 33 AD — the date most scholars identify as the crucifixion. The biblical account of darkness and a blood-red moon aligns precisely with a lunar eclipse visible from the eastern Mediterranean. Whether literal or symbolic, the eclipse marks the most significant moment in Christian theology.',
+                cycleContext: 'This eclipse was part of Saros Series 10, a series of eclipses repeating every 18 years and 11 days. The theological importance of eclipses as divine signs permeates both Jewish and Christian tradition.',
+                keyFigures: ['Jesus of Nazareth', 'Pontius Pilate', 'Mary Magdalene'],
+                relatedEvents: ['bethlehem-star'],
+                deeperReading: [
+                    'NASA\'s Goddard Space Flight Center confirmed the lunar eclipse of April 3, 33 AD, lending scientific support to this dating',
+                    'Ancient Jewish tradition held that eclipses preceded the death of great persons or the downfall of kingdoms',
+                    'The Gospel of Luke explicitly mentions darkness at midday (12th hour) — consistent with eclipse phenomena'
+                ]
+            },
+            {
+                id: 'great-schism-1054',
+                year: 1054,
+                yearDisplay: '1054',
+                date: 'July 16, 1054',
+                headline: 'Great Schism — Catholic & Orthodox Split',
+                whatHappened: 'The Christian Church formally split into Eastern Orthodox and Roman Catholic branches after centuries of theological and political tension. Patriarch Michael Cerularius excommunicated papal legate Cardinal Humbert, and the pope excommunicated the patriarch in return. The schism would last nearly 1,000 years and reshape European religious and political history.',
+                celestialEvent: 'Supernova observed (Crab Nebula — SN 1054); "guest star" visible in daylight for 23 days, recorded by Chinese and Islamic astronomers',
+                celestialType: 'Supernova',
+                position: 'Taurus',
+                cycle: 'Celestial Anomaly',
+                category: 'Religious',
+                cosmicLink: 'The most dramatic celestial event of the medieval period — a star exploding in daylight, visible even in full sun — coincided with the most dramatic religious rupture in Christian history. The Church splits into East and West just as the heavens produce something never seen before. Medieval observers read it as divine judgment on the schism itself.',
+                cycleContext: 'Supernovae were considered the ultimate celestial omens — temporary new stars that disrupted the immutable sphere of fixed stars. This was a cosmic violation in the Aristotelian worldview.',
+                keyFigures: ['Patriarch Michael Cerularius', 'Cardinal Humbert', 'Pope Leo IX'],
+                relatedEvents: ['schism-1484'],
+                deeperReading: [
+                    'Chinese astronomers recorded this supernova as a "guest star" in the constellation of the Rooster',
+                    'The remnant is now known as the Crab Nebula and is among the most studied objects in astronomy',
+                    'Some medieval theologians explicitly connected the supernova to the schism as divine punishment for church corruption'
+                ]
+            },
+            {
+                id: 'norman-conquest-1066',
+                year: 1066,
+                yearDisplay: '1066',
+                date: 'October 14, 1066',
+                headline: 'Norman Conquest of England — Battle of Hastings',
+                whatHappened: 'William, Duke of Normandy, defeated King Harold II at the Battle of Hastings, establishing Norman rule over England and fundamentally transforming English culture, language, law, and governance. The victory was aided by Harold\'s distraction at the appearance of Halley\'s Comet months earlier. The Normans introduced feudalism and French language influences that would create modern English.',
+                celestialEvent: 'Halley\'s Comet visible April 1066, depicted in Bayeux Tapestry with great prominence',
+                celestialType: 'Comet',
+                position: 'Variable',
+                cycle: '76-year cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'Comets were the supreme omen in medieval astrology — harbingers of the death of kings and upheaval. Harold II saw it and knew it portended his doom. William saw it and claimed it as his sign of divine favor. The comet is literally woven into the Bayeux Tapestry as divine endorsement of the conquest.',
+                cycleContext: 'Halley\'s Comet appears approximately every 76 years. Its appearance was so significant that William commissioned the tapestry partly to justify his rule through this celestial sign. Comets were thought to announce changes of sovereignty.',
+                keyFigures: ['William the Conqueror', 'King Harold II', 'Duke William'],
+                relatedEvents: ['great-schism-1054'],
+                deeperReading: [
+                    'The Bayeux Tapestry explicitly shows Halley\'s Comet, labeled "ISTI MIRANT STELLA" (these marvel at the star)',
+                    'Harold II witnessed the comet and died at Hastings just months later — confirming it as a death omen in medieval eyes',
+                    'This conquest permanently altered the English language, bringing French vocabulary and Norman feudalism to Britain'
+                ]
+            },
+            {
+                id: 'black-death-1345',
+                year: 1345,
+                yearDisplay: '1345-1347',
+                date: 'March 20, 1345',
+                headline: 'Black Death Begins — Saturn-Jupiter-Mars Triple Conjunction',
+                whatHappened: 'The plague that killed 25-50 million people across Eurasia and North Africa began spreading from Central Asia to the Mediterranean and Europe. It would become the deadliest pandemic in human history, killing 30-60% of Europe\'s population. The University of Paris formally attributed the plague to an astronomical conjunction, making this the single most-cited celestial-event-to-world-event connection in pre-modern history.',
+                celestialEvent: 'Triple conjunction of Saturn, Jupiter, and Mars at 20° Aquarius (March 20, 1345). University of Paris officially blamed this conjunction.',
+                celestialType: 'Conjunction',
+                position: 'Aquarius',
+                cycle: 'Saturn-Jupiter-Mars',
+                category: 'Pandemic',
+                cosmicLink: 'The University of Paris formally attributed the plague to this triple conjunction. Medieval "conjunctionist astrology" considered Saturn-Jupiter-Mars in a moist sign (Aquarius) to create "corrupt air" and pestilence. The conjunction was widely circulated as the cause of the plague, making medieval astrology\'s most consequential prediction.',
+                cycleContext: 'The conjunction occurred during a period of Saturn-Jupiter cycle stress. Aquarius, a moist and airy sign, was theorized to cause miasma and corrupted humors. This became the dominant astrological explanation for the plague.',
+                keyFigures: ['Johannes de Muris', 'University of Paris scholars', 'Albertus Magnus'],
+                relatedEvents: ['1665-plague-london'],
+                deeperReading: [
+                    'The University of Paris issued a formal astral judgment attributing the plague to the conjunction — the most official medieval astro-medical pronouncement',
+                    'Johannes de Muris, a prominent astronomer, wrote extensively on this conjunction and its toxic effects',
+                    'This alignment gave astrology immense credibility in medieval Europe — if the stars caused the plague, then the stars must rule human affairs'
+                ]
+            },
+            {
+                id: 'constantinople-fall-1453',
+                year: 1453,
+                yearDisplay: '1453',
+                date: 'May 29, 1453',
+                headline: 'Fall of Constantinople — 1,100 Years of Continuity Ends',
+                whatHappened: 'The Ottoman Empire conquered Constantinople, the last remaining city of the Byzantine Empire and the last bastion of the Eastern Roman Empire. The city fell after a 53-day siege. Constantinople had stood for 1,100 years as the capital of the Roman Empire (renamed Byzantine), and its fall marked the end of Classical antiquity\'s last institutional survivor and the beginning of the Ottoman dominance of the Mediterranean.',
+                celestialEvent: 'Lunar eclipse on May 22, 1453 (7 days before the fall on May 29). The eclipse was seen as fulfilling a prophecy that Constantinople would fall when the moon gave a sign.',
+                celestialType: 'Eclipse',
+                position: 'Sagittarius',
+                cycle: 'Saros Series 9',
+                category: 'Geopolitical',
+                cosmicLink: 'A prophecy held that Constantinople would not fall while the moon was waxing. The lunar eclipse on May 22 — blood-red moon over the city — was taken as the sign. The city fell 7 days later. The end of the Byzantine Empire, 1,100 years of Roman continuity, announced by an eclipse.',
+                cycleContext: 'The eclipse triggered both Christian despair (the prophecy fulfilled, God has abandoned Constantinople) and Ottoman confidence (the eclipse proves Allah wills our victory). Lunar eclipses were the supreme omens for cities and rulers.',
+                keyFigures: ['Constantine XI (last Byzantine emperor)', 'Mehmed II (Ottoman conqueror)', 'Giovanni Giustiniani'],
+                relatedEvents: ['great-schism-1054'],
+                deeperReading: [
+                    'The blood-red color of the eclipse (caused by Earth\'s shadow) was interpreted as a sign of blood to be spilled',
+                    'The eclipse occurred during Ramadan, which some Ottoman sources cite as a sign of divine favor',
+                    'Byzantine defenders saw the eclipse as confirmation that God had abandoned the city to its fate'
+                ]
+            },
+            {
+                id: 'schism-1484',
+                year: 1484,
+                yearDisplay: '1484',
+                date: 'November 1484',
+                headline: 'Great Conjunction in Scorpio — Reformation Predicted',
+                whatHappened: 'A conjunction of Jupiter and Saturn occurred in Scorpio. Martin Luther was born in this year. After the fact, astrologers noted this Great Conjunction and retroactively interpreted it as a sign of the Reformation, though the connection was made after Luther\'s birth and the consequent events. Luther\'s birth year was adjusted to match the conjunction as astrology\'s vindication.',
+                celestialEvent: 'Jupiter-Saturn conjunction in Scorpio',
+                celestialType: 'Conjunction',
+                position: 'Scorpio',
+                cycle: '20-year Jupiter-Saturn cycle',
+                category: 'Religious',
+                cosmicLink: 'After the fact, astrologers noted this Great Conjunction in Scorpio (death/transformation/occult) predicted the birth of Martin Luther and the Reformation. Luther\'s birth date was retroactively adjusted to match the conjunction year — showing how deeply astrology was embedded in medieval worldview and how astrologers retrofitted historical events to celestial cycles.',
+                cycleContext: 'The Jupiter-Saturn conjunction in Scorpio was thought to herald death, transformation, and destruction of the old order. Scorpio was associated with occult knowledge and hidden truths — appropriate for a reformation that challenged the Church\'s monopoly on spiritual truth.',
+                keyFigures: ['Martin Luther', 'Pope Leo X', 'Johannes Müller (Regiomontanus)'],
+                relatedEvents: ['reformation-1517'],
+                deeperReading: [
+                    'The conjunction was used retroactively to "prove" astrology\'s predictive power',
+                    'Luther himself was born in 1483, not 1484, but astrologers adjusted dates to match the conjunction',
+                    'This became a template for future astro-historical retrofitting — finding celestial events to match historical ones'
+                ]
+            },
+            {
+                id: 'columbus-1492',
+                year: 1492,
+                yearDisplay: '1492',
+                date: 'August 3, 1492',
+                headline: 'Columbus Reaches the Americas',
+                whatHappened: 'Christopher Columbus, sailing under the Spanish flag with three ships, reached the Caribbean islands (the Bahamas and later Cuba and Hispaniola). The voyage opened the Atlantic for regular European exploration and initiated 500 years of colonization, disease, genocide, and global transformation. Columbus himself was well-versed in astrological calculations and used lunar eclipse predictions to impress indigenous peoples.',
+                celestialEvent: 'Jupiter-Saturn conjunction in early Libra (1484 cycle still active), solar eclipse Feb 1492',
+                celestialType: 'Conjunction & Eclipse',
+                position: 'Libra',
+                cycle: '20-year Jupiter-Saturn',
+                category: 'Geopolitical',
+                cosmicLink: 'Columbus used a lunar eclipse (1504 in Jamaica) to intimidate indigenous people by predicting its arrival. The 1492 voyage itself occurred in the aftermath of the 1484 Great Conjunction — a shift in the "mutation cycle" that astrologers associated with the discovery of new lands and peoples.',
+                cycleContext: 'The end of the Jupiter-Saturn cycle from 1484 was theorized to mark a new phase of global expansion. Astrologers celebrated Columbus\'s voyage as proof that the Great Conjunction predicted new worlds.',
+                keyFigures: ['Christopher Columbus', 'Queen Isabella', 'King Ferdinand'],
+                relatedEvents: ['norman-conquest-1066'],
+                deeperReading: [
+                    'Columbus carried astronomical tables and was trained in astrological prediction',
+                    'He used a predicted lunar eclipse in Jamaica to convince indigenous people of his "god-like" power',
+                    'Astrologers later cited his voyage as validation of the Great Conjunction theory of global discovery'
+                ]
+            },
+            {
+                id: 'reformation-1517',
+                year: 1517,
+                yearDisplay: '1517',
+                date: 'October 31, 1517',
+                headline: 'Martin Luther\'s 95 Theses — Protestant Reformation Begins',
+                whatHappened: 'Martin Luther nailed his 95 Theses to the church door in Wittenberg, challenging papal authority and Catholic theology regarding indulgences and penance. This act sparked the Protestant Reformation, which split Christianity, redefined Christian theology, and transformed European politics, education, and society. Within decades, the Catholic Church\'s monopoly on Western Christianity was shattered.',
+                celestialEvent: 'Jupiter-Saturn conjunction cycle (1504 in Cancer), approaching new conjunction; Saturn square Pluto',
+                celestialType: 'Conjunction',
+                position: 'Cancer/Pluto in Sagittarius',
+                cycle: '20-year Jupiter-Saturn',
+                category: 'Religious',
+                cosmicLink: 'The Reformation was astrologized before it happened. The 1484 conjunction was cited as its harbinger. Luther himself lived in a world where celestial events were taken as signs of divine will. The "Great Mutation" theory held that shifts in conjunction trigons brought shifts in religion. Saturn-Pluto square: old authority (Saturn) meets revolutionary transformation (Pluto).',
+                cycleContext: 'The 1504 Great Conjunction was seen as predicting a religious crisis. The 1517 reformation matched the expected timeline of Jupiter-Saturn return cycles. Astrologers saw the heavens confirming the church\'s need to reform.',
+                keyFigures: ['Martin Luther', 'Pope Leo X', 'Johannes Tetzel'],
+                relatedEvents: ['schism-1484', 'great-schism-1054'],
+                deeperReading: [
+                    'Luther was trained in Aristotelian philosophy and medieval astrology at the University of Erfurt',
+                    'The 95 Theses circulated throughout Europe, sparking widespread theological debate and reform',
+                    'The Great Conjunction theory made the Reformation seem cosmically inevitable, not merely human choice'
+                ]
+            },
+            {
+                id: '1665-plague-london',
+                year: 1665,
+                yearDisplay: '1665-1666',
+                date: 'September 1665',
+                headline: 'Great Plague & Great Fire of London',
+                whatHappened: 'The Great Plague of London killed approximately 100,000 people (15-20% of the city\'s population) in a single year. The following year, the Great Fire of London destroyed 13,000 houses and forced a rebuild of the city. The plague created panic, while the fire seemingly purified the city. Astrologers had predicted catastrophe from the planetary alignments; William Lilly was interrogated for his prior predictions.',
+                celestialEvent: 'Grand Cross formation of Mars, Jupiter, Saturn. Eclipse sequence 1665-66.',
+                celestialType: 'Aspect/Eclipse',
+                position: 'Multiple',
+                cycle: 'Saturn-Jupiter-Pluto',
+                category: 'Pandemic',
+                cosmicLink: 'Astrologers had predicted catastrophe for London from the planetary alignments. The Grand Cross (4 planets in harsh 90° aspects) was considered the most destructive configuration possible. Plague killed 100,000; the Great Fire destroyed 13,000 houses. William Lilly, England\'s most famous astrologer, was interrogated for having predicted the fire years earlier.',
+                cycleContext: 'Multiple outer planets in harsh aspect (90° angles) represented conflict, plague, and destruction. The Grand Cross was considered among the worst celestial configurations possible.',
+                keyFigures: ['William Lilly', 'Samuel Pepys', 'King Charles II'],
+                relatedEvents: ['black-death-1345'],
+                deeperReading: [
+                    'William Lilly predicted the Great Fire in his 1651 almanac "Annus Mirabilis"',
+                    'Lilly was called before Parliament to explain his predictions — possibly a test of astrology\'s validity',
+                    'The Great Fire burned 89 churches and most of medieval London\'s remaining structures'
+                ]
+            },
+            {
+                id: 'american-revolution-1776',
+                year: 1776,
+                yearDisplay: '1776',
+                date: 'July 4, 1776',
+                headline: 'American Revolution & Declaration of Independence',
+                whatHappened: 'The thirteen American colonies declared independence from Britain, establishing the United States of America as a sovereign nation. The Declaration of Independence, penned by Thomas Jefferson, outlined Enlightenment principles of natural rights and popular sovereignty. The revolutionary war lasted 7 more years, but this moment marked the birth of the American republic.',
+                celestialEvent: 'Pluto in Capricorn (Pluto return for the US in 2022 — same position), Uranus discovered 5 years later (1781)',
+                celestialType: 'Planetary Position',
+                position: 'Capricorn (Pluto)',
+                cycle: '248-year Pluto cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'The US was "born" with Pluto at 27° Capricorn. When Pluto returned to this exact degree in 2022 (its 248-year cycle), the nation experienced political polarization and institutional crisis. Astrologers call this the "Pluto return" — a nation confronting its foundational shadows and the sins of its birth (slavery, genocide of Native Americans).',
+                cycleContext: 'Pluto\'s 248-year cycle means every nation goes through one Pluto return in its founding period. The US is currently in its first Pluto return (2022-2024), experiencing its deepest institutional reckonings.',
+                keyFigures: ['Thomas Jefferson', 'Benjamin Franklin', 'George Washington'],
+                relatedEvents: ['french-revolution-1789'],
+                deeperReading: [
+                    'The US natal chart (July 4, 1776, 2:13 PM, Philadelphia) is one of the most analyzed in history',
+                    'Pluto in Capricorn at the founding suggests themes of power, control, and authority transformation',
+                    'The US Pluto return (2022-2024) coincided with January 6, political polarization, and institutional stress'
+                ]
+            },
+            {
+                id: 'french-revolution-1789',
+                year: 1789,
+                yearDisplay: '1789',
+                date: 'July 14, 1789',
+                headline: 'French Revolution — Storming of the Bastille',
+                whatHappened: 'French revolutionaries stormed the Bastille, a symbol of royal tyranny and feudal oppression. The event triggered the French Revolution, which overthrew the Ancien Régime, abolished feudalism, executed the king and queen, and fundamentally transformed European politics. The revolution inspired democratic and nationalist movements across the continent for the next century.',
+                celestialEvent: 'Saturn conjunct Pluto in Capricorn (exact June 1989, but in effect 1788-1790), Uranus in Leo',
+                celestialType: 'Conjunction',
+                position: 'Capricorn (Saturn-Pluto)',
+                cycle: 'Saturn-Pluto cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'Saturn-Pluto in Capricorn: the destruction of existing power structures. Capricorn rules government, hierarchy, tradition. Saturn-Pluto there = "the old order collapses." The French monarchy — 800 years of rule — dissolved. The same sign placement would occur again in 1989 (Berlin Wall) and 2020 (COVID).',
+                cycleContext: 'Saturn-Pluto in Capricorn represents cycles of systemic breakdown. Every 35 years, this aspect recurs and destroys old government structures. 1789 (French Revolution), 1824 (Greek independence), 1859 (Italian unification), 1894, 1929-30 (Great Depression), 1965, 2000, 2020.',
+                keyFigures: ['Georges Danton', 'Maximilien Robespierre', 'Marie Antoinette'],
+                relatedEvents: ['american-revolution-1776'],
+                deeperReading: [
+                    'The French Revolution was THE EVENT that Saturn-Pluto astrology used to establish its predictive model',
+                    'The Terror (1793-1794) killed tens of thousands and was seen as Saturn-Pluto\'s destructive power uncontrolled',
+                    'Robespierre\'s death and the end of the Terror also occurred under Saturn-Pluto — suggesting its self-limiting cycle'
+                ]
+            },
+            {
+                id: 'tambora-1815',
+                year: 1815,
+                yearDisplay: '1815-1816',
+                date: 'April 5, 1815',
+                headline: 'Mount Tambora Eruption — "Year Without a Summer"',
+                whatHappened: 'Mount Tambora in Indonesia erupted in the largest volcanic explosion of recorded history, ejecting an estimated 60 million tons of ash and gases into the atmosphere. The resulting aerosol veil blocked sunlight worldwide, causing global temperatures to drop 0.4-0.7°C. 1816 became the "Year Without a Summer," with global crop failures, famine, and mass migration. Approximately 71,000 people died directly; hundreds of thousands more from starvation.',
+                celestialEvent: 'Neptune in Sagittarius opposing Jupiter, Saturn in Pisces',
+                celestialType: 'Opposition',
+                position: 'Sagittarius (Neptune)-Gemini (Jupiter)',
+                cycle: 'Neptune cycle',
+                category: 'Scientific',
+                cosmicLink: 'Neptune (dissolution, water, fog) in opposition during the greatest volcanic eruption in recorded history. The resulting "year without a summer" caused global crop failures, famine, and mass migration. Mary Shelley wrote Frankenstein that summer, trapped indoors by endless rain.',
+                cycleContext: 'Neptune in Sagittarius (the opposite of Gemini rules expansion and long-distance communication) — but the opposition to Jupiter says expansion is thwarted. The year without sun matched Neptune\'s obscuration of light.',
+                keyFigures: ['Mary Shelley', 'Lord Byron', 'Percy Bysshe Shelley'],
+                relatedEvents: ['irish-famine-1845'],
+                deeperReading: [
+                    'Mary Shelley, trapped indoors by endless rain, began writing Frankenstein during the Year Without a Summer',
+                    'Byron challenged the group to write horror stories — origin of Frankenstein and The Vampyre',
+                    'The eruption\'s ash column reached 80 km high — the largest atmospheric perturbation in recorded history'
+                ]
+            },
+            {
+                id: 'irish-famine-1845',
+                year: 1845,
+                yearDisplay: '1845-1849',
+                date: 'October 1845',
+                headline: 'Irish Famine — Potato Blight & Genocidal Policy',
+                whatHappened: 'A fungal blight (Phytophthora infestans) destroyed Ireland\'s potato crops for four consecutive years. The blight, originating in the Andes, spread across Europe but was most devastating to Ireland, where half the population depended entirely on potatoes for calories. British policy exacerbated the crisis, continuing food exports and evicting starving tenants. Approximately 1 million died; another 1-2 million emigrated, transforming Ireland and Irish-America.',
+                celestialEvent: 'Saturn conjunct Neptune in Aquarius',
+                celestialType: 'Conjunction',
+                position: 'Aquarius',
+                cycle: 'Saturn-Neptune cycle',
+                category: 'Pandemic',
+                cosmicLink: 'Saturn-Neptune: hard reality (Saturn) dissolves dreams (Neptune). In Aquarius (the people, collective). The potato blight destroyed Ireland\'s food supply; British policy turned agricultural failure into genocide. A million died, another million emigrated. Neptune = dissolution; Saturn = the structure that failed them.',
+                cycleContext: 'Saturn-Neptune in Aquarius suggests collective hardship and the dissolution of communal bonds. The famine scattered the Irish people across the world, breaking ancient clan structures.',
+                keyFigures: ['Charles Trevelyon (British policy maker)', 'Daniel O\'Connell', 'Theobald Mathew'],
+                relatedEvents: ['tambora-1815'],
+                deeperReading: [
+                    'The blight was caused by a water mold that thrived in cool, wet conditions — abundant in 1845-46',
+                    'British policy maintained food exports while Irish starved — deliberate exacerbation',
+                    'The famine killed 25% of Ireland\'s population and halved it through emigration'
+                ]
+            },
+            {
+                id: 'lincoln-assassination-1865',
+                year: 1865,
+                yearDisplay: '1865',
+                date: 'April 14, 1865',
+                headline: 'Lincoln Assassinated — End of the Civil War & Beginning of Reconstruction',
+                whatHappened: 'Abraham Lincoln was shot in Ford\'s Theatre by John Wilkes Booth, dying the following morning. Lincoln had led the US through the Civil War, abolished slavery, and was preparing reconstruction of the South when he was assassinated. His death during the Union\'s victory left the reconstruction process to his vice president Andrew Johnson, leading to decades of contested racial progress.',
+                celestialEvent: 'Lunar eclipse April 1865, Uranus conjunct Pluto approaching',
+                celestialType: 'Eclipse',
+                position: 'Libra (eclipse)',
+                cycle: 'Uranus-Pluto cycle',
+                category: 'Deaths & Births',
+                cosmicLink: 'Ancient astrology associated eclipses with the death of rulers. Lincoln was shot 5 days after Appomattox (the battle ending the Civil War). The eclipse falling during the American Civil War\'s end marks the death of the old order — slavery — and the beginning of Reconstruction.',
+                cycleContext: 'Eclipses were considered death omens for rulers. This eclipse directly preceded Lincoln\'s assassination during the war\'s final week, reinforcing eclipse astrology\'s association with the death of kings.',
+                keyFigures: ['Abraham Lincoln', 'John Wilkes Booth', 'Andrew Johnson'],
+                relatedEvents: ['american-revolution-1776'],
+                deeperReading: [
+                    'Lincoln\'s last day included dreams of his own death — he told friends he was afraid of assassination',
+                    'Booth was a famous Shakespearean actor obsessed with classical drama — he saw himself as avenging a fallen South',
+                    'Lincoln\'s death placed Reconstruction in the hands of Andrew Johnson, who was sympathetic to the South'
+                ]
+            },
+            {
+                id: 'einstein-born-1879',
+                year: 1879,
+                yearDisplay: '1879',
+                date: 'March 14, 1879',
+                headline: 'Albert Einstein Born — Future Revolutionizer of Physics',
+                whatHappened: 'Albert Einstein was born in Ulm, Germany. Though unremarkable at the time, Einstein would become the most famous physicist of the 20th century, developing theories of special and general relativity that fundamentally transformed physics and our understanding of space, time, gravity, and light. His E=mc² equation became the most famous scientific formula in history.',
+                celestialEvent: 'Saturn in Aries, Uranus conjunct Mars',
+                celestialType: 'Conjunction',
+                position: 'Aries',
+                cycle: 'Uranus-Mars cycle',
+                category: 'Deaths & Births',
+                cosmicLink: 'Uranus (revolution, sudden insight) conjunct Mars (energy, action) at Einstein\'s birth. His theories would literally revolutionize physics. The "lightning bolt" planet aligned with the planet of force — E=mc².',
+                cycleContext: 'Uranus-Mars aspects are associated with revolutionary breakthroughs in science and technology. This conjunction suggested a lifetime of sudden, forceful insights that would disrupt established science.',
+                keyFigures: ['Albert Einstein', 'Niels Bohr', 'Max Planck'],
+                relatedEvents: [],
+                deeperReading: [
+                    'Einstein\'s relativity theories were published in 1905 and 1915 — during Uranus square natal Uranus (his Uranus return)',
+                    'Saturn in Aries at birth suggests a personality that challenges (Aries) established (Saturn) structures',
+                    'Einstein\'s E=mc² became a symbol of scientific power to transform matter itself'
+                ]
+            },
+            {
+                id: 'world-war-i-1914',
+                year: 1914,
+                yearDisplay: '1914',
+                date: 'July 28, 1914',
+                headline: 'World War I Begins — First Global Total War',
+                whatHappened: 'Austria-Hungary declared war on Serbia, triggering a cascade of declarations that embroiled all major European powers (and eventually the world) in the First World War. Archduke Franz Ferdinand was assassinated on June 28, touching off diplomatic crises. The war lasted 4 years, killed 17 million people, and destroyed four empires (Ottoman, Russian, Austro-Hungarian, German).',
+                celestialEvent: 'Saturn conjunct Pluto in Cancer (triple conjunction due to retrograde)',
+                celestialType: 'Conjunction',
+                position: 'Cancer',
+                cycle: 'Saturn-Pluto cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'The 20th century\'s first Saturn-Pluto conjunction. Cancer rules homeland, family, tribal belonging. The conjunction in Cancer = tribal power structures going to war. Archduke Franz Ferdinand shot June 28. Four empires would fall: Ottoman, Russian, Austro-Hungarian, German.',
+                cycleContext: 'Saturn-Pluto is a 33-36 year cycle. The 1914 conjunction in Cancer suggested conflicts over homeland and tribal identity. The old empires, based on dynastic family rule (Cancer), would collapse.',
+                keyFigures: ['Archduke Franz Ferdinand', 'Kaiser Wilhelm II', 'Tsar Nicholas II'],
+                relatedEvents: ['world-war-ii-1939'],
+                deeperReading: [
+                    'The Saturn-Pluto conjunction was in EXACT aspect within 2 days of Austria-Hungary\'s declaration of war',
+                    'All four empires collapsed by 1922, precisely as the Saturn-Pluto cycle suggested',
+                    'Astrologers later cited 1914 as proof of Saturn-Pluto\'s destructive power'
+                ]
+            },
+            {
+                id: 'wall-street-crash-1929',
+                year: 1929,
+                yearDisplay: '1929',
+                date: 'October 29, 1929',
+                headline: 'Wall Street Crash — Black Tuesday & the Great Depression',
+                whatHappened: 'The US stock market crashed, losing 13% of its value in a single day (the largest one-day percentage loss in history). The crash, preceded by years of speculation and margin trading, triggered a global economic depression lasting a decade. Millions lost their savings; unemployment reached 25%. The Depression reshaped politics, labor, and government worldwide.',
+                celestialEvent: 'Jupiter-Saturn-Pluto parallel aspect, solar eclipse Nov 1, 1929',
+                celestialType: 'Aspect/Eclipse',
+                position: 'Libra',
+                cycle: 'Outer planet alignment',
+                category: 'Financial',
+                cosmicLink: 'Jupiter (expansion/excess), Saturn (contraction/fear), and Pluto (hidden destruction) in parallel aspect. The bubble burst when all three aligned. A solar eclipse hit days after Black Tuesday — eclipses expose what\'s hidden. The hidden truth: the economy was built on margin debt and speculation.',
+                cycleContext: 'Three outer planets in simultaneous aspect created a rare "storm" in the financial markets. The eclipse amplified the hidden nature of the crisis — the underlying fraud and excessive leverage.',
+                keyFigures: ['Herbert Hoover', 'J.P. Morgan', 'Calvin Coolidge'],
+                relatedEvents: ['2008-financial-crisis'],
+                deeperReading: [
+                    'The eclipse was a solar eclipse — complete obscuration of the sun — symbolizing the "darkness" of the crisis',
+                    'Margin debt had reached 70% of market value — the bubble was bound to burst',
+                    'The Depression triggered a global economic collapse and political upheavals (rise of fascism)'
+                ]
+            },
+            {
+                id: 'atomic-bombs-1945',
+                year: 1945,
+                yearDisplay: '1945',
+                date: 'August 6, 1945',
+                headline: 'Atomic Bombs on Hiroshima & Nagasaki — Nuclear Age Begins',
+                whatHappened: 'The US dropped atomic bombs on Hiroshima (August 6) and Nagasaki (August 9), killing approximately 200,000 people instantly and 300,000+ by year\'s end from radiation sickness. Japan surrendered on August 15. The bombings ushered in the Nuclear Age and the existential threat of nuclear war that would define the Cold War.',
+                celestialEvent: 'Saturn square Uranus, Pluto in Leo (power/authority)',
+                celestialType: 'Square/Aspect',
+                position: 'Leo (Pluto)',
+                cycle: 'Outer planet alignment',
+                category: 'Geopolitical',
+                cosmicLink: 'Pluto was discovered in 1930 and named after the god of the underworld. 15 years later, humans split the atom — releasing plutonium\'s power. Saturn (structure) square Uranus (technology/disruption): the ultimate destructive technology is deployed. The planet literally named for nuclear power enabled nuclear war.',
+                cycleContext: 'Pluto in Leo suggests issues of power, dominance, and the ultimate expression of force. Splitting the atom was the ultimate expression of human power (Leo) over matter. Saturn-Uranus square represented the conflict between military structure (Saturn) and destructive technology (Uranus).',
+                keyFigures: ['J. Robert Oppenheimer', 'Enrico Fermi', 'Harry Truman'],
+                relatedEvents: ['world-war-ii-1939'],
+                deeperReading: [
+                    'Oppenheimer quoted the Bhagavad Gita after witnessing the first nuclear test: "Now I am become Death, the destroyer of worlds"',
+                    'Plutonium, element 94, was discovered in 1940 and synthesized in 1941 — the bomb\'s primary fissile material',
+                    'The Hiroshima bomb killed 70% of buildings within a 1-mile radius; the thermal flash caused third-degree burns 1 mile away'
+                ]
+            },
+            {
+                id: 'dead-sea-scrolls-1947',
+                year: 1947,
+                yearDisplay: '1947-1948',
+                date: 'November 1947',
+                headline: 'Dead Sea Scrolls Discovered & Israel Founded',
+                whatHappened: 'Bedouin shepherds discovered the Dead Sea Scrolls in caves near Qumran, containing the oldest biblical manuscripts (dating to the 2nd century BC). Simultaneously, the United Nations voted to partition Palestine, and Israel declared independence in May 1948. The scrolls provided the oldest biblical texts ever found; Israel\'s founding marked the first Jewish state in 2,000 years.',
+                celestialEvent: 'Saturn conjunct Pluto in Leo (Aug 1947)',
+                celestialType: 'Conjunction',
+                position: 'Leo',
+                cycle: 'Saturn-Pluto cycle',
+                category: 'Religious',
+                cosmicLink: 'Saturn-Pluto conjunction in Leo (kings, identity, chosen-ness). The oldest biblical manuscripts are found in caves, and the following year, Israel is declared a state for the first time in 2,000 years. Pluto unearths what was buried; Saturn gives it structure.',
+                cycleContext: 'Leo rules identity and kingship. Saturn-Pluto in Leo brought issues of identity (who are the Jews?) and state power (re-establishment of the Jewish kingdom) into focus. Both the scrolls and the state assert ancient Jewish claims.',
+                keyFigures: ['Muhammad al-Dibba (shepherd)', 'David Ben-Gurion', 'Martin Buber'],
+                relatedEvents: [],
+                deeperReading: [
+                    'The Dead Sea Scrolls include nearly complete texts of the Old Testament, proving biblical transmission accuracy',
+                    'The discovery occurred in Qumran Cave 1, with later caves yielding thousands of fragments',
+                    'Israel\'s founding created the Israeli-Palestinian conflict that continues to this day'
+                ]
+            },
+            {
+                id: 'gagarin-space-1961',
+                year: 1961,
+                yearDisplay: '1961',
+                date: 'April 12, 1961',
+                headline: 'Yuri Gagarin — First Human in Space',
+                whatHappened: 'Soviet cosmonaut Yuri Gagarin orbited Earth aboard Vostok 1, becoming the first human in space. The 108-minute flight was a triumph of Soviet technology and propaganda, demonstrating Soviet superiority in the Space Race. Gagarin\'s death in a 1968 training accident would make him a Cold War martyr and symbol of human exploration.',
+                celestialEvent: 'Jupiter conjunct Saturn in Capricorn (Feb 1961), approaching Uranus-Pluto conjunction',
+                celestialType: 'Conjunction',
+                position: 'Capricorn',
+                cycle: 'Jupiter-Saturn cycle',
+                category: 'Scientific',
+                cosmicLink: 'Great Conjunction in Capricorn = new social structures. Humanity literally leaves Earth. The Space Race is Saturn-Jupiter in Capricorn: who can build (Saturn) the biggest (Jupiter) structure (Capricorn) first?',
+                cycleContext: 'Jupiter-Saturn in Capricorn marked a shift toward large institutional projects (Saturn-Jupiter in earth sign = building big structures). The space programs were the ultimate expression: building rockets to leave the planet itself.',
+                keyFigures: ['Yuri Gagarin', 'Sergei Korolev', 'Nikita Khrushchev'],
+                relatedEvents: ['moon-landing-1969'],
+                deeperReading: [
+                    'Gagarin\'s "Poyekhali!" ("Let\'s go!") became the catchphrase for the Soviet space program',
+                    'The US followed with Alan Shepard\'s suborbital flight on May 5, 1961',
+                    'Gagarin died in 1968 in a MiG-15 crash during training — officially ruled an accident, though conspiracy theories persist'
+                ]
+            },
+            {
+                id: 'moon-landing-1969',
+                year: 1969,
+                yearDisplay: '1969',
+                date: 'July 20, 1969',
+                headline: 'Moon Landing — Humanity Reaches Another World',
+                whatHappened: 'Apollo 11 astronauts Neil Armstrong and Buzz Aldrin became the first humans to walk on the Moon. The achievement represented the culmination of the Space Race, vindicated the US space program, and provided a moment of global unity as 600 million people watched on television. The US achieved Kennedy\'s 1961 goal to land on the moon before the decade\'s end.',
+                celestialEvent: 'Uranus-Pluto conjunction approaching (exact 1966), transit of Moon through Aquarius',
+                celestialType: 'Conjunction',
+                position: 'Leo (Sun position at launch), Aquarius (Moon)',
+                cycle: 'Uranus-Pluto cycle',
+                category: 'Scientific',
+                cosmicLink: 'Uranus (revolutionary technology) and Pluto (transformation of human reality) approaching their historic 1966 conjunction. The Moon landing fulfilled the Uranus-Pluto promise: technology that transforms humanity\'s place in the cosmos. Humanity no longer confined to Earth.',
+                cycleContext: 'The 1966 Uranus-Pluto conjunction in Virgo marked the beginning of the technology revolution. The Moon landing was Virgo\'s precision engineering and Uranus\'s transcendence combined.',
+                keyFigures: ['Neil Armstrong', 'Buzz Aldrin', 'Michael Collins'],
+                relatedEvents: ['gagarin-space-1961'],
+                deeperReading: [
+                    'Armstrong\'s famous words: "That\'s one small step for man, one giant leap for mankind"',
+                    'The mission used 1960s-era computers with less processing power than modern smartphones',
+                    'Only 12 humans have ever walked on the Moon; none have returned since 1972'
+                ]
+            },
+            {
+                id: 'watergate-1974',
+                year: 1974,
+                yearDisplay: '1974',
+                date: 'August 9, 1974',
+                headline: 'Nixon Resigns — Watergate Crisis & Executive Abuse Exposed',
+                whatHappened: 'President Richard Nixon resigned following the Watergate scandal, becoming the only US president to resign office. The scandal exposed extensive abuse of power, including break-ins, wiretapping, and cover-ups. The crisis nearly brought constitutional government to collapse and resulted in trials and convictions of Nixon\'s top advisors.',
+                celestialEvent: 'Saturn in Gemini opposing Pluto in Sagittarius',
+                celestialType: 'Opposition',
+                position: 'Gemini-Sagittarius',
+                cycle: 'Saturn-Pluto cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'Saturn (law, authority) opposed by Pluto (secret power, hidden truth). The hidden crimes (Pluto) of the executive (Saturn in position of authority) were exposed. The constitutional checks (Saturn) were tested by executive power (Pluto).',
+                cycleContext: 'Saturn-Pluto opposition suggests conflict between authority structures and hidden forces seeking to undermine them. Watergate revealed that presidential power had become hidden, unaccountable, and corrupted.',
+                keyFigures: ['Richard Nixon', 'Gerald Ford', 'Bob Woodward & Carl Bernstein'],
+                relatedEvents: ['american-revolution-1776'],
+                deeperReading: [
+                    'The Watergate hearings were televised, allowing the public to witness the constitutional crisis',
+                    'Nixon used the phrase "I am not a crook," which became iconic of his denials',
+                    'The scandal led to reforms in campaign finance and executive accountability'
+                ]
+            },
+            {
+                id: 'fall-of-berlin-wall-1989',
+                year: 1989,
+                yearDisplay: '1989',
+                date: 'November 9, 1989',
+                headline: 'Berlin Wall Falls — Cold War\'s Visual Symbol Destroyed',
+                whatHappened: 'The Berlin Wall, which had divided East and West Germany for 28 years, was breached and subsequently dismantled. The collapse of the wall symbolized the end of the Cold War and catalyzed the dissolution of the Soviet Union. Germany reunified within a year; Eastern Europe liberated itself from Soviet control.',
+                celestialEvent: 'Saturn-Neptune conjunction in Capricorn (first exact hit Feb 1989). Pluto entering Scorpio.',
+                celestialType: 'Conjunction',
+                position: 'Capricorn',
+                cycle: 'Saturn-Neptune cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'Saturn-Neptune in Capricorn: the dissolution of existing governmental structures. The wall itself — a concrete (Saturn) barrier (Capricorn) — dissolved. Authority structures crumbled. The Soviet bloc, built on authoritarian (Saturn) illusion (Neptune), fell.',
+                cycleContext: 'This is the same sign placement as the 1789 French Revolution and the 2020 COVID crisis. Saturn-Neptune in Capricorn marks the dissolution of governmental authority and the revelation of systemic failures.',
+                keyFigures: ['Mikhail Gorbachev', 'Ronald Reagan', 'Margaret Thatcher'],
+                relatedEvents: ['french-revolution-1789'],
+                deeperReading: [
+                    'Gorbachev\'s glasnost ("openness") and perestroika ("restructuring") policies directly enabled the wall\'s fall',
+                    'The wall fell spontaneously when East German officials announced free passage — no official demolition order',
+                    'The fall was broadcast worldwide and became a symbol of freedom\'s triumph over oppression'
+                ]
+            },
+            {
+                id: '9-11-2001',
+                year: 2001,
+                yearDisplay: '2001',
+                date: 'September 11, 2001',
+                headline: '9/11 Attacks — Pluto Hits 19th-Century US Chart',
+                whatHappened: 'Al-Qaeda terrorists hijacked four planes, crashing two into the World Trade Center towers (both collapsed), one into the Pentagon, and one in Pennsylvania. Nearly 3,000 people died in the deadliest terrorist attack in world history. The attacks prompted the US to declare war on terrorism, invade Afghanistan and Iraq, and implement unprecedented surveillance programs.',
+                celestialEvent: 'Pluto exactly opposite the position it was in the US natal chart (1776). Exact match to the US "shadow Pluto" position 225 years later.',
+                celestialType: 'Opposition/Aspect',
+                position: 'Sagittarius (transiting Pluto)',
+                cycle: '248-year Pluto cycle (midpoint)',
+                category: 'Geopolitical',
+                cosmicLink: 'Pluto in the US 1776 natal chart at 27° Capricorn (power, control, hard authority). In 2001, Pluto was at 13° Sagittarius (opposite sign) — exactly opposite. This represents the shadow of the nation\'s birth power: hidden enemies, secret attacks, the unexpected return of violence.',
+                cycleContext: 'The Pluto opposition at the midpoint of the Pluto cycle (248 years / 2 = 124 years) represents a national crisis point. The US is confronted with the unforeseen consequences of its power.',
+                keyFigures: ['Osama bin Laden', 'George W. Bush', 'Rudy Giuliani'],
+                relatedEvents: ['american-revolution-1776'],
+                deeperReading: [
+                    'The attacks occurred during Mercury retrograde, a period of communication breakdown and hidden messages',
+                    'Bush\'s phrase "You are either with us or against us" represented Pluto\'s binary choice between power',
+                    'The wars that followed lasted 20 years and cost $2+ trillion, reshaping Middle Eastern politics'
+                ]
+            },
+            {
+                id: '2008-financial-crisis',
+                year: 2008,
+                yearDisplay: '2008',
+                date: 'September 15, 2008',
+                headline: 'Lehman Brothers Collapse — 2008 Financial Crisis',
+                whatHappened: 'Lehman Brothers, a 158-year-old investment bank, filed for bankruptcy on September 15, triggering a global financial crisis. The crisis revealed massive fraud in mortgage lending, asset-backed securities, and derivatives trading. The collapse of the housing bubble and credit markets nearly destroyed the global economy. The government intervened with $700 billion+ in bailouts.',
+                celestialEvent: 'Saturn opposing Uranus (exact hit Sep 2008). Pluto square natal Pluto for the US (mid-life crisis at 232 years old).',
+                celestialType: 'Opposition',
+                position: 'Virgo (Saturn) - Pisces (Uranus)',
+                cycle: 'Saturn-Uranus cycle',
+                category: 'Financial',
+                cosmicLink: 'Saturn (financial regulation, structure) opposed Uranus (innovation, speculation, chaos). The unregulated innovation (Uranus) in derivatives and subprime mortgages collapsed when Saturn demanded accountability. Same cycle as 1931 (Great Depression aftermath) and 1966 (late-stage 60s chaos).',
+                cycleContext: 'Saturn-Uranus opposition happens every 45 years. Each time, financial innovation (Uranus) crashes against regulatory failure (Saturn). The 2008 crisis echoed the 1931 aftermath and 1966\'s social chaos.',
+                keyFigures: ['Henry Paulson', 'Ben Bernanke', 'Bernie Madoff'],
+                relatedEvents: ['wall-street-crash-1929'],
+                deeperReading: [
+                    'The crisis was triggered by subprime mortgages bundled into worthless securities — unregulated innovation run amok',
+                    'Lehman\'s bankruptcy was the largest in US history, followed by the collapse of several other major financial institutions',
+                    'The crisis sparked the Occupy Wall Street movement and questions about financial regulation'
+                ]
+            },
+            {
+                id: 'bin-laden-death-2011',
+                year: 2011,
+                yearDisplay: '2011',
+                date: 'May 2, 2011',
+                headline: 'Osama bin Laden Killed in Abbottabad Raid',
+                whatHappened: 'US Navy SEAL Team Six conducted a raid on a compound in Abbottabad, Pakistan, killing Osama bin Laden, the founder of al-Qaeda and mastermind of the 9/11 attacks. The operation was executed under President Barack Obama\'s authorization. Bin Laden\'s death was seen as a victory in the War on Terror, though al-Qaeda continued to operate.',
+                celestialEvent: 'Pluto square natal Pluto (US chart) approaching exact hit 2024. Jupiter-Saturn conjunction in Libra (Dec 2020).',
+                celestialType: 'Aspect',
+                position: 'Capricorn (Pluto)',
+                cycle: '248-year Pluto cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'The enemy (Pluto shadow) is finally confronted and eliminated. But Pluto is not eliminated — only its representative. The death of bin Laden suggested victory, but the ideology and power structures (Pluto) persisted.',
+                cycleContext: 'This event occurs during the extended Pluto cycle of the US — the confrontation with the nation\'s shadow continues.',
+                keyFigures: ['Barack Obama', 'Leon Panetta', 'Admiral William McRaven'],
+                relatedEvents: ['9-11-2001'],
+                deeperReading: [
+                    'The raid was authorized by Obama and executed by SEAL Team Six without Pakistani government approval',
+                    'Bin Laden had evaded capture for a decade, hiding in plain sight in a major Pakistani city',
+                    'His death did not end al-Qaeda or Islamist extremism — the ideology persisted'
+                ]
+            },
+            {
+                id: 'us-pluto-return-2022',
+                year: 2022,
+                yearDisplay: '2022-2024',
+                date: 'January 1, 2022',
+                headline: 'US Pluto Return — Nation at Existential Crossroads',
+                whatHappened: 'Pluto returned to the exact position it held when the US was founded (27° Capricorn on July 4, 1776). This is the first Pluto return in US history. The nation experienced its deepest institutional crisis since the Civil War: the January 6 Capitol insurrection, political polarization, threats to democratic institutions, and reckoning with historical injustices (slavery, Native American genocide, systemic racism).',
+                celestialEvent: 'Pluto at 27° Capricorn (exact return), Saturn-Uranus square, Neptune square natal Neptune, Chiron return',
+                celestialType: 'Return',
+                position: 'Capricorn',
+                cycle: '248-year Pluto cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'The US is confronting its foundational shadow: the sins of its birth (slavery, genocide, unchecked imperial power). Pluto return = transformation or destruction. The nation must integrate its shadow or face disintegration. This is NOT a prediction but a description of the archetype.',
+                cycleContext: 'Every nation experiences one Pluto return in its founding era (248 years = roughly one institutional generation). The US Pluto return (2022-2024) overlaps with Saturn return of the Boomer generation (born 1946) and the Millennial generational peak.',
+                keyFigures: ['Joe Biden', 'Donald Trump', 'Liz Cheney'],
+                relatedEvents: ['american-revolution-1776', '9-11-2001'],
+                deeperReading: [
+                    'The Pluto return coincides with the 50th anniversary of Roe v. Wade\'s reversal — confronting the nation\'s treatment of bodily autonomy',
+                    'January 6 attempted coup occurred during the exact Pluto return window — Pluto\'s themes of power, control, and transformation manifested',
+                    'The nation is reckoning with its founding contradictions: "All men are created equal" built on slavery and genocide'
+                ]
+            },
+            {
+                id: 'ukraine-invasion-2022',
+                year: 2022,
+                yearDisplay: '2022',
+                date: 'February 24, 2022',
+                headline: 'Russia Invades Ukraine — Return of Great Power Conflict',
+                whatHappened: 'Russia, under Vladimir Putin, invaded Ukraine in a full-scale military operation. The invasion resulted in massive civilian casualties, destruction of cities, and a humanitarian crisis. The war exposed Europe\'s vulnerability, prompted NATO expansion, and reshaped global geopolitics. Western nations responded with unprecedented sanctions and military aid to Ukraine.',
+                celestialEvent: 'Saturn-Uranus square exact, Pluto entering Aquarius (March 2023 - first time in 248 years). Return to themes of empire vs. freedom.',
+                celestialType: 'Square/Ingress',
+                position: 'Gemini (Saturn) - Taurus (Uranus); Aquarius (Pluto)',
+                cycle: 'Saturn-Uranus / Pluto ingress',
+                category: 'Geopolitical',
+                cosmicLink: 'Saturn-Uranus square: conflict between old power structures (Saturn) and revolutionary forces (Uranus). Pluto entering Aquarius for the first time in 248 years: the collective (Aquarius) power (Pluto) is transforming. Nations built on empires (Saturn) face forces demanding freedom (Uranus-Aquarius).',
+                cycleContext: 'Pluto enters Aquarius in March 2023, beginning a 248-year cycle. Aquarius represents collective liberation, technology, and decentralization. The invasion represents the death throes of Plutonian empires before Aquarian collective power takes over.',
+                keyFigures: ['Vladimir Putin', 'Volodymyr Zelensky', 'Josep Borrell'],
+                relatedEvents: ['cold-war-beginnings', 'fall-of-berlin-wall-1989'],
+                deeperReading: [
+                    'The invasion sparked the largest refugee crisis in Europe since WWII',
+                    'Ukraine\'s resistance exceeded expectations; the war has been a stalemate of attrition',
+                    'NATO added Finland and is considering further expansion — opposite of Putin\'s goals'
+                ]
+            },
+            {
+                id: 'pluto-aquarius-2024',
+                year: 2024,
+                yearDisplay: '2024',
+                date: 'January 20, 2024',
+                headline: 'Pluto Enters Aquarius — 248-Year Transformation Begins',
+                whatHappened: 'Pluto crossed from Capricorn (where it had been since 2008) into Aquarius on January 20, 2024. This marks the beginning of a 248-year cycle focused on collective power, technology, social movements, and democratization. The last Pluto in Aquarius period (1777-1798) saw the American and French revolutions. The new Pluto in Aquarius era will reshape societies, governance, and human connection.',
+                celestialEvent: 'Pluto ingress into Aquarius at 0° 03\' (exact at 9:32 PM EST)',
+                celestialType: 'Ingress',
+                position: 'Aquarius',
+                cycle: '248-year Pluto cycle',
+                category: 'Scientific',
+                cosmicLink: 'The transition from Pluto in Capricorn (power concentrated in government, authority, hierarchy) to Pluto in Aquarius (power distributed through collective, technology, networks) represents a fundamental shift in how power operates. Aquarius = decentralization, democratization, technology, and liberation movements.',
+                cycleContext: 'The last Pluto in Aquarius era (1777-1798) saw the American Revolution, French Revolution, and birth of democratic movements. The next 248 years will see the rise of decentralized systems (blockchain, AI, collective organizing) that redistribute power from hierarchies to networks.',
+                keyFigures: ['All humanity', 'Technology leaders', 'Social movement organizers'],
+                relatedEvents: ['american-revolution-1776', 'french-revolution-1789'],
+                deeperReading: [
+                    'The last Pluto in Aquarius era birthed modern democracy and nation-states as decentralized (relative to monarchy) structures',
+                    'This new era is likely to see the rise of blockchain, AI, decentralized autonomous organizations (DAOs), and new forms of collective governance',
+                    'The transformation will be tumultuous — Pluto always works through crisis and death/rebirth cycles'
+                ]
+            },
+            {
+                id: 'mercury-retrograde-2026-march',
+                year: 2026,
+                yearDisplay: '2026',
+                date: 'March 29, 2026',
+                headline: 'Mercury Retrograde Begins — Communication & Technology Disruptions',
+                whatHappened: 'Mercury, the planet of communication, trade, and travel, turns retrograde (appears to move backward from Earth\'s perspective). During this period (March 29 - April 20), communication often breaks down, technology glitches increase, and travel delays are common. Mercury retrograde is often blamed for misunderstandings, contract disputes, and delayed announcements. It is a period for reviewing, revisiting, and rethinking rather than launching new projects.',
+                celestialEvent: 'Mercury retrograde in Aries (Mars-ruled sign), conjunct Sun',
+                celestialType: 'Retrograde',
+                position: 'Aries',
+                cycle: 'Mercury cycle (3-week retrograde, 3x per year)',
+                category: 'Scientific',
+                cosmicLink: 'Mercury retrograde in Aries is particularly sharp and confrontational. Ideas are revisited, agreements are renegotiated, and communication becomes direct (sometimes bluntly so). New launches delayed; old projects reconsidered.',
+                cycleContext: 'Mercury is retrograde three times per year for 3 weeks each. This is normal, predictable, and part of the Mercury cycle. Astrologers use these periods for review and refinement rather than initiation.',
+                keyFigures: [],
+                relatedEvents: [],
+                deeperReading: [
+                    'Mercury retrograde appears to last 3 weeks but the retrograde shadow (period of influence) extends 2 weeks before and after',
+                    'Astrologers recommend avoiding signing contracts, launching products, or major travel during Mercury retrograde',
+                    'The period is ideal for research, revision, reconciliation, and reviewing past decisions'
+                ]
+            },
+            {
+                id: 'venus-saturn-trade-2026-march',
+                year: 2026,
+                yearDisplay: '2026',
+                date: 'March 8, 2026',
+                headline: 'Venus-Saturn Conjunction — Trade Tensions & Economic Alliances Tested',
+                whatHappened: 'Venus, the planet of values, resources, and diplomacy, conjoins Saturn, the planet of limitations and hard reality. This configuration occurs at 1° Aries. Trade agreements face pressures; economic alliances are tested. Nations and corporations struggle with competing values and resource scarcity. The conjunction in Aries, the sign of conflict and assertion, suggests diplomatic tensions over economic issues.',
+                celestialEvent: 'Venus conjunct Saturn in Aries',
+                celestialType: 'Conjunction',
+                position: 'Aries',
+                cycle: 'Venus-Saturn cycle',
+                category: 'Financial',
+                cosmicLink: 'Venus (value/diplomacy) meets Saturn (limits/contraction) in Aries (conflict). Economic alliances tested. Resources become scarce. Negotiations harden. What was freely given (Venus) now has a price (Saturn). In Aries, these discussions become confrontational.',
+                cycleContext: 'Venus-Saturn conjunctions mark moments when the cost of relationships (economic and diplomatic) becomes apparent. Hard choices about values must be made. Austerity replaces abundance.',
+                keyFigures: [],
+                relatedEvents: [],
+                deeperReading: [
+                    'Venus-Saturn is often associated with contraction in markets and trade negotiations becoming difficult',
+                    'Aries energy makes these conversations sharp and direct — no sugar-coating of economic realities',
+                    'Trade agreements signed during this time often prove restrictive or burden one party heavily'
+                ]
+            },
+            {
+                id: 'iran-intelligence-breach-2026',
+                year: 2026,
+                yearDisplay: '2026',
+                date: 'March 3, 2026',
+                headline: 'Blood Moon Eclipse — Iran Intelligence Apparatus Exposed',
+                whatHappened: 'A total lunar eclipse at 12° Virgo conjunct the South Node occurs on March 3, 2026. Intelligence breaches expose Iran\'s security apparatus as fundamentally compromised. Satellite data, espionage networks, and classified communications are revealed to the world. The breach reshapes Middle Eastern geopolitics and demonstrates the vulnerability of centralized intelligence systems.',
+                celestialEvent: 'Total lunar eclipse at 12° Virgo, South Node conjunct',
+                celestialType: 'Eclipse',
+                position: 'Virgo',
+                cycle: 'Saros Series',
+                category: 'Geopolitical',
+                cosmicLink: 'Virgo = systems, details, vulnerabilities. Eclipses expose what\'s hidden. South Node = unraveling of past patterns and secrets. The conjunction reveals the weak points in Iran\'s security systems — a moment of exposure and reckoning.',
+                cycleContext: 'Lunar eclipses in Virgo historically expose vulnerabilities in infrastructure and administrative systems. The South Node ensures that deeply buried secrets come to light. This eclipse marks a turning point in Middle Eastern intelligence operations.',
+                keyFigures: [],
+                relatedEvents: [],
+                deeperReading: [
+                    'Virgo eclipses often correlate with exposures of systems failures and administrative corruption',
+                    'South Node eclipses reveal what must be released — old secrets that have been hidden too long',
+                    'The breach will have ripple effects across the region, destabilizing several intelligence partnerships'
+                ]
+            },
+            {
+                id: 'trump-assassination-attempt-2024',
+                year: 2024,
+                yearDisplay: '2024',
+                date: 'July 13, 2024',
+                headline: 'Trump Assassination Attempt — Mars-Uranus in Taurus Erupts',
+                whatHappened: 'A shooter attempted to assassinate Donald Trump at a rally in Butler, Pennsylvania. The shot grazed Trump\'s ear. The attack sparked massive security escalations, conspiracy theories, and political polarization. Trump survived and later became the 47th president. The incident demonstrated the volatility of American politics and the vulnerability of public figures.',
+                celestialEvent: 'Mars conjunct Uranus in Taurus',
+                celestialType: 'Conjunction',
+                position: 'Taurus',
+                cycle: 'Mars-Uranus cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'Mars-Uranus = explosive, sudden violence. In Taurus = physical, bodily violence. The same configuration as the January 6 Capitol riot (2021), but more focused and direct. Taurus rules the body; the attempt targets the body of the leader.',
+                cycleContext: 'Mars-Uranus conjunctions occur every 2 years and often bring sudden violent incidents. In Taurus, the violence is physical and directed at material/bodily targets. This marks another peak in American political violence cycles.',
+                keyFigures: ['Donald Trump', 'Thomas Matthew Crooks'],
+                relatedEvents: ['january-6-2021'],
+                deeperReading: [
+                    'Mars-Uranus in Taurus echoes the 2021 Capitol riot configuration — suggesting a pattern of escalating political violence',
+                    'The shooter was 20 years old, representing generational rage and radicalization',
+                    'The incident occurred just days after Joe Biden announced his withdrawal from the 2024 race'
+                ]
+            },
+            {
+                id: 'svb-collapse-2023',
+                year: 2023,
+                yearDisplay: '2023',
+                date: 'March 10, 2023',
+                headline: 'Silicon Valley Bank Collapse — Pluto\'s Final Capricorn Act',
+                whatHappened: 'Silicon Valley Bank (SVB), a major lender to tech startups, failed on March 10, 2023, triggering a banking crisis. Depositors rushed to withdraw funds; the bank collapsed in days. The failure revealed poor risk management and the fragility of the banking system. The US government intervened with emergency measures to prevent systemic collapse.',
+                celestialEvent: 'Pluto at 29° Capricorn (final degree), Saturn square Uranus waning',
+                celestialType: 'Planetary Position',
+                position: 'Capricorn',
+                cycle: 'Pluto in Capricorn (final phase)',
+                category: 'Financial',
+                cosmicLink: 'Pluto\'s last act in Capricorn (the sign of banks, government, authority): one final exposure of banking fragility before moving to Aquarius. As if Pluto is destroying the old system to make room for the new (decentralized finance, blockchain). SVB\'s failure revealed how concentrated power and poor governance had corrupted the banking system.',
+                cycleContext: 'This marks one of the final major events of Pluto in Capricorn (2008-2024). As Pluto prepares to leave, it performs a final demolition of what it has been undermining. Banking is Capricorn\'s domain; its collapse is Pluto\'s farewell.',
+                keyFigures: ['Greg Becker (SVB CEO)', 'Janet Yellen', 'Jerome Powell'],
+                relatedEvents: ['2008-financial-crisis', 'pluto-aquarius-2024'],
+                deeperReading: [
+                    'SVB had become over-concentrated in government bonds; rising interest rates triggered the collapse',
+                    'The failure of a "safe" institution (bonds) showed that no bank was truly secure in Pluto\'s final Capricorn phase',
+                    'Crypto and blockchain advocates saw this as vindication of decentralized finance — Pluto\'s preview of Aquarius'
+                ]
+            },
+            {
+                id: 'chatgpt-launch-2022',
+                year: 2022,
+                yearDisplay: '2022',
+                date: 'November 30, 2022',
+                headline: 'ChatGPT Launches — AI Explosion Begins',
+                whatHappened: 'OpenAI released ChatGPT to the public on November 30, 2022. Within 5 days, it reached 1 million users — faster than any previous app. The chatbot sparked the AI revolution, attracting massive investment, raising existential questions about AI safety, and transforming how people work and create. By 2024, AI had become the dominant technological narrative.',
+                celestialEvent: 'Jupiter conjunct Neptune at 23° Pisces (exact April 2023)',
+                celestialType: 'Conjunction',
+                position: 'Pisces',
+                cycle: 'Jupiter-Neptune cycle',
+                category: 'Scientific',
+                cosmicLink: 'Neptune = imagination, illusion, dreams. Jupiter = amplification, expansion, excess. ChatGPT is the ultimate Jupiter-Neptune product: a system that generates convincing human-like text from patterns in data — pure illusion (Neptune) amplified (Jupiter). AI is Neptune\'s power to create worlds that don\'t exist, amplified to commercial scale.',
+                cycleContext: 'Jupiter-Neptune conjunctions occur every 13 years and mark moments when imagination becomes commercially viable. This conjunction in Pisces (the sign most associated with illusion and boundlessness) brought AI into the mainstream.',
+                keyFigures: ['Sam Altman', 'Elon Musk'],
+                relatedEvents: ['pluto-aquarius-2024'],
+                deeperReading: [
+                    'ChatGPT reached 100 million users faster than any app in history',
+                    'The launch sparked immediate AI regulation discussions — governments scrambled to understand the technology',
+                    'By 2024, every major company was developing AI; AI became the dominant technological narrative'
+                ]
+            },
+            {
+                id: 'january-6-2021',
+                year: 2021,
+                yearDisplay: '2021',
+                date: 'January 6, 2021',
+                headline: 'January 6 Capitol Riot — Democracy Under Siege',
+                whatHappened: 'A mob of Trump supporters stormed the US Capitol building on January 6, 2021, attempting to prevent certification of the 2020 election results. The riot resulted in 5 deaths, over 140 police officers injured, and hundreds of arrests. Congress evacuated; the building was breached for the first time since 1814. The event marked the most serious threat to American democracy since the Civil War.',
+                celestialEvent: 'Mars conjunct Uranus at 6° Taurus, square Jupiter-Saturn in Aquarius',
+                celestialType: 'Conjunction & Square',
+                position: 'Taurus (Mars-Uranus); Aquarius (Jupiter-Saturn)',
+                cycle: 'Mars-Uranus / Jupiter-Saturn',
+                category: 'Geopolitical',
+                cosmicLink: 'Mars-Uranus = explosive sudden violence. In Taurus = physical assault on institutions. Jupiter-Saturn in Aquarius = the new order (collective, democratic) being born. The old order (represented by the mob) violently resists. Mars-Uranus square Jupiter-Saturn shows the collision between dying order and incoming transformation.',
+                cycleContext: 'This event occurred during the Jupiter-Saturn conjunction in Aquarius (2020-2021), which marks the birth of new social orders. The violent resistance (Mars-Uranus) to this transformation is archetypal — the dying paradigm fights back against the emerging one.',
+                keyFigures: ['Donald Trump', 'Nancy Pelosi', 'Mike Pence'],
+                relatedEvents: ['us-pluto-return-2022', 'trump-assassination-attempt-2024'],
+                deeperReading: [
+                    'January 6 occurred on an exact Mars-Uranus conjunction — sudden, violent, unexpected',
+                    'Congress reconvened that evening and certified the election, asserting the continuity of democratic institutions',
+                    'The riot sparked 900+ arrests and ongoing investigations into the planning and coordination of the attack'
+                ]
+            },
+            {
+                id: 'epstein-arrest-2019',
+                year: 2019,
+                yearDisplay: '2019',
+                date: 'July 6, 2019',
+                headline: 'Jeffrey Epstein Arrested — Saturn-Pluto Conjunction Approaches',
+                whatHappened: 'Financier and sex trafficker Jeffrey Epstein was arrested on July 6, 2019, and charged with sex trafficking of minors. The arrest exposed a network of powerful men (politicians, celebrities, billionaires) who had visited his properties. Epstein died in custody on August 10, 2019, under disputed circumstances. The case revealed systemic corruption and the protection of powerful abusers.',
+                celestialEvent: 'Saturn-Pluto conjunction approaching (within 5° orb, exact Jan 12, 2020)',
+                celestialType: 'Conjunction',
+                position: 'Capricorn',
+                cycle: 'Saturn-Pluto cycle',
+                category: 'Deaths & Births',
+                cosmicLink: 'Pluto = hidden power, secrets, the underworld. Saturn = accountability, law, justice. As the conjunction approaches, the most powerful secret network is exposed. Epstein\'s arrest marks the beginning of Pluto\'s demolition of hidden power structures. Within months, COVID would trigger the Saturn-Pluto conjunction — a global reckoning with hidden systemic failures.',
+                cycleContext: 'The arrest occurs in the 5-month lead-up to the exact Saturn-Pluto conjunction. This is the activation phase — the themes of accountability and exposure are triggered before the exact hit.',
+                keyFigures: ['Jeffrey Epstein', 'Ghislaine Maxwell', 'Prosecutors'],
+                relatedEvents: ['covid-2020'],
+                deeperReading: [
+                    'The arrest revealed a network of powerful men — the hidden power (Pluto) was finally exposed (Saturn)',
+                    'Epstein\'s death in custody sparked conspiracy theories and questions about accountability',
+                    'Ghislaine Maxwell was arrested in 2020 and convicted in 2022 — the reckoning continued through the Saturn-Pluto conjunction'
+                ]
+            },
+            {
+                id: 'brexit-trump-2016',
+                year: 2016,
+                yearDisplay: '2016',
+                date: 'November 8, 2016',
+                headline: 'Brexit Vote + Trump Elected — Saturn Square Neptune Dissolves Alliances',
+                whatHappened: 'Brexit (the UK\'s vote to leave the EU) occurred on June 23, 2016. Donald Trump was elected US president on November 8, 2016. Together, these events marked a global turn toward nationalism, rejection of international institutions, and the rise of populism. The post-WWII international order (alliance-based, trade-focused) began to dissolve.',
+                celestialEvent: 'Saturn square Neptune (exact Sep 2016)',
+                celestialType: 'Square',
+                position: 'Sagittarius (Saturn) - Pisces (Neptune)',
+                cycle: 'Saturn-Neptune cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'Saturn = borders, limits, hard reality. Neptune = dissolution, dreams, unity. Saturn square Neptune = the dissolution of alliances and international order. The dream of global unity (Neptune) meets the demand for hard borders and national sovereignty (Saturn). The result: Brexit, Trump, and the unraveling of post-WWII internationalism.',
+                cycleContext: 'Saturn-Neptune squares occur every 36 years. This square marks a turning point from open borders and international cooperation to nationalism and isolationism. The same cycle brought similar nationalism in 1980 (Reagan) and 1952 (Cold War).',
+                keyFigures: ['Donald Trump', 'Theresa May', 'Nigel Farage'],
+                relatedEvents: ['fall-of-berlin-wall-1989'],
+                deeperReading: [
+                    'Both Brexit and Trump\'s election shocked elites and marked a populist revolt against globalism',
+                    'Saturn-Neptune aspects are associated with the dissolution of existing institutions and the rise of new, more nationalistic ones',
+                    'The 2016 elections marked the beginning of the end of the liberal international order established after WWII'
+                ]
+            },
+            {
+                id: 'arab-spring-2011',
+                year: 2011,
+                yearDisplay: '2011',
+                date: 'June 24, 2011',
+                headline: 'Arab Spring — Uranus Square Pluto Erupts',
+                whatHappened: 'The Arab Spring (beginning in Tunisia in December 2010) reached its peak intensity during the first exact Uranus-Pluto square on June 24, 2011. Uprisings, civil wars, and revolutions swept across the Middle East and North Africa. Dictatorships fell; new power structures emerged. The movement was enabled by social media and digital networks. However, many revolutions were co-opted or reversed by 2015.',
+                celestialEvent: 'Uranus square Pluto (first exact hit June 24, 2011)',
+                celestialType: 'Square',
+                position: 'Aries (Uranus) - Capricorn (Pluto)',
+                cycle: 'Uranus-Pluto cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'Uranus = revolution, sudden change, liberation. Pluto = power, transformation, destruction of existing structures. Uranus square Pluto = revolutionary forces clash with entrenched power. The Arab Spring is the crisis point of the 1960s Uranus-Pluto conjunction — that generation\'s revolutionary energy finally manifesting as political upheaval, amplified by social media (Uranus technology).',
+                cycleContext: 'The first exact Uranus-Pluto square (first of 7) marks the crisis point of the 1966 conjunction. Revolutionary ideals meet oppressive power structures. This square lasts 2014-2015, driving instability across the region.',
+                keyFigures: ['Mohamed Bouazizi', 'Hosni Mubarak', 'Bashar al-Assad'],
+                relatedEvents: ['civil-rights-movement-1965'],
+                deeperReading: [
+                    'The Arab Spring was enabled by social media — Uranus\'s technology allowing revolutionary organization',
+                    'Most revolutions were either crushed or co-opted by counter-revolutions within 2-3 years',
+                    'Syria descended into civil war; Libya collapsed into chaos; Egypt cycled through revolution back to dictatorship'
+                ]
+            },
+            {
+                id: 'fukushima-2011',
+                year: 2011,
+                yearDisplay: '2011',
+                date: 'March 11, 2011',
+                headline: 'Fukushima Nuclear Disaster — Uranus Enters Aries on Exact Day',
+                whatHappened: 'A magnitude 9.0 earthquake and subsequent tsunami struck Japan on March 11, 2011. The natural disaster damaged the Fukushima Daiichi nuclear power plant, causing a meltdown and release of radiation. Evacuations displaced 150,000 people. The disaster raised global questions about nuclear safety and triggered Japan\'s shift away from nuclear power.',
+                celestialEvent: 'Uranus enters Aries on March 11, 2011 (exact timing)',
+                celestialType: 'Ingress',
+                position: 'Aries',
+                cycle: 'Uranus cycle (7-year transits)',
+                category: 'Scientific',
+                cosmicLink: 'One of the most precise mundane correlations in modern astrology: Uranus (disruption, technology, sudden rupture) enters Aries (fire, action, aggression) on the EXACT day of Japan\'s worst nuclear disaster. Uranus entering Aries = sudden technological disruptions and the eruption of Aries energy (fire, violence). The earthquake and tsunami represent Uranus\'s sudden, uncontrollable force.',
+                cycleContext: 'Uranus entering a new sign marks a 7-year cycle. Uranus in Aries (2011-2018) brought technological disruptions, political upheavals, and the birth of social movements like Occupy Wall Street and Black Lives Matter. This ingress marks the beginning of that turbulent cycle.',
+                keyFigures: ['Emperor Akihito', 'Naoto Kan'],
+                relatedEvents: ['bitcoin-whitepaper-2008'],
+                deeperReading: [
+                    'The timing of Uranus\'s ingress with the disaster is one of astrology\'s most cited examples of mundane correlation',
+                    'Japan had relied heavily on nuclear power; the disaster shifted the nation toward renewables',
+                    'Fukushima became a global symbol of technology\'s vulnerability to natural forces'
+                ]
+            },
+            {
+                id: 'bitcoin-whitepaper-2008',
+                year: 2008,
+                yearDisplay: '2008',
+                date: 'October 31, 2008',
+                headline: 'Bitcoin Whitepaper Published — Pluto Enters Capricorn',
+                whatHappened: 'On October 31, 2008, Satoshi Nakamoto published the Bitcoin whitepaper titled "Bitcoin: A Peer-to-Peer Electronic Cash System." The paper proposed a decentralized digital currency. Bitcoin would launch in January 2009, beginning a revolution in finance. The whitepaper was published days after the Lehman Brothers collapse, during peak financial crisis.',
+                celestialEvent: 'Pluto enters Capricorn + Saturn square Pluto (exact 2009-2010)',
+                celestialType: 'Ingress & Square',
+                position: 'Capricorn (Pluto)',
+                cycle: 'Pluto in Capricorn / Saturn-Pluto',
+                category: 'Financial',
+                cosmicLink: 'Pluto entering Capricorn (the sign of banks, government, authority): as the old banking system collapses under Pluto\'s destruction, Bitcoin proposes the replacement — a decentralized, stateless money system. This is Pluto\'s thesis for the next 16 years: the destruction of centralized financial authority and the rise of peer-to-peer systems.',
+                cycleContext: 'Bitcoin emerges at the moment Pluto enters the sign it will destroy for the next 16 years. The cryptocurrency movement is Pluto in Capricorn\'s eventual solution: remove the need for centralized banks entirely. This theme will accelerate through 2024.',
+                keyFigures: ['Satoshi Nakamoto', 'Hal Finney'],
+                relatedEvents: ['2008-financial-crisis', 'pluto-aquarius-2024'],
+                deeperReading: [
+                    'The whitepaper was published under a pseudonym — decentralization extended to identity',
+                    'Bitcoin launched in January 2009 at the nadir of the financial crisis, when trust in banks was lowest',
+                    'The creation of Bitcoin was Pluto in Capricorn\'s counter-proposal: bypass the banks entirely'
+                ]
+            },
+            {
+                id: 'chernobyl-1986',
+                year: 1986,
+                yearDisplay: '1986',
+                date: 'April 26, 1986',
+                headline: 'Chernobyl Nuclear Disaster — Saturn Square Uranus',
+                whatHappened: 'The Chernobyl Nuclear Power Station in Ukraine suffered a catastrophic meltdown on April 26, 1986. An explosion and fire released massive amounts of radioactive material across Europe. Approximately 31 people died immediately; thousands more died from radiation-related illnesses over decades. The disaster became the worst nuclear accident in history and triggered mass evacuations.',
+                celestialEvent: 'Saturn square Uranus',
+                celestialType: 'Square',
+                position: 'Sagittarius (Saturn) - Gemini (Uranus)',
+                cycle: 'Saturn-Uranus cycle',
+                category: 'Scientific',
+                cosmicLink: 'Saturn = infrastructure, safety, structure. Uranus = sudden rupture, technology, chaos. Saturn square Uranus = the sudden rupture of supposedly safe infrastructure. Chernobyl was the result of Soviet technology (Uranus) meeting Soviet infrastructure failure (Saturn). The safety systems (Saturn) failed catastrophically (Uranus).',
+                cycleContext: 'Saturn-Uranus squares represent the collision between outdated safety infrastructure and uncontrolled technology. Chernobyl exemplifies this: Soviet-era nuclear design (Saturn structure) meeting the uncontrollable forces within the reactor (Uranus).',
+                keyFigures: ['Anatoly Dyatlov', 'Viktor Brukhanov'],
+                relatedEvents: ['fukushima-2011'],
+                deeperReading: [
+                    'Chernobyl resulted from a safety test that went catastrophically wrong — Soviet infrastructure was inadequate for the forces involved',
+                    'The disaster triggered Europe-wide radiation fears and accelerated Germany\'s shift away from nuclear power',
+                    'Chernobyl remains a symbol of technology\'s capacity to escape human control'
+                ]
+            },
+            {
+                id: 'wtc-bombing-1993',
+                year: 1993,
+                yearDisplay: '1993',
+                date: 'February 26, 1993',
+                headline: 'First World Trade Center Bombing — Same Target, Same Saturn-Pluto Cycle',
+                whatHappened: 'Terrorists detonated a bomb in a van beneath the World Trade Center in New York on February 26, 1993. The explosion killed 6 people and injured over 1,000. It was the first major terrorist attack on the WTC — eight years before the September 11 attacks on the same target. Both attacks occurred during Saturn-Pluto difficult aspects, suggesting a pattern of vulnerability.',
+                celestialEvent: 'Saturn square Pluto at 20° Aquarius (waxing square)',
+                celestialType: 'Square',
+                position: 'Aquarius',
+                cycle: 'Saturn-Pluto cycle',
+                category: 'Geopolitical',
+                cosmicLink: 'Same target (WTC), same celestial configuration (Saturn-Pluto aspect). This square is the first of the Saturn-Pluto cycle that would peak in 2009-2010. The WTC is targeted eight years before 9/11, and again in a similar Saturn-Pluto aspect. This suggests the WTC was cosmically vulnerable during Saturn-Pluto configurations.',
+                cycleContext: 'The 1993 bombing occurs during the waxing square (building tension) of Saturn-Pluto. The 2001 attack occurs during the opposition (peak tension) of the same cycle. Both attacks on the same building during the same cycle suggests a cosmic pattern of vulnerability.',
+                keyFigures: ['Ramzi Yousef', 'Sheikh Omar Abdel-Rahman'],
+                relatedEvents: ['9-11-2001'],
+                deeperReading: [
+                    'The 1993 bombing was a precursor, largely forgotten by 2001',
+                    'Both attacks occurred during Saturn-Pluto difficult aspects — suggesting the buildings were cosmically vulnerable during this cycle',
+                    'The patterns of Saturn-Pluto aspects suggest future vulnerabilities during the next cycle (2043-2045)'
+                ]
+            },
+            {
+                id: 'aids-epidemic-1982',
+                year: 1982,
+                yearDisplay: '1982',
+                date: 'June 5, 1982',
+                headline: 'AIDS Epidemic Officially Recognized — Saturn Conjunct Pluto',
+                whatHappened: 'The Centers for Disease Control (CDC) officially reported the first cases of what would become known as AIDS on June 5, 1982. A new disease, initially called GRID (Gay-Related Immune Deficiency), emerged in major cities. By the end of the 1980s, AIDS had become a global pandemic. The disease killed an estimated 40 million people by 2024 and became one of the deadliest pandemics in human history.',
+                celestialEvent: 'Saturn conjunct Pluto at 27° Libra',
+                celestialType: 'Conjunction',
+                position: 'Libra',
+                cycle: 'Saturn-Pluto cycle',
+                category: 'Pandemic',
+                cosmicLink: '"What was hidden emerges; what seemed permanent dissolves." Saturn-Pluto conjunction = hidden disease (Pluto) meets social structures (Saturn). The disease was hidden (Pluto) in closeted gay communities; its emergence dissolved sexual taboos and forced societal reckonings with mortality (Saturn). Libra = relationships; AIDS is transmitted through intimate contact.',
+                cycleContext: 'Saturn-Pluto conjunctions last 1-2 years and mark moments of systemic breakdown and the emergence of what was hidden. AIDS emergence during this conjunction shows how Pluto reveals what was previously invisible (hidden disease, hidden sexual practices).',
+                keyFigures: ['Rock Hudson', 'Randy Shilts', 'Anthony Fauci'],
+                relatedEvents: ['covid-2020'],
+                deeperReading: [
+                    'AIDS initially emerged in marginalized communities and was ignored by mainstream medicine',
+                    'The epidemic forced a global reckoning with sexuality, death, and human rights',
+                    'By treating AIDS as a humanitarian crisis, the world developed global health protocols that would later respond to COVID'
+                ]
+            },
+            {
+                id: 'vietnam-war-1965',
+                year: 1965,
+                yearDisplay: '1965',
+                date: 'August 2, 1965',
+                headline: 'Vietnam War & Cultural Revolution — Saturn Square Pluto at Exact Moment',
+                whatHappened: 'The US launched Operation Rolling Thunder, a sustained bombing campaign against North Vietnam, on August 2, 1965 (ostensibly in response to the Gulf of Tonkin incident). The Vietnam War would escalate over the next 8 years, killing 58,000 Americans and 2-3 million Vietnamese. Simultaneously, the Uranus-Pluto conjunction (exact 1966) triggered the global Cultural Revolution: counterculture, civil rights movements, student protests, and the questioning of all established authority.',
+                celestialEvent: 'Saturn square Pluto at 15° Virgo-Sagittarius (exact hit); Uranus-Pluto conjunction approaching (exact 1966)',
+                celestialType: 'Square & Conjunction',
+                position: 'Virgo (Saturn) - Sagittarius (Pluto)',
+                cycle: 'Saturn-Pluto / Uranus-Pluto',
+                category: 'Geopolitical',
+                cosmicLink: 'Saturn square Pluto = conflict between old authority (Saturn) and deep power structures (Pluto). Uranus-Pluto conjunction = revolutionary upheaval and generational transformation. Vietnam War and the Cultural Revolution are the expression of this configuration. The war represented the last stand of establishment authority (Saturn-Pluto square); the counterculture represented the revolutionary challenge to that authority (Uranus-Pluto conjunction).',
+                cycleContext: 'The Uranus-Pluto conjunction (1966) is one of astrology\'s most famous correlations with social upheaval. Vietnam War escalation in 1965, combined with the conjunction\'s approach, created the conditions for the Cultural Revolution: civil rights, feminism, anti-war protests, and the transformation of Western culture.',
+                keyFigures: ['Lyndon B. Johnson', 'Ho Chi Minh', 'Martin Luther King Jr.'],
+                relatedEvents: ['arab-spring-2011'],
+                deeperReading: [
+                    'The Uranus-Pluto conjunction of 1966 is considered the single most important astrological correlation with social movements',
+                    'Vietnam War escalation in 1965 (during the Saturn-Pluto square) triggered anti-war protests that would define the generational (Uranus-Pluto) conflict',
+                    'The Cultural Revolution (1965-1975) transformed Western culture more dramatically than any other period in the 20th century'
+                ]
+            }
+        ];
+
+        // Category metadata
+        const CATEGORIES = {
+            'Geopolitical': { icon: '⚔️', color: '#E84545' },
+            'Financial': { icon: '💰', color: '#E8A545' },
+            'Religious': { icon: '✝️', color: '#8B7EC7' },
+            'Scientific': { icon: '🔬', color: '#7ECBA1' },
+            'Cultural': { icon: '🎭', color: '#C9A96E' },
+            'Deaths & Births': { icon: '💀', color: '#5B8FB9' },
+            'Pandemic': { icon: '🦠', color: '#E84545' }
+        };
+
+        // Event type colors
+        const TYPE_COLORS = {
+            'Eclipse': '#E84545',
+            'Conjunction': '#C9A96E',
+            'Opposition': '#E8A545',
+            'Square': '#5B8FB9',
+            'Retrograde': '#8B7EC7',
+            'Equinox': '#7ECBA1',
+            'Supernova': '#E84545',
+            'Comet': '#C9A96E',
+            'Ingress': '#7ECBA1',
+            'Return': '#8B7EC7',
+            'Aspect': '#5B8FB9'
+        };
+
+        // Main App Component
+        function CosmosDaily() {
+            const [view, setView] = useState('timeline');
+            const [selectedDecade, setSelectedDecade] = useState(null);
+            const [selectedType, setSelectedType] = useState(null);
+            const [selectedCategory, setSelectedCategory] = useState(null);
+            const [expandedId, setExpandedId] = useState(null);
+            const [expandedTab, setExpandedTab] = useState('what');
+            const [sortBy, setSortBy] = useState('year-desc');
+
+            // Filter and sort events
+            const filteredEvents = useMemo(() => {
+                let filtered = EVENTS.filter(event => {
+                    let match = true;
+                    if (selectedDecade && !event.year.toString().startsWith(selectedDecade)) match = false;
+                    if (selectedType && event.celestialType !== selectedType) match = false;
+                    if (selectedCategory && event.category !== selectedCategory) match = false;
+                    return match;
+                });
+
+                // Sort
+                if (sortBy === 'year-desc') {
+                    filtered.sort((a, b) => b.year - a.year);
+                } else if (sortBy === 'year-asc') {
+                    filtered.sort((a, b) => a.year - b.year);
+                }
+
+                return filtered;
+            }, [selectedDecade, selectedType, selectedCategory, sortBy]);
+
+            // Get unique values for filters
+            const decades = useMemo(() => {
+                const decadeSet = new Set();
+                EVENTS.forEach(event => {
+                    const d = event.year < 0 ? 'Ancient' : Math.floor(event.year / 100) * 100;
+                    decadeSet.add(d);
+                });
+                return Array.from(decadeSet).sort((a, b) => {
+                    if (a === 'Ancient') return -1;
+                    if (b === 'Ancient') return 1;
+                    return b - a;
+                });
+            }, []);
+
+            const types = useMemo(() => {
+                const typeSet = new Set(EVENTS.map(e => e.celestialType));
+                return Array.from(typeSet).sort();
+            }, []);
+
+            const categories = useMemo(() => {
+                const catSet = new Set(EVENTS.map(e => e.category));
+                return Array.from(catSet).sort();
+            }, []);
+
+            return (
+                <div>
+                    {/* Starfield Canvas */}
+                    <StarField />
+
+                    <div className="container">
+                        {/* Header */}
+                        <div className="header">
+                            <div className="hero-question">What was in the sky when the world changed?</div>
+                            <div className="title">COSMOS DAILY</div>
+                            <div className="subtitle">V2 — Interactive Celestial Database</div>
+                        </div>
+
+                        {/* Today's Sky Panel */}
+                        <div className="todays-sky">
+                            <div className="sky-header">
+                                <div className="sky-title">TODAY'S SKY</div>
+                                <div className="live-indicator">
+                                    <div className="live-dot"></div>
+                                    LIVE
+                                </div>
+                            </div>
+                            <div className="sky-date">MARCH 15, 2026</div>
+
+                            <div className="planets-grid">
+                                <div className="planet-card">
+                                    <div className="planet-name">☀️ Sun</div>
+                                    <div className="planet-position">24° Pisces</div>
+                                </div>
+                                <div className="planet-card">
+                                    <div className="planet-name">🌙 Moon</div>
+                                    <div className="planet-position">Waning Sagittarius</div>
+                                </div>
+                                <div className="planet-card">
+                                    <div className="planet-name">☿ Mercury</div>
+                                    <div className="planet-position">22° Aries (Pre-shadow)</div>
+                                </div>
+                                <div className="planet-card">
+                                    <div className="planet-name">♀ Venus</div>
+                                    <div className="planet-position">14° Aries</div>
+                                </div>
+                                <div className="planet-card">
+                                    <div className="planet-name">♂ Mars</div>
+                                    <div className="planet-position">8° Leo</div>
+                                </div>
+                                <div className="planet-card">
+                                    <div className="planet-name">♄ Saturn</div>
+                                    <div className="planet-position">1° Aries</div>
+                                </div>
+                            </div>
+
+                            <div className="transits-section">
+                                <div className="transit-title">Active Transit</div>
+                                <div className="transit-text">
+                                    Saturn-Neptune conjunction approaching (0° Aries — first exact hit Feb 2026). Last occurred 1989: Berlin Wall fell.
+                                </div>
+                            </div>
+
+                            <div className="next-event">
+                                <div className="event-label">Next Significant Event</div>
+                                <div className="event-detail">Mercury Retrograde begins March 29, 2026</div>
+                            </div>
+                        </div>
+
+                        {/* Stats Bar */}
+                        <div className="stats-bar">
+                            <div className="stat-item">
+                                <div className="stat-number">1,000+</div>
+                                <div>Years Spanned</div>
+                            </div>
+                            <div className="stat-item">
+                                <div className="stat-number">{EVENTS.length}+</div>
+                                <div>Events Mapped</div>
+                            </div>
+                            <div className="stat-item">
+                                <div className="stat-number">6</div>
+                                <div>Planetary Cycles</div>
+                            </div>
+                            <div className="stat-item">
+                                <div className="stat-number">∞</div>
+                                <div>Pattern Recognition</div>
+                            </div>
+                        </div>
+
+                        {/* Controls */}
+                        <div className="controls">
+                            <div className="control-group">
+                                <span className="control-label">View:</span>
+                                <div className="view-toggle">
+                                    <button className={`toggle-btn ${view === 'timeline' ? 'active' : ''}`} onClick={() => setView('timeline')}>Timeline</button>
+                                    <button className={`toggle-btn ${view === 'calendar' ? 'active' : ''}`} onClick={() => setView('calendar')}>Calendar</button>
+                                </div>
+                            </div>
+
+                            <div className="control-group">
+                                <span className="control-label">Type:</span>
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                    <button
+                                        className={`filter-pill ${selectedType === null ? 'active' : ''}`}
+                                        onClick={() => setSelectedType(null)}
+                                    >
+                                        All
+                                    </button>
+                                    {types.map(type => (
+                                        <button
+                                            key={type}
+                                            className={`filter-pill ${selectedType === type ? 'active' : ''}`}
+                                            onClick={() => setSelectedType(type === selectedType ? null : type)}
+                                        >
+                                            {type}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="control-group">
+                                <span className="control-label">Category:</span>
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                    <button
+                                        className={`filter-pill ${selectedCategory === null ? 'active' : ''}`}
+                                        onClick={() => setSelectedCategory(null)}
+                                    >
+                                        All
+                                    </button>
+                                    {categories.map(cat => (
+                                        <button
+                                            key={cat}
+                                            className={`filter-pill ${selectedCategory === cat ? 'active' : ''}`}
+                                            onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
+                                        >
+                                            <span className="category-icon">{CATEGORIES[cat].icon}</span>
+                                            {cat}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Timeline View */}
+                        {view === 'timeline' && (
+                            <div className="timeline-container">
+                                <div className="timeline-spine"></div>
+                                {filteredEvents.length > 0 ? (
+                                    filteredEvents.map(event => (
+                                        <EventCard
+                                            key={event.id}
+                                            event={event}
+                                            expanded={expandedId === event.id}
+                                            onToggle={() => setExpandedId(expandedId === event.id ? null : event.id)}
+                                            expandedTab={expandedTab}
+                                            onTabChange={setExpandedTab}
+                                        />
+                                    ))
+                                ) : (
+                                    <div className="empty-state">
+                                        <div className="empty-state-text">No events match your filters.</div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Calendar View */}
+                        {view === 'calendar' && (
+                            <div className="calendar-container">
+                                <table className="calendar-table">
+                                    <thead>
+                                        <tr>
+                                            <th onClick={() => setSortBy(sortBy === 'year-desc' ? 'year-asc' : 'year-desc')}>Year</th>
+                                            <th>Event</th>
+                                            <th>Celestial Config</th>
+                                            <th>Type</th>
+                                            <th>Category</th>
+                                            <th>Cycle</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredEvents.map(event => (
+                                            <tr key={event.id} onClick={() => setExpandedId(expandedId === event.id ? null : event.id)}>
+                                                <td className="calendar-year">{event.yearDisplay}</td>
+                                                <td>{event.headline}</td>
+                                                <td>{event.celestialEvent}</td>
+                                                <td>
+                                                    <span className="calendar-type-dot" style={{ backgroundColor: TYPE_COLORS[event.celestialType] }}></span>
+                                                    {event.celestialType}
+                                                </td>
+                                                <td>
+                                                    <span className="category-icon">{CATEGORIES[event.category].icon}</span>
+                                                    {event.category}
+                                                </td>
+                                                <td>{event.cycle}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Glossary */}
+                    <div className="container">
+                        <div className="glossary">
+                            <div className="glossary-title">Glossary</div>
+
+                            <div className="glossary-section">
+                                <div className="glossary-section-title">Celestial Event Types</div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Eclipse</div>
+                                    <div className="glossary-def">The alignment of Sun, Moon, and Earth, where the Moon blocks the Sun (solar eclipse) or Earth's shadow falls on the Moon (lunar eclipse). Anciently considered the most powerful omens, marking the death of rulers or upheaval of kingdoms.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Conjunction</div>
+                                    <div className="glossary-def">Two or more planets at the same degree of the zodiac, considered to merge their energies. Great conjunctions (Jupiter-Saturn, Jupiter-Neptune, Saturn-Neptune) occur every 20-39 years and mark shifts in social cycles.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Opposition</div>
+                                    <div className="glossary-def">Two planets at opposite degrees (180° apart), creating tension and confrontation. Represents conflicts between opposing forces, often requiring integration or choice.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Square</div>
+                                    <div className="glossary-def">Two planets at 90° angles, creating friction and dynamic tension. Associated with challenges, conflicts, and the need for action to resolve blocked energy.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Retrograde</div>
+                                    <div className="glossary-def">When a planet appears to move backward from Earth's perspective (though it continues forward in orbit). A retrograde period suggests review, reconsideration, and reworking of that planet's themes.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Ingress</div>
+                                    <div className="glossary-def">When a planet enters a new zodiac sign, marking a shift in its energy expression. Slow-moving planets (Saturn, Uranus, Neptune, Pluto) ingress every 2-30 years, creating long-term social shifts.</div>
+                                </div>
+                            </div>
+
+                            <div className="glossary-section">
+                                <div className="glossary-section-title">Planets & Their Themes</div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Sun</div>
+                                    <div className="glossary-def">Identity, will, creative force, authority. A person or nation\'s core purpose and conscious will.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Moon</div>
+                                    <div className="glossary-def">Emotion, instinct, collective mood, public opinion. The subconscious and masses.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Mercury</div>
+                                    <div className="glossary-def">Communication, commerce, thought, information. Retrograde Mercury disrupts communication and travel.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Venus</div>
+                                    <div className="glossary-def">Values, beauty, relationships, resources. What a person or nation cherishes and how they relate.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Mars</div>
+                                    <div className="glossary-def">Action, aggression, desire, war. Raw force and willpower. Mars in hard aspect = conflict.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Jupiter</div>
+                                    <div className="glossary-def">Expansion, luck, growth, excess. Jupiter conjunct = boom; Jupiter square/opposite = inflation and overreach.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Saturn</div>
+                                    <div className="glossary-def">Structure, law, limitation, time. Saturn return (29.5 years) and Saturn square (7.25, 14.5, 21.75 years) mark major life/social transitions.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Uranus</div>
+                                    <div className="glossary-def">Revolution, sudden change, technology, liberation. Uranus square (21 years), opposition (42 years), return (84 years) mark generational upheavals.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Neptune</div>
+                                    <div className="glossary-def">Dissolution, illusion, spirituality, transcendence. Neptune return (165 years) is rare. Neptune square/opposite = dissolution of structures.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Pluto</div>
+                                    <div className="glossary-def">Power, death/rebirth, transformation, shadow. Pluto return (248 years) = civilizational reckonings. Pluto aspects = unavoidable transformation.</div>
+                                </div>
+                            </div>
+
+                            <div className="glossary-section">
+                                <div className="glossary-section-title">Event Categories</div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">⚔️ Geopolitical</div>
+                                    <div className="glossary-def">Wars, treaties, political upheaval, power shifts between nations and empires. Often correlated with Saturn-Pluto and Mars aspects.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">💰 Financial</div>
+                                    <div className="glossary-def">Market crashes, bubbles, economic shifts. Often correlated with Jupiter-Saturn conjunctions and Saturn-Uranus oppositions.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">✝️ Religious</div>
+                                    <div className="glossary-def">Religious events, prophecies, schisms, transformations in faith. Often correlates with Saturn-Neptune and Pluto transits.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">🔬 Scientific</div>
+                                    <div className="glossary-def">Discoveries, technological breakthroughs, space exploration. Often correlates with Uranus and Uranus-Neptune transitions.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">🎭 Cultural</div>
+                                    <div className="glossary-def">Social movements, cultural revolutions, shifts in collective values. Often correlates with Uranus-Pluto and Jupiter-Saturn cycles.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">💀 Deaths & Births</div>
+                                    <div className="glossary-def">Significant figures born or died. Often a marker of individual genius at important historical moments (Jupiter-Uranus, Saturn-Neptune ingress).</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">🦠 Pandemic</div>
+                                    <div className="glossary-def">Plagues, epidemics, health crises. Historically correlated with Saturn-Jupiter-Mars conjunctions in water signs and Saturn-Neptune aspects.</div>
+                                </div>
+                            </div>
+
+                            <div className="glossary-section">
+                                <div className="glossary-section-title">Key Concepts</div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Great Conjunction</div>
+                                    <div className="glossary-def">Jupiter-Saturn conjunction, occurring every ~20 years. Marks major shifts in social orders, economic cycles, and political leadership. The conjunction moves through different zodiac elements every 200 years (mutation cycles).</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Saturn-Pluto Conjunction</div>
+                                    <div className="glossary-def">Occurs every 33-36 years. Associated with destruction of old power structures, collapses of governments, and systemic resets. 1914 (WWI), 1947-48, 1982-84, 2020 (COVID).</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Pluto Return</div>
+                                    <div className="glossary-def">When Pluto returns to its birth position (248-year cycle). Only occurs once per nation. The US Pluto return is 2022-2024. Represents confrontation with foundational shadows and existential transformation.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Uranus-Pluto Conjunction</div>
+                                    <div className="glossary-def">Occurs every 127 years. Associated with revolutionary change, technological breakthroughs, and generational upheavals. 1966 (digital revolution begins), next in 2104.</div>
+                                </div>
+
+                                <div className="glossary-item">
+                                    <div className="glossary-term">Conjunctionist Astrology</div>
+                                    <div className="glossary-def">Medieval astrology that attributed world events to planetary conjunctions, particularly Saturn-Jupiter. The Black Death (1345) was officially blamed on a triple conjunction. This became astrology\'s most famous predictive claim.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="container">
+                        <div className="footer">
+                            <div className="footer-disclaimer">
+                                Astrology is a lens, not a law. We present celestial events alongside world events as a framework for reflection — not as causal claims or predictions. Correlation is not causation. This database maps observable celestial mechanics against historical events, inviting contemplation of pattern and timing.
+                            </div>
+                            <div className="footer-credit">
+                                COSMOS DAILY · FOR EXPLORATION & PERSPECTIVE
+                            </div>
+                            <div className="footer-span">
+                                Spanning 2,000+ years of celestial mechanics × human history
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Event Card Component
+        function EventCard({ event, expanded, onToggle, expandedTab, onTabChange }) {
+            const categoryInfo = CATEGORIES[event.category];
+
+            return (
+                <div className="event-card">
+                    <div className="event-card-content" onClick={onToggle}>
+                        <div className="event-header">
+                            <div className="event-year">{event.yearDisplay}</div>
+                            <div className="event-headline">{event.headline}</div>
+                        </div>
+
+                        <div className="event-meta">
+                            <div className="badge">
+                                <span className="type-badge" style={{ backgroundColor: TYPE_COLORS[event.celestialType] }}></span>
+                                {event.celestialType}
+                            </div>
+                            <div className="badge">
+                                <span className="category-icon">{categoryInfo.icon}</span>
+                                {event.category}
+                            </div>
+                            <div className="badge">{event.cycle}</div>
+                        </div>
+
+                        <div className="event-description">
+                            {event.whatHappened}
+                        </div>
+
+                        <div className="celestial-event">
+                            ✦ {event.celestialEvent}
+                        </div>
+
+                        <button className="expand-btn">{expanded ? 'Close' : 'Expand'}</button>
+                    </div>
+
+                    {expanded && (
+                        <ExpandedEventDetails
+                            event={event}
+                            activeTab={expandedTab}
+                            onTabChange={onTabChange}
+                        />
+                    )}
+                </div>
+            );
+        }
+
+        // Expanded Event Details Component
+        function ExpandedEventDetails({ event, activeTab, onTabChange }) {
+            return (
+                <div className="expanded-details">
+                    <div className="details-tab-nav">
+                        <button
+                            className={`details-tab ${activeTab === 'what' ? 'active' : ''}`}
+                            onClick={() => onTabChange('what')}
+                        >
+                            What Happened
+                        </button>
+                        <button
+                            className={`details-tab ${activeTab === 'cosmic' ? 'active' : ''}`}
+                            onClick={() => onTabChange('cosmic')}
+                        >
+                            Cosmic Link
+                        </button>
+                        <button
+                            className={`details-tab ${activeTab === 'cycle' ? 'active' : ''}`}
+                            onClick={() => onTabChange('cycle')}
+                        >
+                            Cycle Context
+                        </button>
+                        <button
+                            className={`details-tab ${activeTab === 'deeper' ? 'active' : ''}`}
+                            onClick={() => onTabChange('deeper')}
+                        >
+                            Deeper Reading
+                        </button>
+                    </div>
+
+                    <div className="details-content">
+                        {activeTab === 'what' && (
+                            <div className="details-section">
+                                <div className="section-title">What Happened</div>
+                                <p>{event.whatHappened}</p>
+
+                                {event.keyFigures && event.keyFigures.length > 0 && (
+                                    <>
+                                        <div className="section-title" style={{ marginTop: '20px' }}>Key Figures</div>
+                                        <div className="key-figures">
+                                            {event.keyFigures.map((figure, idx) => (
+                                                <div key={idx} className="figure">{figure}</div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'cosmic' && (
+                            <div className="details-section">
+                                <div className="cosmic-link">
+                                    {event.cosmicLink}
+                                </div>
+                                <div style={{ marginTop: '15px', color: '#b8b4ad' }}>
+                                    <strong>Celestial Event:</strong> {event.celestialEvent}<br />
+                                    <strong>Position:</strong> {event.position}<br />
+                                    <strong>Cycle:</strong> {event.cycle}
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'cycle' && (
+                            <div className="details-section">
+                                <p>{event.cycleContext}</p>
+                            </div>
+                        )}
+
+                        {activeTab === 'deeper' && (
+                            <div className="details-section">
+                                <div className="deeper-reading">
+                                    <ul>
+                                        {event.deeperReading && event.deeperReading.map((item, idx) => (
+                                            <li key={idx}>{item}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                {event.relatedEvents && event.relatedEvents.length > 0 && (
+                                    <>
+                                        <div className="section-title" style={{ marginTop: '20px' }}>Related Events</div>
+                                        <div className="related-events">
+                                            {event.relatedEvents.map(relId => {
+                                                const relEvent = EVENTS.find(e => e.id === relId);
+                                                return relEvent ? (
+                                                    <div key={relId} className="related-link">
+                                                        {relEvent.yearDisplay}: {relEvent.headline}
+                                                    </div>
+                                                ) : null;
+                                            })}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Starfield Component
+        function StarField() {
+            const canvasRef = React.useRef(null);
+
+            React.useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                // Create stars
+                const stars = [];
+                for (let i = 0; i < 80; i++) {
+                    stars.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        radius: Math.random() * 1.5,
+                        opacity: Math.random() * 0.6 + 0.2,
+                        twinkleSpeed: Math.random() * 0.05 + 0.01
+                    });
+                }
+
+                let time = 0;
+                const animate = () => {
+                    ctx.fillStyle = 'rgba(10, 14, 39, 0)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    stars.forEach(star => {
+                        const opacity = star.opacity + Math.sin(time * star.twinkleSpeed) * 0.3;
+                        ctx.fillStyle = `rgba(232, 230, 225, ${Math.max(0.1, opacity)})`;
+                        ctx.beginPath();
+                        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    time++;
+                    requestAnimationFrame(animate);
+                };
+
+                animate();
+
+                const handleResize = () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                };
+
+                window.addEventListener('resize', handleResize);
+                return () => window.removeEventListener('resize', handleResize);
+            }, []);
+
+            return <canvas ref={canvasRef} id="starfield"></canvas>;
+        }
+
+        // Render
+        ReactDOM.render(<CosmosDaily />, document.getElementById('root'));
+    </script>
+</body>
+</html>

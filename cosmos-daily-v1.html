@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmos Daily — Celestial Mechanics × World Events</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-eclipse: #E84545;
+            --color-conjunction: #C9A96E;
+            --color-opposition: #E8A545;
+            --color-square: #5B8FB9;
+            --color-retrograde: #8B7EC7;
+            --color-equinox: #7ECBA1;
+            --color-text: #E8E6F0;
+            --color-text-muted: #9B99A8;
+            --color-border: rgba(201, 169, 110, 0.15);
+            --color-bg: #06050A;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(175deg, #06050A 0%, #0A0814 30%, #0D0B18 60%, #07060C 100%);
+            color: var(--color-text);
+            font-family: 'Source Serif 4', serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-attachment: fixed;
+        }
+
+        /* Starfield */
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.5;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        .star.twinkle {
+            animation: twinkle linear infinite;
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(60px);
+        }
+
+        @keyframes float-up {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-30px); }
+        }
+
+        .orb-red {
+            top: -10%;
+            right: -5%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle at 30% 30%, rgba(232, 69, 69, 0.15), rgba(232, 69, 69, 0.02) 70%);
+            animation: float-up 8s ease-in-out infinite;
+        }
+
+        .orb-purple {
+            bottom: -10%;
+            left: -5%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle at 70% 70%, rgba(139, 126, 199, 0.12), rgba(139, 126, 199, 0) 70%);
+            animation: float-up 12s ease-in-out infinite reverse;
+        }
+
+        /* Main content wrapper */
+        #root {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            padding: 60px 20px 40px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-title {
+            font-size: 48px;
+            font-weight: 600;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+            background: linear-gradient(to right, #E8E6F0, #C9A96E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            animation: glow-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glow-pulse {
+            0%, 100% { text-shadow: 0 0 20px rgba(201, 169, 110, 0.3); filter: drop-shadow(0 0 8px rgba(201, 169, 110, 0.2)); }
+            50% { text-shadow: 0 0 40px rgba(201, 169, 110, 0.6); filter: drop-shadow(0 0 16px rgba(201, 169, 110, 0.4)); }
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .header-manifesto {
+            font-size: 18px;
+            color: var(--color-text);
+            margin-bottom: 16px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+        }
+
+        .header-date {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--color-text-muted);
+            letter-spacing: 1px;
+        }
+
+        /* Navigation */
+        .nav-section {
+            margin: 40px 0;
+            padding: 0 20px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--color-text-muted);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .pill-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .pill {
+            padding: 8px 16px;
+            border: 1px solid var(--color-border);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--color-text-muted);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            font-family: 'IBM Plex Mono', monospace;
+            white-space: nowrap;
+        }
+
+        .pill:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(201, 169, 110, 0.4);
+        }
+
+        .pill.active {
+            background: rgba(201, 169, 110, 0.2);
+            border-color: #C9A96E;
+            color: #C9A96E;
+        }
+
+        /* Type pills with colors */
+        .pill.type-eclipse { --pill-color: var(--color-eclipse); }
+        .pill.type-eclipse.active {
+            background: rgba(232, 69, 69, 0.15);
+            border-color: var(--color-eclipse);
+            color: var(--color-eclipse);
+        }
+
+        .pill.type-conjunction { --pill-color: var(--color-conjunction); }
+        .pill.type-conjunction.active {
+            background: rgba(201, 169, 110, 0.15);
+            border-color: var(--color-conjunction);
+            color: var(--color-conjunction);
+        }
+
+        .pill.type-opposition { --pill-color: var(--color-opposition); }
+        .pill.type-opposition.active {
+            background: rgba(232, 165, 69, 0.15);
+            border-color: var(--color-opposition);
+            color: var(--color-opposition);
+        }
+
+        .pill.type-square { --pill-color: var(--color-square); }
+        .pill.type-square.active {
+            background: rgba(91, 143, 185, 0.15);
+            border-color: var(--color-square);
+            color: var(--color-square);
+        }
+
+        .pill.type-retrograde { --pill-color: var(--color-retrograde); }
+        .pill.type-retrograde.active {
+            background: rgba(139, 126, 199, 0.15);
+            border-color: var(--color-retrograde);
+            color: var(--color-retrograde);
+        }
+
+        .pill.type-equinox { --pill-color: var(--color-equinox); }
+        .pill.type-equinox.active {
+            background: rgba(126, 203, 161, 0.15);
+            border-color: var(--color-equinox);
+            color: var(--color-equinox);
+        }
+
+        /* Search */
+        .search-container {
+            position: relative;
+            margin: 30px 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            color: var(--color-text);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: var(--color-text-muted);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #C9A96E;
+            background: rgba(201, 169, 110, 0.08);
+        }
+
+        /* Results counter */
+        .results-counter {
+            text-align: center;
+            font-size: 12px;
+            color: var(--color-text-muted);
+            margin: 20px 0 30px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* Glossary */
+        .glossary-toggle {
+            margin: 30px 20px;
+            text-align: center;
+        }
+
+        .glossary-btn {
+            padding: 10px 24px;
+            background: rgba(201, 169, 110, 0.1);
+            border: 1px solid rgba(201, 169, 110, 0.3);
+            color: #C9A96E;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .glossary-btn:hover {
+            background: rgba(201, 169, 110, 0.2);
+            border-color: #C9A96E;
+        }
+
+        .glossary-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .glossary-content {
+            background: linear-gradient(135deg, rgba(10, 8, 20, 0.95), rgba(13, 11, 24, 0.95));
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 40px;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .glossary-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            cursor: pointer;
+            font-size: 24px;
+            transition: color 0.3s ease;
+        }
+
+        .glossary-close:hover {
+            color: var(--color-text);
+        }
+
+        .glossary-section {
+            margin-bottom: 40px;
+        }
+
+        .glossary-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #C9A96E;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .glossary-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(201, 169, 110, 0.1);
+        }
+
+        .glossary-item:last-child {
+            border-bottom: none;
+        }
+
+        .glossary-term {
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 6px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+        }
+
+        .glossary-definition {
+            color: var(--color-text-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Events list */
+        .events-container {
+            padding: 40px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, rgba(201, 169, 110, 0.3), rgba(232, 69, 69, 0.2), rgba(139, 126, 199, 0.2), rgba(201, 169, 110, 0.1));
+        }
+
+        .event-item {
+            position: relative;
+            margin-bottom: 50px;
+            display: flex;
+            gap: 30px;
+        }
+
+        .timeline-node {
+            position: absolute;
+            left: -32px;
+            top: 10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            background: rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .event-item:hover .timeline-node {
+            transform: scale(1.3);
+            background: currentColor;
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .event-year {
+            min-width: 80px;
+            font-size: 28px;
+            font-weight: 600;
+            color: currentColor;
+            font-family: 'IBM Plex Mono', monospace;
+            text-align: right;
+            padding-top: 10px;
+        }
+
+        .event-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .event-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: currentColor;
+            opacity: 0.5;
+        }
+
+        .event-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(201, 169, 110, 0.4);
+            box-shadow: 0 8px 32px rgba(201, 169, 110, 0.1);
+        }
+
+        .event-meta {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .event-type-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .badge-eclipse { background: rgba(232, 69, 69, 0.2); color: var(--color-eclipse); }
+        .badge-conjunction { background: rgba(201, 169, 110, 0.2); color: var(--color-conjunction); }
+        .badge-opposition { background: rgba(232, 165, 69, 0.2); color: var(--color-opposition); }
+        .badge-square { background: rgba(91, 143, 185, 0.2); color: var(--color-square); }
+        .badge-retrograde { background: rgba(139, 126, 199, 0.2); color: var(--color-retrograde); }
+        .badge-equinox { background: rgba(126, 203, 161, 0.2); color: var(--color-equinox); }
+
+        .event-cycle-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: 'IBM Plex Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(139, 126, 199, 0.15);
+            color: #8B7EC7;
+        }
+
+        .event-headline {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--color-text);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .event-celestial {
+            font-size: 12px;
+            color: var(--color-text-muted);
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 8px;
+        }
+
+        .event-expand-hint {
+            font-size: 11px;
+            color: rgba(201, 169, 110, 0.6);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'IBM Plex Mono', monospace;
+            margin-top: 12px;
+        }
+
+        .chevron {
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .event-card.expanded .chevron {
+            transform: rotate(180deg);
+        }
+
+        .event-expanded {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(201, 169, 110, 0.2);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .expanded-section {
+            margin-bottom: 16px;
+        }
+
+        .expanded-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: currentColor;
+            font-family: 'IBM Plex Mono', monospace;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .expanded-text {
+            font-size: 13px;
+            color: var(--color-text-muted);
+            line-height: 1.7;
+        }
+
+        .cosmic-link {
+            padding-left: 12px;
+            border-left: 3px solid currentColor;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 4px;
+            border-left: 3px solid currentColor;
+        }
+
+        .cosmic-link .expanded-label {
+            color: currentColor;
+        }
+
+        .cosmic-link .expanded-text {
+            color: var(--color-text);
+            font-style: italic;
+        }
+
+        /* Color coded event items */
+        .event-item.type-eclipse { color: var(--color-eclipse); }
+        .event-item.type-conjunction { color: var(--color-conjunction); }
+        .event-item.type-opposition { color: var(--color-opposition); }
+        .event-item.type-square { color: var(--color-square); }
+        .event-item.type-retrograde { color: var(--color-retrograde); }
+        .event-item.type-equinox { color: var(--color-equinox); }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-muted);
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        /* Stats */
+        .stats {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--color-text-muted);
+            font-size: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 60px 20px;
+            text-align: center;
+            border-top: 1px solid var(--color-border);
+            color: var(--color-text-muted);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .footer-disclaimer {
+            margin-bottom: 20px;
+            font-style: italic;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .footer-credit {
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 32px;
+                letter-spacing: 2px;
+            }
+
+            .header-manifesto {
+                font-size: 16px;
+            }
+
+            .event-item {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .event-year {
+                min-width: auto;
+                text-align: left;
+            }
+
+            .timeline {
+                padding-left: 30px;
+            }
+
+            .timeline-node {
+                left: -24px;
+            }
+
+            .event-headline {
+                font-size: 16px;
+            }
+
+            .orb {
+                filter: blur(80px);
+                opacity: 0.3;
+            }
+
+            .glossary-content {
+                padding: 30px 24px;
+                max-width: 90vw;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(201, 169, 110, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(201, 169, 110, 0.5);
+        }
+
+        /* Selection */
+        ::selection {
+            background: rgba(201, 169, 110, 0.3);
+            color: var(--color-text);
+        }
+    </style>
+</head>
+<body>
+    <div class="starfield" id="starfield"></div>
+    <div class="orb orb-red"></div>
+    <div class="orb orb-purple"></div>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+
+        // Event data
+        const EVENTS = [
+            // Saturn-Pluto Cycle
+            {
+                id: 1,
+                year: 1965,
+                headline: "Vietnam War escalation + Mao's Cultural Revolution begins",
+                celestialEvent: "Saturn square Pluto at 15° Virgo-Sagittarius",
+                type: "square",
+                cycle: "Saturn-Pluto",
+                date: "1965",
+                position: "Saturn 15° Virgo, Pluto 15° Sagittarius",
+                whatHappened: "The US significantly escalates military operations in Vietnam. Simultaneously, Mao launches the Cultural Revolution in China, seeking to purify the Communist state through radical upheaval. Both represent the old order violently resisting transformation.",
+                cosmicLink: "Saturn square Pluto creates maximum friction between established power structures (Saturn) and the forces demanding their destruction (Pluto). This configuration also aligns with the waning Uranus-Pluto conjunction in Virgo—amplifying the revolutionary demand. The pattern: old authority fights hardest when its end approaches.",
+                cycleContext: "The first major aspect of the Saturn-Pluto cycle begun in 1947. This square (90°) marks a critical inflection point in any 33-37 year cycle."
+            },
+            {
+                id: 2,
+                year: 1982,
+                headline: "AIDS epidemic identified + worst recession since Great Depression",
+                celestialEvent: "Saturn conjunct Pluto at 27° Libra",
+                type: "conjunction",
+                cycle: "Saturn-Pluto",
+                date: "Nov 1982",
+                position: "Saturn 27° Libra, Pluto 27° Libra",
+                whatHappened: "The first cases of what would be named AIDS are identified in the US. Simultaneously, the global economy plunges into recession with unemployment soaring. Both crises—one biological, one economic—remained largely invisible/denied until sudden eruption.",
+                cosmicLink: "Saturn conjunct Pluto: what was hidden (Pluto rules secrets, the unconscious) emerges into visibility; what seemed permanent (Saturn) dissolves. Both the AIDS crisis and the recession operated invisibly for years before breaking through into public awareness. Pluto in Libra = social relationships; Saturn in Libra = their dissolution.",
+                cycleContext: "A new Saturn-Pluto cycle begins (previous conjunction was 1947). The 35-year cycle that leads to 2020."
+            },
+            {
+                id: 3,
+                year: 1993,
+                headline: "First World Trade Center bombing (Feb 26)",
+                celestialEvent: "Saturn square Pluto (waxing) at 20° Aquarius",
+                type: "square",
+                cycle: "Saturn-Pluto",
+                date: "Feb 26, 1993",
+                position: "Saturn 20° Aquarius, Pluto 20° Sagittarius",
+                whatHappened: "A truck bomb explodes in the basement of the World Trade Center in New York, killing 6 and injuring over 1,000. The target and approximate method would be repeated on 9/11.",
+                cosmicLink: "The same crisis window as 1965: Saturn square Pluto. Hidden destructive forces (Pluto) breach security structures (Saturn). Aquarius (Saturn) = buildings, technology, systems; Sagittarius (Pluto) = foreign ideologies. The 1993 attack foreshadows the 2001 opposition by striking the same target during the same phase of the cycle.",
+                cycleContext: "The waxing square of the 1982 conjunction. Hidden tensions and forces building toward a climax."
+            },
+            {
+                id: 4,
+                year: 2001,
+                headline: "September 11 terrorist attacks (Sep 11)",
+                celestialEvent: "Saturn opposite Pluto (Saturn 14° Gemini, Pluto 12° Sagittarius)",
+                type: "opposition",
+                cycle: "Saturn-Pluto",
+                date: "Sep 11, 2001",
+                position: "Saturn 14° Gemini, Pluto 12° Sagittarius",
+                whatHappened: "Coordinated terrorist attacks strike the US, destroying the World Trade Center and killing nearly 3,000. Hidden networks (Pluto) strike at communication/transit infrastructure (Saturn in Gemini). The 2001 opposition occurs at the same location the 1993 square had struck.",
+                cosmicLink: "Saturn opposite Pluto: the culmination of the 1982 cycle. The opposition represents maximum revelation: what was hidden is forced into the light. Saturn in Gemini (communication, travel, information networks) opposite Pluto in Sagittarius (foreign ideologies, the extreme). The astrologer Lynne Palmer had published a warning for this specific date a year earlier—one of astrology's most precise predictions.",
+                cycleContext: "The opposition is the 'crisis culmination' of the Saturn-Pluto cycle. A 33-37 year cycle reaches its peak tension and transformation point."
+            },
+            {
+                id: 5,
+                year: 2008,
+                headline: "Global financial crisis + Lehman Brothers collapses (Sep 15)",
+                celestialEvent: "Saturn square Pluto (waning) at 3° Virgo-Sagittarius",
+                type: "square",
+                cycle: "Saturn-Pluto",
+                date: "Sep 15, 2008",
+                position: "Saturn 3° Virgo, Pluto 3° Sagittarius",
+                whatHappened: "The financial system nearly collapses as Lehman Brothers files for bankruptcy. The housing bubble bursts, revealing systemic fragility that had been papered over with complex financial instruments and denial.",
+                cosmicLink: "The waning square: the final friction point of the 1982 conjunction cycle. Invisible systemic rot (Pluto in Sagittarius = ideological excess, foreign money, hidden leverage) breaks through the financial structures designed to contain it (Saturn in Virgo = systems, analysis, order). What the system tried to hide (subprime mortgages, CDOs, leverage ratios) erupts into crisis.",
+                cycleContext: "Last major aspect before the cycle concludes with the 2020 conjunction. The 'exit wound' of a 26-year transformation."
+            },
+            {
+                id: 6,
+                year: 2020,
+                headline: "COVID-19 pandemic begins + global lockdowns",
+                celestialEvent: "Saturn conjunct Pluto at 22° Capricorn (Jan 12, 2020)",
+                type: "conjunction",
+                cycle: "Saturn-Pluto",
+                date: "Jan 12, 2020",
+                position: "Saturn 22° Capricorn, Pluto 22° Capricorn",
+                whatHappened: "The tightest Saturn-Pluto conjunction in centuries, in the sign of government, institutions, and structures. Within weeks, the entire world enters lockdown. Economic activity halts. Institutions are tested to their limits. A new 35-year cycle begins.",
+                cosmicLink: "Saturn conjunct Pluto in Capricorn: the sign that rules governments, institutions, mountains, time. This is the tightest conjunction since 1518. Pluto's transformation of institutions + Saturn's demand for accountability = global restructuring. The virus forces both restructuring of government response and dismantling of the denial/secrecy that enabled its spread.",
+                cycleContext: "A new Saturn-Pluto cycle begins (1982-2020). The 2020 conjunction launches the next 35-year cycle, leading to approximately 2055."
+            },
+
+            // Saturn-Neptune Cycle
+            {
+                id: 7,
+                year: 1989,
+                headline: "Berlin Wall falls (Nov 9) + Tiananmen Square massacre (Jun 4)",
+                celestialEvent: "Saturn conjunct Neptune at 11° Capricorn",
+                type: "conjunction",
+                cycle: "Saturn-Neptune",
+                date: "Nov 13, 1989 (exact)",
+                position: "Saturn 11° Capricorn, Neptune 11° Capricorn",
+                whatHappened: "The Berlin Wall, perhaps the 20th century's most iconic structure separating East from West, falls on Nov 9. Just days later, the exact conjunction is reached. Simultaneously, China's government crushes the Tiananmen Square democracy movement. Barriers between systems collapse and are rebuilt elsewhere.",
+                cosmicLink: "Saturn rules walls, barriers, structures. Neptune dissolves, merges, breaks down boundaries. Their conjunction is a literal metaphor: the Wall—Saturn's ultimate symbol—dissolves in real time as the conjunction perfects. The fall of the Wall is astrology's most concrete conjunction-to-event correspondence. Yet Neptune also rules disillusionment and idealism: both the hope of Tiananmen and the Cold War's ideological promise prove illusory.",
+                cycleContext: "Saturn-Neptune conjunctions occur ~36 years apart. This one marked the end of the Cold War's rigid polarity and the beginning of a more fluid geopolitical order."
+            },
+            {
+                id: 8,
+                year: 2006,
+                headline: "US housing bubble peaks + subprime crisis begins",
+                celestialEvent: "Saturn opposite Neptune at 20° Leo-Aquarius",
+                type: "opposition",
+                cycle: "Saturn-Neptune",
+                date: "Sep 2006",
+                position: "Saturn 20° Leo, Neptune 20° Aquarius",
+                whatHappened: "The US housing market reaches maximum euphoria. Home prices peak nationally. Subprime mortgage lending accelerates. Everyone believes home prices will rise forever. The bubble is at maximum inflation when Saturn (reality) opposes Neptune (illusion).",
+                cosmicLink: "Saturn opposite Neptune: Neptune's illusion (ever-rising home values, the Dream of ownership) directly confronts Saturn's reality (the math doesn't work, lending standards have collapsed, this is unsustainable). The opposition is the 'wake-up call' moment. Within 2 years the system implodes.",
+                cycleContext: "The opposition is the middle/crisis point of the Saturn-Neptune cycle. Between conjunction and waning aspects, reality begins to challenge illusion."
+            },
+
+            // Jupiter-Saturn (Great Conjunctions)
+            {
+                id: 9,
+                year: 1981,
+                headline: "Reagan inaugurated + neoliberal era begins",
+                celestialEvent: "Jupiter conjunct Saturn in Libra",
+                type: "conjunction",
+                cycle: "Jupiter-Saturn",
+                date: "Jan 1981",
+                position: "Jupiter & Saturn in Libra",
+                whatHappened: "Ronald Reagan takes office and launches a fundamental reshaping of economic policy: deregulation, trickle-down economics, weakening of unions, expansion of military spending. The geopolitical framework of the next 20 years is set.",
+                cosmicLink: "Great Conjunctions (Jupiter-Saturn every ~20 years) mark generational shifts in economics and social order. This one in Libra launched an era emphasizing: balance sheets over social safety, individual wealth over collective care, dealmaking and diplomacy over regulation. The Jupiter-Saturn cycle that began in 1981 lasted until 2000.",
+                cycleContext: "Great Conjunctions transition through zodiac elements every 200 years. This one is the last in the Earth-era (material focus). The next begins in 2020 in Air (information/networks)."
+            },
+            {
+                id: 10,
+                year: 2000,
+                headline: "Dot-com bubble bursts",
+                celestialEvent: "Jupiter conjunct Saturn at 22° Taurus",
+                type: "conjunction",
+                cycle: "Jupiter-Saturn",
+                date: "May 2000",
+                position: "Jupiter 22° Taurus, Saturn 22° Taurus",
+                whatHappened: "Tech stocks plummet. Companies with no earnings and infinite burn rates see their valuations collapse overnight. The NASDAQ loses 78% of its value over the next 2.5 years.",
+                cosmicLink: "Great Conjunction in Taurus (the sign of money, material value, the earth). The conjunction asks: what actually has value? The answer: not most tech companies. Taurus is about tangible assets and real earnings. The market was valuing 'possibility' (Jupiter) against 'actual value' (Saturn), and reality won.",
+                cycleContext: "The conjunction launches a 20-year cycle focused on capital allocation, real estate, and material foundations—lasting until 2020."
+            },
+            {
+                id: 11,
+                year: 2020,
+                headline: "Great Mutation: Jupiter-Saturn conjunction at 0° Aquarius (Dec 21)",
+                celestialEvent: "Jupiter conjunct Saturn at 0° Aquarius",
+                type: "conjunction",
+                cycle: "Jupiter-Saturn",
+                date: "Dec 21, 2020",
+                position: "Jupiter 0° Aquarius, Saturn 0° Aquarius",
+                whatHappened: "The exact conjunction occurs on the Winter Solstice, the most auspicious date in the calendar. It's the first Great Conjunction in an Air sign in 200 years. The COVID vaccine rollout begins the same week.",
+                cosmicLink: "The 'Great Mutation': a shift from 200 years of Earth-sign conjunctions (material, industrial focus) to an Air-sign era (information, networks, communication). This marks a civilizational transition. Aquarius = technology, decentralization, networks. Jupiter-Saturn in Aquarius = expansion of distributed systems, information networks, and decentralized finance over the next 20 years (Bitcoin, blockchain, etc.).",
+                cycleContext: "This Great Conjunction launches a 20-year cycle in the Air element. The first Great Conjunction in Air in 200 years—only happens once every 8 generations."
+            },
+
+            // Uranus-Pluto (Revolution)
+            {
+                id: 12,
+                year: 1965,
+                headline: "Counterculture revolution + civil rights movement",
+                celestialEvent: "Uranus conjunct Pluto in Virgo",
+                type: "conjunction",
+                cycle: "Uranus-Pluto",
+                date: "1965-66",
+                position: "Uranus & Pluto in Virgo",
+                whatHappened: "The modern social revolution: feminism, environmentalism, anti-war movement, civil rights acceleration, sexual liberation, all trace their origin to this moment. Institutions begin to question their own foundations.",
+                cosmicLink: "Uranus-Pluto conjunctions (every 113-141 years) mark revolutionary ruptures: 1597 (scientific revolution), 1711 (Age of Enlightenment), 1850s (Industrial Revolution), 1965 (Social Revolution). Uranus = revolutionary disruption; Pluto = total transformation of power. In Virgo = critique of systems, health, labor, purity. The '60s questioned everything: government, medicine, work, sexuality.",
+                cycleContext: "The 'big bang' of modern social revolution. Everything from feminism to environmentalism traces back to this conjunction. The next Uranus-Pluto conjunction won't occur until ~2104."
+            },
+            {
+                id: 13,
+                year: 2011,
+                headline: "Arab Spring + Occupy Wall Street",
+                celestialEvent: "Uranus square Pluto (first exact hit Jun 24)",
+                type: "square",
+                cycle: "Uranus-Pluto",
+                date: "2011-2015",
+                position: "Uranus 6° Aries, Pluto 6° Capricorn",
+                whatHappened: "Protests erupt across the Arab world demanding democratic reform. Simultaneously, Occupy Wall Street launches in the US, challenging corporate power and wealth inequality. The revolutionary impulse from 1965 is reactivated by a new generation.",
+                cosmicLink: "The square (90°) is the 'crisis point' of any cycle. The 1965 conjunction energy—revolutionary demand—now confronts entrenched power (Pluto in Capricorn = institutions, governments, old order). The 2011 square is the moment when the revolutionary impulse meets maximum resistance. This configuration lasted 2015, generating multiple waves of protest.",
+                cycleContext: "The square is the 'action point' of the Uranus-Pluto cycle. Between the conjunction (birth) and opposition (culmination) lies the square (action/crisis)."
+            },
+
+            // Eclipse Events
+            {
+                id: 14,
+                year: 1999,
+                headline: "Total solar eclipse over Europe during Kosovo War (Aug 11)",
+                celestialEvent: "Grand Cross eclipse at 18° Leo",
+                type: "eclipse",
+                cycle: "Eclipse",
+                date: "Aug 11, 1999",
+                position: "Ecliptic at 18° Leo",
+                whatHappened: "A total solar eclipse is visible across Europe and the Middle East during the Kosovo War. NATO is conducting bombing campaigns. Nostradamus's 16th-century quatrain predicted a 'King of Terror from the sky' for this eclipse. Instead: a humanitarian crisis and a rare total eclipse.",
+                cosmicLink: "Eclipses (Sun-Moon-Earth perfectly aligned) act as cosmic 'reset buttons.' They supercharge the degree and sign they occur in. Leo = power, authority, drama. An eclipse in Leo over a war zone heightens visibility and stakes. The 'King of Terror' interpretation showed how astrology can be misused—but the eclipse did coincide with maximum military tension.",
+                cycleContext: "Saros series eclipses repeat every 18 years + 11 days at nodes 120° apart. This eclipse was part of a saros series with specific karmic/generational themes."
+            },
+            {
+                id: 15,
+                year: 2017,
+                headline: "Great American Eclipse (Aug 21) + political escalation",
+                celestialEvent: "Total solar eclipse at 28° Leo",
+                type: "eclipse",
+                cycle: "Eclipse",
+                date: "Aug 21, 2017",
+                position: "Ecliptic at 28° Leo",
+                whatHappened: "The first total solar eclipse visible only from the United States since 1776. It crosses from Oregon to South Carolina. Within weeks: Hurricane Harvey, the Charlottesville rally, and escalating North Korea tensions.",
+                cosmicLink: "Eclipses at 28° Leo hit the natal Leo placements of the US chart (Sun at 13° Cancer, but secondary points in Leo). An eclipse on the nation's fixed stars intensifies its identity crisis. Leo = identity, sovereignty, ego. An eclipse here during political polarization amplifies internal conflict about national identity.",
+                cycleContext: "The American Eclipse of 2017 is often read as a symbol of the nation's internal reckoning. The next total eclipse crossing the US won't occur until 2045."
+            },
+            {
+                id: 16,
+                year: 2024,
+                headline: "Total solar eclipse across America (Apr 8) at 19° Aries",
+                celestialEvent: "Total solar eclipse at 19° Aries",
+                type: "eclipse",
+                cycle: "Eclipse",
+                date: "Apr 8, 2024",
+                position: "Ecliptic at 19° Aries",
+                whatHappened: "A total solar eclipse crosses from Mexico through the US to Canada. It activates the MC (public image) of the US natal chart. Political polarization continues; climate disasters intensify.",
+                cosmicLink: "Aries eclipses signal new beginnings through conflict. The path crosses through the US at a moment of heightened political polarization. Aries = initiation, conflict, new identity. The eclipse forces a reckoning about American direction and purpose.",
+                cycleContext: "The 2024 eclipse is part of the same saros series as the 1999 eclipse (18 years + 11 days apart). Themes of conflict and transformation repeat."
+            },
+            {
+                id: 17,
+                year: 2026,
+                headline: "Blood Moon eclipse at 12° Virgo (Mar 3)",
+                celestialEvent: "Lunar eclipse at 12° Virgo, South Node eclipse",
+                type: "eclipse",
+                cycle: "Eclipse",
+                date: "Mar 3, 2026",
+                position: "Ecliptic at 12° Virgo",
+                whatHappened: "A total lunar eclipse (blood moon) at 12° Virgo. South Node eclipses expose what was hidden. Within days, intelligence breaches surface. Virgo = systems, analysis, health, secrets.",
+                cosmicLink: "South Node eclipses bring to light what was obscured or repressed. Virgo = systems and their vulnerabilities. An intelligence breach or systems compromise aligned with this eclipse reveals hidden security gaps. Virgo eclipses often coincide with health or information system revelations.",
+                cycleContext: "Lunar eclipses occur at nodes (6 months after or before solar eclipses). They bring culmination and revelation where solar eclipses bring initiation."
+            },
+
+            // Gen Z / Millennial Events
+            {
+                id: 18,
+                year: 2008,
+                headline: "Bitcoin whitepaper published (Oct 31, 2008) by Satoshi Nakamoto",
+                celestialEvent: "Saturn square Pluto (waning) + Pluto enters Capricorn",
+                type: "square",
+                cycle: "Saturn-Pluto",
+                date: "Oct 31, 2008",
+                position: "Saturn 3° Virgo, Pluto 3° Sagittarius",
+                whatHappened: "On the same day Lehman Brothers' bankruptcy is announced, an anonymous developer publishes the Bitcoin whitepaper: a proposal for 'a peer-to-peer electronic cash system' independent of banks and governments.",
+                cosmicLink: "Pluto entering Capricorn (2008-2024) = transformation of banks, governments, institutions. Bitcoin—decentralized, independent, peer-to-peer—is the anti-Capricorn institution. It emerges exactly when Pluto begins destroying the old financial order. Saturn square Pluto (crisis of the cycle) = the old system breaks; Bitcoin proposes the replacement.",
+                cycleContext: "Bitcoin represents the 'solution' being born during the Saturn-Pluto crisis. By 2020, when Saturn conjuncts Pluto again, decentralized finance becomes viable."
+            },
+            {
+                id: 19,
+                year: 2011,
+                headline: "Fukushima nuclear disaster (Mar 11)",
+                celestialEvent: "Uranus enters Aries (exact ingress Mar 11)",
+                type: "square",
+                cycle: "Uranus-Pluto",
+                date: "Mar 11, 2011",
+                position: "Uranus at 0° Aries",
+                whatHappened: "An earthquake and tsunami trigger a nuclear meltdown at Fukushima, Japan. The disaster reveals massive failures in safety protocols and government oversight. Radiation contaminates the Pacific.",
+                cosmicLink: "Uranus enters Aries on the exact day of the earthquake—one of astrology's most striking correspondences. Uranus = sudden disruption, technology, electricity. Aries = explosive force, initiation, conflict. A nuclear plant (Uranus = technology) explodes (Aries = explosion) on the day Uranus enters Aries. The sign perfectly matched the event.",
+                cycleContext: "Uranus enters a sign every ~7 years. Its ingress into Aries (Feb-Mar 2011) launched a 7-year period of technological disruption and revolutionary energy."
+            },
+            {
+                id: 20,
+                year: 2016,
+                headline: "Brexit vote (Jun 23) + Trump elected (Nov 8)",
+                celestialEvent: "Saturn square Neptune (waning)",
+                type: "square",
+                cycle: "Saturn-Neptune",
+                date: "2016",
+                position: "Saturn 9° Sagittarius, Neptune 9° Pisces",
+                whatHappened: "Britain votes to leave the EU in a shocking referendum result. Later that year, Donald Trump is elected president against polling expectations. Both events represent populist rebellion against globalist institutions.",
+                cosmicLink: "Saturn square Neptune: reality (Saturn) confronting idealism (Neptune). The post-WWII dream of international institutions and trade unions (Neptune) meets the demand for national sovereignty and hard borders (Saturn in Sagittarius = nation, ideology). The populist wave of 2016 was Saturn-Neptune in action: the dream is over, people demand tangible, bordered, national solutions.",
+                cycleContext: "The waning square of the Saturn-Neptune cycle. Reality reasserts itself against increasingly absurd idealism. A reversal from the conjunction-era optimism."
+            },
+            {
+                id: 21,
+                year: 2019,
+                headline: "Jeffrey Epstein arrested (Jul 6) + found dead in custody (Aug 10)",
+                celestialEvent: "Saturn-Pluto conjunction approaching (within 5° orb)",
+                type: "conjunction",
+                cycle: "Saturn-Pluto",
+                date: "Jul-Aug 2019",
+                position: "Saturn 15° Capricorn, Pluto 20° Capricorn",
+                whatHappened: "The financier and sex trafficker Jeffrey Epstein is arrested and subsequently found dead in jail. His arrest exposes a massive network of powerful men complicit in exploitation. Decades of hidden crimes surface in weeks.",
+                cosmicLink: "Pluto rules hidden power, secrets, the underworld. Saturn demands accountability, limits, consequences. As these two approach their exact conjunction (Jan 2020), the most powerful secret network of the era is exposed. Pluto drags what was hidden into the light; Saturn follows with legal consequences. The astrology is literal: hidden networks (Pluto) broken by accountability (Saturn).",
+                cycleContext: "The conjunction perfects 6 months later. Epstein's arrest is the conjunction 'approaching' phase—secrets are already emerging before the precise alignment."
+            },
+            {
+                id: 22,
+                year: 2021,
+                headline: "January 6 Capitol riot (Jan 6)",
+                celestialEvent: "Mars conjunct Uranus at 6° Taurus, square Jupiter-Saturn in Aquarius",
+                type: "square",
+                cycle: "Uranus-Pluto",
+                date: "Jan 6, 2021",
+                position: "Mars 6° Taurus, Uranus 6° Taurus",
+                whatHappened: "A mob storms the US Capitol building in an attempt to overturn the presidential election. It's the first breach of the Capitol since 1814. Police are overwhelmed; people die.",
+                cosmicLink: "Mars conjunct Uranus = sudden, explosive violence. Mars-Uranus together creates the 'bolt from the blue'—unpredictable, violent disruption. This conjunction squares the new Jupiter-Saturn cycle in Aquarius (launched 1 week earlier, Dec 21, 2020). The old order (Jan 6 riot) violently resists the incoming paradigm shift (the new Jupiter-Saturn era). Mars-Uranus creates the violence; the square shows it's the old system fighting the new.",
+                cycleContext: "This is the violent manifestation of Saturn-Neptune (2016) and Uranus-Pluto square (2011-2015) dynamics coming to a head."
+            },
+            {
+                id: 23,
+                year: 2022,
+                headline: "Russia invades Ukraine (Feb 24)",
+                celestialEvent: "Mars conjunct Pluto at 27° Capricorn (same degree as 2020 Saturn-Pluto conjunction)",
+                type: "conjunction",
+                cycle: "Saturn-Pluto",
+                date: "Feb 24, 2022",
+                position: "Mars 27° Capricorn, Pluto 27° Capricorn",
+                whatHappened: "Russian forces invade Ukraine in the largest European military conflict since WWII. The invasion kills hundreds of thousands and displaces millions. Global energy and food prices spike.",
+                cosmicLink: "Mars transiting over a Saturn-Pluto conjunction degree 'triggers' the themes of that conjunction. The 2020 conjunction at 22° Capricorn represented transformation of power structures and institutions. Mars (aggression, war) activating the same degree 2 years later = that transformation manifests as warfare. Mars-Pluto = destruction of existing power; Mars at the degree of the previous conjunction = the old system (Putin's vision of Slavic supremacy) trying to reassert dominance as Pluto is already dismantling it.",
+                cycleContext: "This is Pluto's final transit through Capricorn (exits Jan 2024) manifesting as the last major war of that 16-year cycle."
+            },
+            {
+                id: 24,
+                year: 2022,
+                headline: "ChatGPT launches (Nov 30) - AI explosion begins",
+                celestialEvent: "Jupiter conjunct Neptune at 23° Pisces",
+                type: "conjunction",
+                cycle: "Jupiter-Saturn",
+                date: "Apr-Nov 2022",
+                position: "Jupiter 23° Pisces, Neptune 23° Pisces",
+                whatHappened: "OpenAI releases ChatGPT, a large language model capable of generating human-like text. The AI boom explodes. Billions are invested in generative AI. Within a year, it's integrated into every major tech platform.",
+                cosmicLink: "Jupiter-Neptune in Pisces = expansion of the immaterial, the imagined, the artificial. Neptune rules illusion and imagination; Jupiter amplifies and expands. AI—which generates convincing patterns that mimic human text—is the ultimate Jupiter-Neptune product. It's intelligence without consciousness, meaning without truth, information without wisdom. Neptune is 'not quite real,' and that's exactly what AI language models are.",
+                cycleContext: "Jupiter-Neptune conjunctions (13 years apart) mark the birth of new illusions and belief systems. This one in Pisces at 23° is about digital consciousness/pseudo-consciousness."
+            },
+            {
+                id: 25,
+                year: 2023,
+                headline: "Silicon Valley Bank collapses (Mar 10)",
+                celestialEvent: "Pluto at 29° Capricorn (final degree, about to exit)",
+                type: "opposition",
+                cycle: "Saturn-Pluto",
+                date: "Mar 10, 2023",
+                position: "Pluto 29° Capricorn",
+                whatHappened: "Silicon Valley Bank, a major lender to tech startups, fails due to interest rate exposure and poor risk management. It's the largest bank failure since 2008. Other regional banks destabilize.",
+                cosmicLink: "Pluto's last act in Capricorn (the sign of banks, governments, institutions) = one final exposure of systemic fragility before moving to Aquarius. SVB's collapse is the 'exit wound' of Pluto's 16-year transformation of banking (2008-2024). The 2008 crisis changed the structure; the 2023 crisis reveals that the new structure is also fragile.",
+                cycleContext: "Pluto transiting Capricorn = transformation and destruction of old institutions. SVB's collapse in Pluto's final Capricorn degree is a symbolic 'goodbye' to this era."
+            },
+            {
+                id: 26,
+                year: 2024,
+                headline: "Trump assassination attempt (Jul 13)",
+                celestialEvent: "Mars conjunct Uranus in Taurus",
+                type: "conjunction",
+                cycle: "Uranus-Pluto",
+                date: "Jul 13, 2024",
+                position: "Mars 24° Taurus, Uranus 24° Taurus",
+                whatHappened: "A gunman fires shots at Donald Trump during a rally in Pennsylvania, grazing his ear. The shooter is killed by Secret Service. The incident reignites political tensions.",
+                cosmicLink: "Mars-Uranus = sudden violence, the bolt from the blue. In Taurus (physical, bodily, tangible). This is the same Mars-Uranus configuration that appeared during the 2021 Capitol riot. Violence and Uranus-Pluto themes of political rupture keep recurring. The assassination attempt is another manifestation of the Uranus-Pluto square cycle (2011-2015) reverberating through the 2020s.",
+                cycleContext: "The Uranus-Pluto square brought the initiation of this revolutionary/conflict cycle. Its reverberations continue years later through Mars activations."
+            },
+
+            // Other significant events
+            {
+                id: 27,
+                year: 1969,
+                headline: "Moon landing (Jul 20)",
+                celestialEvent: "Jupiter conjunct Uranus in Libra",
+                type: "conjunction",
+                cycle: "Other",
+                date: "Jul 20, 1969",
+                position: "Jupiter & Uranus in Libra",
+                whatHappened: "Apollo 11 lands on the Moon. Neil Armstrong becomes the first human to walk on another celestial body. The impossible becomes real.",
+                cosmicLink: "Jupiter-Uranus conjunctions (14 years apart) mark technological breakthroughs and sudden expansions of human capability. Landing on the Moon is the archetype: the impossible made real through sudden breakthrough. Jupiter = expansion, belief; Uranus = technology, the future. Their conjunction = the belief and technology align to achieve the impossible.",
+                cycleContext: "The last Jupiter-Uranus conjunction before 2024 was in 1955 (post-WWII tech boom). The next is 2024."
+            },
+            {
+                id: 28,
+                year: 1986,
+                headline: "Chernobyl nuclear disaster (Apr 26)",
+                celestialEvent: "Saturn square Uranus",
+                type: "square",
+                cycle: "Other",
+                date: "Apr 26, 1986",
+                position: "Saturn 15° Sagittarius, Uranus 15° Sagittarius",
+                whatHappened: "A catastrophic nuclear accident at Chernobyl kills at least 31 immediately and exposes millions to radiation. The reactor core explodes. It remains the worst nuclear disaster in history.",
+                cosmicLink: "Saturn = infrastructure, safety systems, containment. Uranus = sudden rupture, technology gone wrong. The combination = catastrophic breakdown of established safety systems. The reactor was supposed to be 'contained'; Uranus shatters the containment.",
+                cycleContext: "Saturn-Uranus squares mark moments when safety systems fail due to technological change or neglect."
+            },
+            {
+                id: 29,
+                year: 1995,
+                headline: "Tokyo subway sarin attack (Mar 20)",
+                celestialEvent: "Saturn square Pluto (waxing)",
+                type: "square",
+                cycle: "Saturn-Pluto",
+                date: "Mar 20, 1995",
+                position: "Saturn 0° Aquarius, Pluto 0° Sagittarius",
+                whatHappened: "Aum Shinrikyo cult releases sarin gas in the Tokyo subway, killing 13 and injuring thousands. It's the deadliest terrorist attack in Japan's modern history.",
+                cosmicLink: "Same crisis window as the 1993 WTC bombing: Saturn square Pluto. Hidden destructive forces (Pluto) breaking through security structures (Saturn). The 1990s accumulate terrorist incidents building toward 2001.",
+                cycleContext: "The waxing square of the 1982 conjunction cycle creates a window of hidden tensions erupting into public violence."
+            },
+            {
+                id: 30,
+                year: 2006,
+                headline: "Housing bubble peaks - subprime crisis begins",
+                celestialEvent: "Saturn opposite Neptune",
+                type: "opposition",
+                cycle: "Saturn-Neptune",
+                date: "Sep 2006",
+                position: "Saturn 20° Leo, Neptune 20° Aquarius",
+                whatHappened: "US housing prices reach their peak. Subprime mortgage lending accelerates. Everyone believes home prices will rise forever.",
+                cosmicLink: "Neptune's illusion (ever-rising home values) meets Saturn's reality (the math doesn't work). The opposition is the 'wake-up' moment. Within 2 years the system collapses.",
+                cycleContext: "The opposition is the crisis point of the Saturn-Neptune cycle (1989-2006)."
+            },
+            {
+                id: 31,
+                year: 2026,
+                headline: "Venus-Saturn conjunction in Aries (Mar 8) - Trade tensions escalate",
+                celestialEvent: "Venus conjunct Saturn at 8° Aries",
+                type: "conjunction",
+                cycle: "Other",
+                date: "Mar 8, 2026",
+                position: "Venus 8° Aries, Saturn 8° Aries",
+                whatHappened: "Trade tensions between major economies escalate. Venus (value, diplomacy, trade) meets Saturn (limits, consequences) in Aries (conflict). Alliances tested.",
+                cosmicLink: "Venus in Aries = aggressive negotiation, confrontational trade disputes. Saturn conjunct = deals broken, limits imposed. Expect tariffs, trade wars, and realignment of economic alliances.",
+                cycleContext: "This is occurring during Pluto's early transit through Aquarius (transformation of institutions) and the Saturn-Neptune waning square."
+            },
+            {
+                id: 32,
+                year: 2026,
+                headline: "Vernal Equinox / Aries Ingress (Mar 20) - Annual reset point",
+                celestialEvent: "Sun enters Aries at vernal equinox",
+                type: "equinox",
+                cycle: "Other",
+                date: "Mar 20, 2026",
+                position: "Sun 0° Aries",
+                whatHappened: "The vernal equinox marks the astrological New Year and the start of spring in the Northern Hemisphere. Mundane astrologers use this 'Aries Ingress' chart to interpret the themes of the year.",
+                cosmicLink: "The Aries Ingress is the 'birth chart of the year.' Mundane astrologers read the planetary positions and aspects in this chart to understand geopolitical themes. The 2026 Aries Ingress occurs during multiple planetary configurations suggesting continued geopolitical realignment.",
+                cycleContext: "Annual equinox ingress charts are used in mundane astrology to forecast yearly trends."
+            },
+            {
+                id: 33,
+                year: 2026,
+                headline: "Mercury Retrograde in Aries (Mar 29 - Apr 21) - Communications disrupted",
+                celestialEvent: "Mercury retrograde at 21° Aries",
+                type: "retrograde",
+                cycle: "Other",
+                date: "Mar 29 - Apr 21, 2026",
+                position: "Mercury 21° Aries retrograde",
+                whatHappened: "Mercury appears to move backward in the sky. Communications go haywire. Tech rollbacks, diplomatic walk-backs, revised statements. Miscommunications spike.",
+                cosmicLink: "Mercury retrograde disrupts its rulerships: communication, technology, travel, information, deals. In Aries (direct, aggressive, confrontational), this suggests heated negotiations that must be revised, or tech systems that crash and need rollback.",
+                cycleContext: "Mercury retrogrades 3-4 times per year. They're often treated as cautionary periods to review rather than initiate."
+            }
+        ];
+
+        const CYCLES = [
+            { id: "Saturn-Pluto", label: "Saturn-Pluto", color: "#8B7EC7" },
+            { id: "Saturn-Neptune", label: "Saturn-Neptune", color: "#5B8FB9" },
+            { id: "Jupiter-Saturn", label: "Jupiter-Saturn", color: "#C9A96E" },
+            { id: "Uranus-Pluto", label: "Uranus-Pluto", color: "#E8A545" },
+            { id: "Eclipse", label: "Eclipse", color: "#E84545" },
+            { id: "Other", label: "Other", color: "#7ECBA1" }
+        ];
+
+        const GLOSSARY_DATA = {
+            aspects: [
+                {
+                    term: "Conjunction (☌)",
+                    def: "Two planets meet at the same point. A cosmic handshake — a new cycle begins."
+                },
+                {
+                    term: "Opposition (☍)",
+                    def: "180° apart. Maximum tension. The cycle reaches its crisis point."
+                },
+                {
+                    term: "Square (□)",
+                    def: "90° apart. Friction, forced action. Something has to change."
+                },
+                {
+                    term: "Eclipse (◑)",
+                    def: "Sun, Moon, Earth align precisely. Supercharges the sign it falls in. Exposes hidden things."
+                },
+                {
+                    term: "Retrograde (℞)",
+                    def: "Planet appears to move backward. Its themes go haywire — delays, miscommunication, past resurfacing."
+                }
+            ],
+            planets: [
+                { term: "Saturn", def: "Structure, limits, authority, consequences. The planet of hard reality." },
+                { term: "Pluto", def: "Power, transformation, secrets, the unconscious. What's hidden beneath the surface." },
+                { term: "Jupiter", def: "Expansion, belief, fortune, excess. The amplifier — makes everything bigger." },
+                { term: "Neptune", def: "Dreams, illusion, dissolution, deception. The dissolver of boundaries." },
+                { term: "Uranus", def: "Revolution, disruption, technology, sudden change. The lightning bolt." },
+                { term: "Mars", def: "Action, conflict, aggression, energy. The warrior." },
+                { term: "Venus", def: "Value, beauty, diplomacy, money. What we desire." },
+                { term: "Mercury", def: "Communication, technology, travel, information. The messenger." }
+            ],
+            cycles: [
+                {
+                    term: "Saturn-Pluto (~33-38 yrs)",
+                    def: "Power structures built and destroyed. WWI, Cold War, AIDS, COVID — all began at Saturn-Pluto conjunctions."
+                },
+                {
+                    term: "Saturn-Neptune (~36 yrs)",
+                    def: "Idealism meets reality. Berlin Wall fell 4 days before exact conjunction in 1989."
+                },
+                {
+                    term: "Jupiter-Saturn (~20 yrs)",
+                    def: "The 'Great Conjunction.' Generational shifts in economics and social order."
+                },
+                {
+                    term: "Uranus-Pluto (~113-141 yrs)",
+                    def: "The revolution cycle. 1960s counterculture, 2010s Arab Spring/Occupy."
+                }
+            ]
+        };
+
+        // Starfield generation
+        function generateStarfield() {
+            const starfield = document.getElementById('starfield');
+            if (!starfield) return;
+
+            for (let i = 0; i < 60; i++) {
+                const star = document.createElement('div');
+                star.className = 'star twinkle';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = (Math.random() * 3) + 's';
+                star.style.animationDuration = (2 + Math.random() * 2) + 's';
+                starfield.appendChild(star);
+            }
+        }
+
+        // Main app component
+        function CosmosDaily() {
+            const [expandedId, setExpandedId] = useState(null);
+            const [selectedDecade, setSelectedDecade] = useState('all');
+            const [selectedCycle, setSelectedCycle] = useState('all');
+            const [selectedType, setSelectedType] = useState('all');
+            const [searchQuery, setSearchQuery] = useState('');
+            const [showGlossary, setShowGlossary] = useState(false);
+
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            // Filter logic
+            const filteredEvents = useMemo(() => {
+                return EVENTS.filter(event => {
+                    const decade = Math.floor(event.year / 10) * 10;
+                    const decadeMatch = selectedDecade === 'all' || `${decade}s` === selectedDecade;
+                    const cycleMatch = selectedCycle === 'all' || event.cycle === selectedCycle;
+                    const typeMatch = selectedType === 'all' || event.type === selectedType;
+                    const searchMatch = searchQuery === '' ||
+                        event.headline.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        event.celestialEvent.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        event.cosmicLink.toLowerCase().includes(searchQuery.toLowerCase());
+
+                    return decadeMatch && cycleMatch && typeMatch && searchMatch;
+                }).sort((a, b) => a.year - b.year);
+            }, [selectedDecade, selectedCycle, selectedType, searchQuery]);
+
+            const getColorClass = (type) => `type-${type}`;
+            const getColorStyle = (type) => {
+                const colorMap = {
+                    eclipse: '#E84545',
+                    conjunction: '#C9A96E',
+                    opposition: '#E8A545',
+                    square: '#5B8FB9',
+                    retrograde: '#8B7EC7',
+                    equinox: '#7ECBA1'
+                };
+                return colorMap[type] || '#C9A96E';
+            };
+
+            const getEventTypeLabel = (type) => {
+                return type.charAt(0).toUpperCase() + type.slice(1);
+            };
+
+            useEffect(() => {
+                generateStarfield();
+            }, []);
+
+            return (
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                    {/* Header */}
+                    <div className="header">
+                        <h1 className="header-title">COSMOS DAILY</h1>
+                        <div className="header-subtitle">CELESTIAL MECHANICS × WORLD EVENTS</div>
+                        <p className="header-manifesto">
+                            Sixty years of planetary alignments mapped against the events that shaped the world.
+                        </p>
+                        <div className="header-date">{dateStr}</div>
+                    </div>
+
+                    {/* Glossary Button */}
+                    <div className="glossary-toggle">
+                        <button className="glossary-btn" onClick={() => setShowGlossary(!showGlossary)}>
+                            📖 Cosmic Glossary (Beginner Layer)
+                        </button>
+                    </div>
+
+                    {/* Glossary Modal */}
+                    {showGlossary && (
+                        <div className="glossary-modal" onClick={() => setShowGlossary(false)}>
+                            <div className="glossary-content" onClick={e => e.stopPropagation()}>
+                                <button className="glossary-close" onClick={() => setShowGlossary(false)}>×</button>
+
+                                <div className="glossary-section">
+                                    <div className="glossary-section-title">Aspect Types (ELI5)</div>
+                                    {GLOSSARY_DATA.aspects.map((item, i) => (
+                                        <div key={i} className="glossary-item">
+                                            <div className="glossary-term">{item.term}</div>
+                                            <div className="glossary-definition">{item.def}</div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="glossary-section">
+                                    <div className="glossary-section-title">Planets (What They Rule)</div>
+                                    {GLOSSARY_DATA.planets.map((item, i) => (
+                                        <div key={i} className="glossary-item">
+                                            <div className="glossary-term">{item.term}</div>
+                                            <div className="glossary-definition">{item.def}</div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="glossary-section">
+                                    <div className="glossary-section-title">Major Cycles (ELI5)</div>
+                                    {GLOSSARY_DATA.cycles.map((item, i) => (
+                                        <div key={i} className="glossary-item">
+                                            <div className="glossary-term">{item.term}</div>
+                                            <div className="glossary-definition">{item.def}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Navigation */}
+                    <div className="container">
+                        {/* Decades */}
+                        <div className="nav-section">
+                            <span className="nav-label">Filter by Decade</span>
+                            <div className="pill-group">
+                                {['all', '1960s', '1980s', '1990s', '2000s', '2010s', '2020s'].map(decade => (
+                                    <button
+                                        key={decade}
+                                        className={`pill ${selectedDecade === decade ? 'active' : ''}`}
+                                        onClick={() => setSelectedDecade(decade)}
+                                    >
+                                        {decade === 'all' ? 'All Decades' : decade}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Cycles */}
+                        <div className="nav-section">
+                            <span className="nav-label">Filter by Cycle</span>
+                            <div className="pill-group">
+                                <button
+                                    className={`pill ${selectedCycle === 'all' ? 'active' : ''}`}
+                                    onClick={() => setSelectedCycle('all')}
+                                >
+                                    All Cycles
+                                </button>
+                                {CYCLES.map(cycle => (
+                                    <button
+                                        key={cycle.id}
+                                        className={`pill ${selectedCycle === cycle.id ? 'active' : ''}`}
+                                        onClick={() => setSelectedCycle(cycle.id)}
+                                    >
+                                        {cycle.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Event Types */}
+                        <div className="nav-section">
+                            <span className="nav-label">Filter by Type</span>
+                            <div className="pill-group">
+                                <button
+                                    className={`pill ${selectedType === 'all' ? 'active' : ''}`}
+                                    onClick={() => setSelectedType('all')}
+                                >
+                                    All Types
+                                </button>
+                                {['eclipse', 'conjunction', 'opposition', 'square', 'retrograde', 'equinox'].map(type => (
+                                    <button
+                                        key={type}
+                                        className={`pill type-${type} ${selectedType === type ? 'active' : ''}`}
+                                        onClick={() => setSelectedType(type)}
+                                    >
+                                        {getEventTypeLabel(type)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Search */}
+                        <div className="search-container">
+                            <input
+                                type="text"
+                                className="search-input"
+                                placeholder="Search events, celestial positions, cosmic links..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+
+                        {/* Results Counter */}
+                        <div className="results-counter">
+                            Showing {filteredEvents.length} of {EVENTS.length} events
+                        </div>
+                    </div>
+
+                    {/* Events */}
+                    <div className="events-container">
+                        {filteredEvents.length > 0 ? (
+                            <div className="container">
+                                <div className="timeline">
+                                    {filteredEvents.map(event => (
+                                        <div
+                                            key={event.id}
+                                            className={`event-item ${getColorClass(event.type)}`}
+                                            style={{ color: getColorStyle(event.type) }}
+                                        >
+                                            <div className="timeline-node"></div>
+                                            <div className="event-year">{event.year}</div>
+                                            <div
+                                                className={`event-card ${expandedId === event.id ? 'expanded' : ''}`}
+                                                onClick={() => setExpandedId(expandedId === event.id ? null : event.id)}
+                                                style={{
+                                                    borderLeftColor: getColorStyle(event.type),
+                                                    color: getColorStyle(event.type)
+                                                }}
+                                            >
+                                                <div className="event-meta">
+                                                    <span className={`event-type-badge badge-${event.type}`}>
+                                                        {getEventTypeLabel(event.type)}
+                                                    </span>
+                                                    <span className="event-cycle-badge">{event.cycle}</span>
+                                                </div>
+                                                <h3 className="event-headline">{event.headline}</h3>
+                                                <div className="event-celestial">{event.celestialEvent}</div>
+                                                <div className="event-expand-hint">
+                                                    Click to expand
+                                                    <span className="chevron">▼</span>
+                                                </div>
+
+                                                {expandedId === event.id && (
+                                                    <div className="event-expanded">
+                                                        <div className="expanded-section">
+                                                            <span className="expanded-label">What Happened</span>
+                                                            <div className="expanded-text">{event.whatHappened}</div>
+                                                        </div>
+                                                        <div className="expanded-section cosmic-link">
+                                                            <span className="expanded-label">Cosmic Link</span>
+                                                            <div className="expanded-text">{event.cosmicLink}</div>
+                                                        </div>
+                                                        <div className="expanded-section">
+                                                            <span className="expanded-label">Cycle Context</span>
+                                                            <div className="expanded-text">{event.cycleContext}</div>
+                                                        </div>
+                                                        <div className="expanded-section">
+                                                            <span className="expanded-label" style={{ color: '#9B99A8' }}>Date & Position</span>
+                                                            <div className="expanded-text">
+                                                                <div>{event.date}</div>
+                                                                <div>{event.position}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="empty-state">
+                                <div className="empty-state-text">No events match your filters.</div>
+                                <div style={{ fontSize: '12px', color: '#9B99A8' }}>Try adjusting your search or filters.</div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Stats & Footer */}
+                    <div className="container">
+                        <div className="stats">
+                            Tracking 33+ world events across 6 planetary cycles · 1965–2026
+                        </div>
+                        <div className="footer">
+                            <div className="footer-disclaimer">
+                                Astrology is a lens, not a law. We present celestial events alongside world events as a framework for reflection — not as causal claims or predictions.
+                            </div>
+                            <div className="footer-credit">
+                                COSMOS DAILY · FOR EXPLORATION & PERSPECTIVE
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<CosmosDaily />);
+    </script>
+</body>
+</html>

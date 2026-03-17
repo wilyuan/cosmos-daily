@@ -1,0 +1,129 @@
+/* ─── TodaysSky ─────────────────────────────────────────── */
+
+.todays-sky {
+  position: relative;
+  background: rgba(26, 23, 38, 0.45);
+  border: 1px solid rgba(201, 169, 110, 0.2);
+  border-radius: 8px;
+  padding: 28px 32px;
+  margin-bottom: 48px;
+  overflow: hidden;
+}
+
+/* Top shimmer line */
+.todays-sky::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,169,110,0.4), transparent);
+}
+
+.sky-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.sky-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--color-gold);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sky-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #E84545;
+  animation: live-pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.sky-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.5px;
+}
+
+/* ─── Active transits list ─── */
+.sky-transits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.sky-transit {
+  display: flex;
+  gap: 14px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left: 3px solid var(--transit-color);
+  border-radius: 0 4px 4px 0;
+}
+
+.transit-symbol {
+  font-size: 20px;
+  line-height: 1;
+  color: var(--transit-color);
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.transit-body {
+  min-width: 0;
+}
+
+.transit-celestial {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--transit-color);
+  opacity: 0.8;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.transit-world {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.transit-tag {
+  display: inline-block;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-text-muted);
+  background: rgba(255,255,255,0.05);
+  padding: 2px 7px;
+  border-radius: 2px;
+}
+
+/* ─── Footer note ─── */
+.sky-note {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(201, 169, 110, 0.08);
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-style: italic;
+  line-height: 1.6;
+}

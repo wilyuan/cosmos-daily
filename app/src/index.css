@@ -1,0 +1,129 @@
+/* ─────────────────────────────────────────
+   COSMOS DAILY — Global Styles
+   Design reference: cosmos-daily-v1.html
+───────────────────────────────────────── */
+
+/* Variables */
+:root {
+  --color-bg: #06050A;
+  --color-text: #E8E6F0;
+  --color-text-muted: #9B99A8;
+  --color-border: rgba(201, 169, 110, 0.15);
+  --color-gold: #C9A96E;
+
+  /* Event type accent colors — used ONLY for left borders and type badges */
+  --color-eclipse: #E84545;
+  --color-conjunction: #C9A96E;
+  --color-opposition: #E8A545;
+  --color-square: #5B8FB9;
+  --color-retrograde: #8B7EC7;
+  --color-equinox: #7ECBA1;
+  --color-ingress: #D4A574;
+
+  --font-serif: 'Source Serif 4', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  --container-width: 900px;
+  --card-padding: 28px;
+}
+
+/* Reset */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Base */
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: linear-gradient(175deg, #06050A 0%, #0A0814 30%, #0D0B18 60%, #07060C 100%);
+  background-attachment: fixed;
+  color: var(--color-text);
+  font-family: var(--font-serif);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+/* Ambient orbs — rendered as siblings to #root in App */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(70px);
+}
+
+.orb-red {
+  top: -8%;
+  right: -4%;
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle at 30% 30%, rgba(232, 69, 69, 0.14), rgba(232, 69, 69, 0.01) 70%);
+  animation: orb-float 9s ease-in-out infinite;
+}
+
+.orb-purple {
+  bottom: -8%;
+  left: -4%;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle at 70% 70%, rgba(139, 126, 199, 0.10), rgba(139, 126, 199, 0) 70%);
+  animation: orb-float 13s ease-in-out infinite reverse;
+}
+
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-28px); }
+}
+
+/* Container */
+.container {
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.25); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(201,169,110,0.45); }
+
+/* Selection */
+::selection { background: rgba(201,169,110,0.25); color: var(--color-text); }
+
+/* Focus visible */
+:focus-visible {
+  outline: 1px solid rgba(201,169,110,0.5);
+  outline-offset: 2px;
+}
+
+/* Slide-down animation */
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Gold pulse — used on header title */
+@keyframes gold-pulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(201,169,110,0.2)); }
+  50%       { filter: drop-shadow(0 0 18px rgba(201,169,110,0.4)); }
+}
+
+/* Live dot pulse */
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

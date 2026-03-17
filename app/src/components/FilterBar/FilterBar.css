@@ -1,0 +1,187 @@
+/* ─── FilterBar ─────────────────────────────────────────── */
+
+.filter-bar {
+  margin-bottom: 40px;
+}
+
+/* ─── Search ─── */
+.filter-search {
+  position: relative;
+  margin-bottom: 28px;
+}
+
+.filter-search-input {
+  width: 100%;
+  padding: 13px 16px 13px 42px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.filter-search-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.filter-search-input:focus {
+  outline: none;
+  border-color: rgba(201, 169, 110, 0.5);
+  background: rgba(201, 169, 110, 0.05);
+}
+
+.filter-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* ─── Filter group ─── */
+.filter-group {
+  margin-bottom: 18px;
+}
+
+.filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.filter-group-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  margin-bottom: 10px;
+}
+
+.filter-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ─── Pill base ─── */
+.filter-pill {
+  padding: 6px 14px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-muted);
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.filter-pill:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(201, 169, 110, 0.35);
+  color: var(--color-text);
+}
+
+/* All pill active */
+.filter-pill.is-active-all {
+  background: rgba(201, 169, 110, 0.15);
+  border-color: rgba(201, 169, 110, 0.5);
+  color: var(--color-gold);
+}
+
+/* Typed pill active — color set via inline style var */
+.filter-pill.is-active {
+  background: var(--pill-bg);
+  border-color: var(--pill-border);
+  color: var(--pill-color);
+}
+
+.pill-symbol {
+  margin-right: 4px;
+  opacity: 0.85;
+}
+
+/* ─── Results & controls row ─── */
+.filter-results-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-results-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.5px;
+}
+
+.filter-results-count strong {
+  color: var(--color-gold);
+  font-weight: 500;
+}
+
+.filter-reset {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-text-muted);
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-reset:hover {
+  border-color: rgba(201, 169, 110, 0.4);
+  color: var(--color-gold);
+}
+
+/* ─── View toggle ─── */
+.view-toggle {
+  display: flex;
+  gap: 4px;
+}
+
+.view-btn {
+  padding: 5px 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.view-btn.is-active {
+  background: rgba(201, 169, 110, 0.12);
+  border-color: rgba(201, 169, 110, 0.4);
+  color: var(--color-gold);
+}
+
+.view-btn:hover:not(.is-active) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text);
+}

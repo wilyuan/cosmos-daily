@@ -1,0 +1,24 @@
+{
+  "name": "cosmos-daily",
+  "version": "1.0.0",
+  "description": "",
+  "main": "_temp_events.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wilyuan/cosmos-daily.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/wilyuan/cosmos-daily/issues"
+  },
+  "homepage": "https://github.com/wilyuan/cosmos-daily#readme",
+  "dependencies": {
+    "stripe": "^20.4.1"
+  }
+}

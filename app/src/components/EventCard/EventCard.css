@@ -1,0 +1,215 @@
+/* ─── EventCard ─────────────────────────────────────────── */
+
+.event-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.028);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: var(--card-padding);
+  padding-left: 32px;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  overflow: hidden;
+  /* Left accent border via pseudo */
+}
+
+.event-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent);
+  opacity: 0.7;
+  transition: opacity 0.25s ease;
+}
+
+.event-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(201, 169, 110, 0.3);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.3);
+}
+
+.event-card:hover::before {
+  opacity: 1;
+}
+
+/* ─── Card top row ─── */
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.card-year-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.card-year {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.card-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  white-space: nowrap;
+}
+
+.card-type-badge .badge-symbol {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.card-chevron {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  opacity: 0.5;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.event-card.is-expanded .card-chevron {
+  transform: rotate(180deg);
+  opacity: 0.8;
+}
+
+/* ─── Celestial event name ─── */
+.card-celestial {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--accent);
+  opacity: 0.75;
+  margin-bottom: 10px;
+  letter-spacing: 0.3px;
+  line-height: 1.4;
+}
+
+/* ─── World event title ─── */
+.card-title {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+/* ─── Category pill ─── */
+.card-category {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 14px;
+}
+
+/* ─── Description preview ─── */
+.card-description {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.card-description.is-clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-read-more {
+  display: inline-block;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: rgba(201, 169, 110, 0.65);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ─── Expanded sections ─── */
+.card-expanded {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(201, 169, 110, 0.12);
+  animation: slide-down 0.25s ease;
+}
+
+.expanded-section {
+  margin-bottom: 18px;
+}
+
+.expanded-section:last-child {
+  margin-bottom: 0;
+}
+
+.expanded-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent);
+  opacity: 0.7;
+  margin-bottom: 8px;
+}
+
+.expanded-text {
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+  line-height: 1.75;
+}
+
+.cosmic-link-block {
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.025);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 4px 4px 0;
+}
+
+.cosmic-link-block .expanded-label {
+  opacity: 1;
+}
+
+.cosmic-link-block .expanded-text {
+  color: var(--color-text);
+  font-style: italic;
+}
+
+.card-date {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  margin-top: 16px;
+  letter-spacing: 0.5px;
+}
