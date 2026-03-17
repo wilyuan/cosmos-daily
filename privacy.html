@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cosmos Daily — Privacy Policy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200;0,8..60,400;0,8..60,600;1,8..60,300&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & TOKENS ────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:        #07060D;
+  --bg2:       #0D0B1A;
+  --surface:   rgba(255,255,255,0.04);
+  --border:    rgba(255,255,255,0.08);
+  --text:      #E8E6F0;
+  --muted:     #6E6B80;
+  --gold:      #C9A96E;
+  --gold-dim:  rgba(201,169,110,0.15);
+  --red:       #E84545;
+  --violet:    #9B8FD4;
+  --serif:     'Source Serif 4', Georgia, serif;
+  --mono:      'IBM Plex Mono', monospace;
+  --radius:    12px;
+  --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ─── STARFIELD ─────────────────────────────────────────────────── */
+#starfield {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+}
+
+.orb {
+  position: fixed; border-radius: 50%;
+  pointer-events: none; z-index: 0; filter: blur(80px);
+}
+.orb-1 {
+  width: 600px; height: 600px;
+  top: -200px; right: -150px;
+  background: radial-gradient(circle, rgba(232,69,69,0.08) 0%, transparent 70%);
+  animation: drift 14s ease-in-out infinite;
+}
+.orb-2 {
+  width: 700px; height: 700px;
+  bottom: -200px; left: -200px;
+  background: radial-gradient(circle, rgba(139,126,199,0.10) 0%, transparent 70%);
+  animation: drift 18s ease-in-out infinite reverse;
+}
+.orb-3 {
+  width: 500px; height: 500px;
+  top: 50%; left: 60%;
+  background: radial-gradient(circle, rgba(201,169,110,0.06) 0%, transparent 70%);
+  animation: drift 22s ease-in-out infinite;
+}
+@keyframes drift {
+  0%,100% { transform: translate(0,0); }
+  50%      { transform: translate(30px,-40px); }
+}
+
+/* ─── HEADER ────────────────────────────────────────────────────── */
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,6,13,0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1400px; margin: 0 auto;
+  padding: 0 24px;
+  height: 60px;
+  display: flex; align-items: center; gap: 24px;
+}
+.brand {
+  display: flex; flex-direction: column;
+  flex-shrink: 0; text-decoration: none;
+}
+.brand-name {
+  font-family: var(--mono); font-size: 13px; font-weight: 500;
+  letter-spacing: 3px; color: var(--gold);
+  text-transform: uppercase;
+}
+.brand-sub {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 1.5px; color: var(--muted);
+  text-transform: uppercase; line-height: 1;
+}
+.header-nav {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 16px;
+}
+.back-link {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--gold);
+  background: var(--gold-dim); border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 6px; padding: 6px 14px; cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition);
+}
+.back-link:hover { background: rgba(201,169,110,0.25); }
+
+/* ─── ARTICLE LAYOUT ────────────────────────────────────────────── */
+.article {
+  position: relative; z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px 120px;
+}
+
+/* ─── HERO ──────────────────────────────────────────────────────── */
+.hero {
+  padding: 80px 0 64px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 64px;
+}
+.hero-overline {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 24px; display: block;
+}
+.hero-title {
+  font-size: clamp(40px, 6vw, 72px); font-weight: 200;
+  line-height: 1.08; letter-spacing: -1.5px;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+.hero-subtitle {
+  font-size: 19px; font-weight: 400;
+  color: var(--muted); line-height: 1.7;
+  font-style: italic;
+  max-width: 600px;
+}
+.hero-date {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted); margin-top: 20px;
+  display: block;
+}
+
+/* ─── SECTIONS ──────────────────────────────────────────────────── */
+.section { margin-bottom: 64px; }
+
+.section-marker {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 32px;
+}
+.section-number {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 2px; color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid rgba(201,169,110,0.2);
+  border-radius: 4px;
+  padding: 4px 10px;
+  flex-shrink: 0;
+}
+.section-line {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(201,169,110,0.3), transparent);
+}
+
+.section h2 {
+  font-size: clamp(28px, 4vw, 38px); font-weight: 200;
+  line-height: 1.15; letter-spacing: -0.5px;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+.section h2 em {
+  font-style: italic; color: var(--gold); font-weight: 300;
+}
+
+.section p {
+  font-size: 17px; line-height: 1.85;
+  color: rgba(232,230,240,0.78);
+  margin-bottom: 20px;
+}
+.section p:last-child { margin-bottom: 0; }
+
+.section p strong {
+  color: var(--text); font-weight: 600;
+}
+
+.section a {
+  color: var(--gold); text-decoration: none;
+}
+.section a:hover { text-decoration: underline; }
+
+/* ─── DIVIDER ───────────────────────────────────────────────────── */
+.divider {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--gold);
+  font-size: 18px;
+  letter-spacing: 16px;
+  opacity: 0.4;
+}
+
+/* ─── FOOTER ────────────────────────────────────────────────────── */
+.site-footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 32px 24px;
+  text-align: center;
+}
+.footer-inner {
+  max-width: 760px; margin: 0 auto;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+}
+.footer-brand {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); opacity: 0.5;
+}
+.footer-note {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 1px; color: var(--muted);
+  line-height: 1.6;
+}
+.footer-note a {
+  color: var(--gold); text-decoration: none;
+}
+.footer-note a:hover { text-decoration: underline; }
+
+/* ─── RESPONSIVE ────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .hero { padding: 48px 0 40px; margin-bottom: 48px; }
+  .hero-title { letter-spacing: -0.5px; }
+  .hero-subtitle { font-size: 16px; }
+  .section { margin-bottom: 48px; }
+  .section h2 { font-size: 26px; }
+  .section p { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- ─── HEADER ─────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand">
+      <span class="brand-name">Cosmos Daily</span>
+      <span class="brand-sub">Celestial History · Chronicle</span>
+    </a>
+    <nav class="header-nav">
+      <a href="index.html" class="back-link">&larr; Back to Archive</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ─── ARTICLE ────────────────────────────────────────────────── -->
+<article class="article">
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="hero-overline">Privacy</span>
+    <h1 class="hero-title">Privacy Policy</h1>
+    <p class="hero-subtitle">We respect your data. Here's exactly what we collect and what we don't.</p>
+    <span class="hero-date">Effective: March 2026</span>
+  </div>
+
+  <!-- SECTION I -->
+  <section class="section">
+    <div class="section-marker">
+      <span class="section-number">I</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>What We <em>Collect</em></h2>
+    <p>When you subscribe to our newsletter, we collect your email address. When you submit an event suggestion or contact us, we collect your email and message content. That's it.</p>
+  </section>
+
+  <div class="divider">&#10022; &#10022; &#10022;</div>
+
+  <!-- SECTION II -->
+  <section class="section">
+    <div class="section-marker">
+      <span class="section-number">II</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>What We <em>Don't</em> Collect</h2>
+    <p>We do not use cookies for tracking. We do not use Google Analytics. We do not sell, share, or trade your personal information with third parties. We do not build user profiles. We do not track your browsing behavior within the site.</p>
+  </section>
+
+  <div class="divider">&#10022; &#10022; &#10022;</div>
+
+  <!-- SECTION III -->
+  <section class="section">
+    <div class="section-marker">
+      <span class="section-number">III</span>
+      <div class="section-line"></div>
+    </div>
+    <h2><em>Analytics</em></h2>
+    <p>We use Vercel's built-in analytics, which collects aggregated, anonymized page view data. No personal information is collected. No cookies are set. This is compliant with GDPR without requiring a cookie consent banner.</p>
+  </section>
+
+  <div class="divider">&#10022; &#10022; &#10022;</div>
+
+  <!-- SECTION IV -->
+  <section class="section">
+    <div class="section-marker">
+      <span class="section-number">IV</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Third-Party <em>Services</em></h2>
+    <p>Email subscriptions and contact forms are processed through FormSubmit.co. Donations are processed through Stripe. Both services have their own privacy policies. We do not store payment information.</p>
+  </section>
+
+  <div class="divider">&#10022; &#10022; &#10022;</div>
+
+  <!-- SECTION V -->
+  <section class="section">
+    <div class="section-marker">
+      <span class="section-number">V</span>
+      <div class="section-line"></div>
+    </div>
+    <h2>Your <em>Rights</em></h2>
+    <p>You may request deletion of your email from our records at any time by contacting <a href="mailto:contact.cosmosdaily@gmail.com">contact.cosmosdaily@gmail.com</a>. We will comply within 48 hours.</p>
+  </section>
+
+  <div class="divider">&#10022; &#10022; &#10022;</div>
+
+  <!-- SECTION VI -->
+  <section class="section">
+    <div class="section-marker">
+      <span class="section-number">VI</span>
+      <div class="section-line"></div>
+    </div>
+    <h2><em>Contact</em></h2>
+    <p>For privacy inquiries: <a href="mailto:contact.cosmosdaily@gmail.com">contact.cosmosdaily@gmail.com</a></p>
+  </section>
+
+</article>
+
+<!-- ─── FOOTER ──────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-brand">Cosmos Daily</span>
+    <span class="footer-note">
+      Celestial data via NASA JPL Ephemeris &middot; Historical events independently verified<br>
+      <a href="index.html">Back to Archive</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+// ─── STARFIELD ─────────────────────────────────────────────────────────────
+(function initStarfield() {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function createStars(count) {
+    stars = [];
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.2 + 0.2,
+        alpha: Math.random() * 0.5 + 0.1,
+        delta: (Math.random() - 0.5) * 0.004,
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      s.alpha += s.delta;
+      if (s.alpha <= 0.05 || s.alpha >= 0.65) s.delta *= -1;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(232,230,240,${s.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  createStars(280);
+  draw();
+  window.addEventListener('resize', () => { resize(); createStars(280); });
+})();
+</script>
+</body>
+</html>

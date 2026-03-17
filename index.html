@@ -1550,6 +1550,7 @@ body {
   border: 1px solid rgba(201,169,110,0.15);
   border-radius: 16px;
   padding: 60px 48px;
+  min-height: 420px;
   display: flex; align-items: center; gap: 48px;
   overflow: hidden;
   background: radial-gradient(ellipse at 70% 50%, rgba(201,169,110,0.04) 0%, transparent 60%),
@@ -1559,18 +1560,18 @@ body {
 }
 .map-cta-inner:hover { border-color: rgba(201,169,110,0.3); }
 .map-cta-preview {
-  position: absolute; top: 0; right: 0;
-  width: 55%; height: 100%;
+  position: absolute; top: -10%; right: -5%;
+  width: 65%; height: 120%;
   overflow: hidden; pointer-events: none;
 }
 .map-cta-preview::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(90deg, #0F0E1B 0%, rgba(15,14,27,0.6) 40%, rgba(15,14,27,0.1) 100%);
+  background: linear-gradient(90deg, #0F0E1B 0%, rgba(15,14,27,0.4) 35%, rgba(15,14,27,0.05) 100%);
   z-index: 1;
 }
 .map-cta-canvas {
   width: 100%; height: 100%;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 .map-cta-copy { flex: 1; position: relative; z-index: 2; }
 .map-cta-overline {
@@ -1819,52 +1820,150 @@ body {
   position: fixed;
   bottom: 24px; right: 24px;
   z-index: 999;
-  display: flex; flex-direction: column; align-items: flex-end;
-  gap: 0;
   font-family: var(--mono);
+  transform: translateY(120px);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.5s ease;
+  pointer-events: none;
+  width: 280px;
 }
-.donate-fab-btn {
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  border: 1px solid rgba(201,169,110,0.2);
-  background: rgba(13,11,26,0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
-  transition: all 0.3s ease;
-  position: relative;
+.donate-fab.visible {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+.donate-fab-card {
+  background: rgba(13,11,26,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(201,169,110,0.15);
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 40px rgba(201,169,110,0.05);
   overflow: hidden;
-  opacity: 0.7;
+  transition: all 0.3s ease;
 }
-.donate-fab-btn::before {
-  content: '';
-  position: absolute; inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(201,169,110,0.1) 0%, transparent 70%);
+.donate-fab-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
-.donate-fab-btn:hover {
-  transform: scale(1.08);
-  border-color: var(--gold);
-  box-shadow: 0 4px 32px rgba(0,0,0,0.5), 0 0 60px rgba(201,169,110,0.15);
+.donate-fab-header:hover { background: rgba(201,169,110,0.04); }
+.donate-fab-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: rgba(201,169,110,0.1);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
 }
-.donate-fab-btn svg {
-  width: 22px; height: 22px;
+.donate-fab-icon svg {
+  width: 16px; height: 16px;
   fill: var(--gold);
-  position: relative; z-index: 1;
+}
+.donate-fab-text {
+  display: flex; flex-direction: column; gap: 2px;
+  flex: 1;
+}
+.donate-fab-label {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--gold); line-height: 1;
+}
+.donate-fab-desc {
+  font-family: var(--serif);
+  font-size: 12px; color: var(--muted);
+  line-height: 1.3;
+}
+.donate-fab-arrow {
+  color: var(--muted); font-size: 12px;
   transition: transform 0.3s ease;
 }
-.donate-fab-btn:hover svg { transform: scale(1.1); }
-.donate-fab-btn .fab-pulse {
-  position: absolute; inset: -2px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(201,169,110,0.3);
-  animation: fabPulse 3s ease-in-out infinite;
+.donate-fab.expanded .donate-fab-arrow { transform: rotate(180deg); }
+.donate-fab-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
 }
-@keyframes fabPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.25); opacity: 0; }
+.donate-fab.expanded .donate-fab-body { max-height: 300px; }
+.donate-fab-inner {
+  padding: 0 16px 16px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.donate-fab-msg {
+  font-family: var(--serif);
+  font-size: 13px; color: rgba(232,230,240,0.6);
+  line-height: 1.6; margin: 12px 0 14px;
+}
+.donate-fab-amounts {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 6px; margin-bottom: 10px;
+}
+.donate-fab-amt {
+  padding: 8px 0;
+  text-align: center;
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  color: var(--muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.donate-fab-amt:hover {
+  color: var(--gold);
+  border-color: rgba(201,169,110,0.25);
+  background: rgba(201,169,110,0.06);
+}
+.donate-fab-amt.selected {
+  color: var(--gold);
+  border-color: rgba(201,169,110,0.4);
+  background: rgba(201,169,110,0.1);
+}
+.donate-fab-custom {
+  width: 100%; padding: 8px 12px;
+  font-family: var(--mono); font-size: 12px;
+  color: var(--text); background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px; margin-bottom: 10px;
+  transition: border-color 0.2s ease;
+  -moz-appearance: textfield;
+}
+.donate-fab-custom::-webkit-inner-spin-button,
+.donate-fab-custom::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.donate-fab-custom::placeholder { color: var(--muted); }
+.donate-fab-custom:focus { outline: none; border-color: rgba(201,169,110,0.3); background: rgba(201,169,110,0.04); }
+.donate-fab-go {
+  width: 100%;
+  padding: 10px;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: #07060D; background: var(--gold);
+  border: none; border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.donate-fab-go:hover {
+  background: #d4b67a;
+  box-shadow: 0 0 20px rgba(201,169,110,0.25);
+}
+.donate-fab-secure {
+  text-align: center;
+  font-size: 9px; letter-spacing: 0.5px;
+  color: var(--muted); margin-top: 8px;
+  opacity: 0.6;
+}
+.donate-fab-close {
+  position: absolute; top: -6px; right: -6px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: rgba(13,11,26,0.95);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--muted); font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.donate-fab-card:hover .donate-fab-close { opacity: 1; }
+.donate-fab-close:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
 }
 
 /* ── Donate Modal Overlay ── */
@@ -2051,8 +2150,8 @@ body {
   .donate-modal { padding: 28px 20px 24px; }
   .donate-mission { flex-direction: column; gap: 0; }
   .donate-mission-item + .donate-mission-item { border-left: none; border-top: 1px solid rgba(255,255,255,0.05); }
-  .donate-fab { bottom: 16px; right: 16px; }
-  .donate-fab-btn { width: 46px; height: 46px; }
+  .donate-fab { bottom: 16px; right: 16px; left: 16px; }
+  .donate-fab-card { width: 100%; }
 }
 </style>
 </head>
@@ -2266,8 +2365,11 @@ body {
         <span class="email-feature"><span class="ef-dot"></span>Eclipse windows</span>
       </div>
     </div>
-    <form class="email-form" onsubmit="event.preventDefault(); this.querySelector('.email-submit').textContent='SUBSCRIBED ✓'; this.querySelector('.email-submit').style.background='rgba(201,169,110,0.3)'; this.querySelector('.email-submit').style.color='var(--gold)';">
-      <input type="email" class="email-input" placeholder="your@email.com" required>
+    <form class="email-form" action="https://formsubmit.co/contact.cosmosdaily@gmail.com" method="POST">
+      <input type="hidden" name="_subject" value="New Cosmos Daily Subscriber">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_next" value="https://cosmosdaily.co">
+      <input type="email" name="email" class="email-input" placeholder="your@email.com" required>
       <button type="submit" class="email-submit">Subscribe to Cosmos Daily</button>
     </form>
   </div>
@@ -2334,16 +2436,16 @@ body {
         <ul>
           <li><a href="#" onclick="document.getElementById('glossaryBtn').click(); return false;">Celestial Glossary</a></li>
           <li><a href="#" onclick="document.getElementById('activeSkyToggle').click(); return false;">Active Transits</a></li>
-          <li><a href="#">Methodology</a></li>
-          <li><a href="#">Sources & Data</a></li>
-          <li><a href="#">Editorial Standards</a></li>
+          <li><a href="methodology.html">Methodology</a></li>
+          <li><a href="sources.html">Sources & Data</a></li>
+          <li><a href="editorial.html">Editorial Standards</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Community</h4>
         <ul>
           <li><a href="about.html">About</a></li>
-          <li><a href="#">𝕏 @CosmosDaily</a></li>
+          <li><a href="#">𝕏 @CosmosDaily</a></li><!-- X link: add URL when ready -->
           <li><a href="#" onclick="openContactPopup('newsletter');return false;">Newsletter</a></li>
           <li><a href="#" onclick="openContactPopup('submit');return false;">Submit an Event</a></li>
         </ul>
@@ -2352,8 +2454,8 @@ body {
     <div class="footer-bottom">
       <span class="footer-copy">© 2026 Cosmos Daily. Celestial history chronicle. All astronomical data from NASA JPL ephemeris.</span>
       <div class="footer-links">
-        <a href="#">Privacy</a>
-        <a href="#">Terms</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
         <span class="footer-status"><span class="status-dot"></span>Archive Active</span>
       </div>
     </div>
@@ -2418,8 +2520,11 @@ body {
     <span class="email-overline"><span class="pulse-dot"></span>Cosmos Daily</span>
     <h2 class="email-title">Get the briefing<br><em>in your inbox.</em></h2>
     <p class="email-desc">Today's celestial transit readings, historical echo analysis, and live event tags — delivered weekly. The sky moves. You'll know first.</p>
-    <form class="email-form" id="emailModalForm">
-      <input type="email" class="email-input" placeholder="your@email.com" required>
+    <form class="email-form" id="emailModalForm" action="https://formsubmit.co/contact.cosmosdaily@gmail.com" method="POST">
+      <input type="hidden" name="_subject" value="New Cosmos Daily Subscriber">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_next" value="https://cosmosdaily.co">
+      <input type="email" name="email" class="email-input" placeholder="your@email.com" required>
       <button type="submit" class="email-submit">Subscribe to Cosmos Daily</button>
     </form>
     <div class="email-features">
@@ -2487,8 +2592,10 @@ body {
     <h2 class="email-title" id="contactTitle">Stay in the loop.<br><em>Subscribe free.</em></h2>
     <p class="email-desc" id="contactDesc">Get weekly celestial briefings, transit alerts, and historical echo analysis delivered to your inbox.</p>
     <form class="email-form" id="contactForm">
-      <input type="email" class="email-input" id="contactEmail" placeholder="your@email.com" required>
-      <textarea class="email-input" id="contactMessage" placeholder="Your message..." rows="3" style="display:none; resize:vertical; min-height:70px;"></textarea>
+      <input type="hidden" name="_subject" id="contactSubject" value="Cosmos Daily Contact">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="email" class="email-input" id="contactEmail" name="email" placeholder="your@email.com" required>
+      <textarea class="email-input" id="contactMessage" name="message" placeholder="Your message..." rows="3" style="display:none; resize:vertical; min-height:70px;"></textarea>
       <button type="submit" class="email-submit" id="contactSubmitBtn">Subscribe</button>
     </form>
   </div>
@@ -2559,16 +2666,39 @@ body {
       <input type="number" class="donate-custom-input" placeholder="Custom amount (USD)" min="1" step="1">
     </div>
     <button class="donate-submit">Donate</button>
-    <div class="donate-footer">Secure payment via Ko-fi · 100% funds research and hosting</div>
+    <div class="donate-footer">Secure payment via Stripe · 100% funds research and hosting</div>
   </div>
 </div>
 
-<!-- FLOATING DONATE FAB -->
+<!-- FLOATING DONATE CARD -->
 <div class="donate-fab" id="donateFab">
-  <button class="donate-fab-btn" aria-label="Support Cosmos Daily">
-    <span class="fab-pulse"></span>
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-  </button>
+  <div class="donate-fab-card">
+    <button class="donate-fab-close" id="donateFabClose">&times;</button>
+    <div class="donate-fab-header" id="donateFabToggle">
+      <div class="donate-fab-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      </div>
+      <div class="donate-fab-text">
+        <span class="donate-fab-label">Support this project</span>
+        <span class="donate-fab-desc">Keep the archive free</span>
+      </div>
+      <span class="donate-fab-arrow">▾</span>
+    </div>
+    <div class="donate-fab-body">
+      <div class="donate-fab-inner">
+        <p class="donate-fab-msg">No ads. No paywalls. No tracking. Your support keeps the celestial record open to everyone.</p>
+        <div class="donate-fab-amounts">
+          <button class="donate-fab-amt" data-amt="5">$5</button>
+          <button class="donate-fab-amt" data-amt="10">$10</button>
+          <button class="donate-fab-amt" data-amt="25">$25</button>
+          <button class="donate-fab-amt" data-amt="50">$50</button>
+        </div>
+        <input type="number" class="donate-fab-custom" id="donateFabCustom" placeholder="Custom amount (USD)" min="1" step="1">
+        <button class="donate-fab-go" id="donateFabGo">Donate</button>
+        <div class="donate-fab-secure">Secure payment via Stripe</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -4422,6 +4552,21 @@ const TRANSIT_DATA = {
       { label: 'What Changes Under This Transit', html: '<p>Uranus in Gemini rewrites the rules of information: <strong>how we communicate</strong>, what we consider "true", how knowledge is stored and transmitted. Expect: AI disruption of media, the end of consensus reality, communication infrastructure upheaval, and radical shifts in education.</p>' },
     ],
     echoes: [{id:'sept11',label:'2001 Sept 11'},{id:'jfk',label:'1963 JFK'},{id:'wwii',label:'1939 WWII'}]
+  },
+  'pluto-aquarius': {
+    symbol: '♇', color: '#6B9E9E', cls: 'teal',
+    type: 'Ingress', name: 'Pluto in Aquarius',
+    status: 'Since Nov 2024 · Through 2044',
+    significance: 5, sigLabel: 'Generational. Outer planet sign change reshaping power structures.',
+    summary: 'Pluto (power, transformation, death/rebirth) enters Aquarius (technology, collective networks, revolution) for a 20-year transit. The last time: 1778–1798, which produced the American and French Revolutions. Power shifts from centralized institutions to decentralized networks.',
+    sections: [
+      { label: 'What is an Ingress?', html: '<p>An ingress occurs when a planet <strong>enters a new zodiac sign</strong>, shifting its energy into a new domain. For Pluto, this happens only once every <strong>12–30 years</strong> — and the effects reshape entire civilizations. This is the deepest, slowest transformation in astrology.</p>' },
+      { label: 'The Planets', html: '<div class="ati-glyph-row"><span class="ati-glyph-item"><span class="ati-glyph" style="color:#6B9E9E">♇</span><span class="ati-glyph-name">Pluto</span><span class="ati-glyph-rule">Power, transformation, death/rebirth, the underworld</span></span><span class="ati-glyph-join" style="color:#6B9E9E">→</span><span class="ati-glyph-item"><span class="ati-glyph" style="color:#6B9E9E">♒</span><span class="ati-glyph-name">Aquarius</span><span class="ati-glyph-rule">Technology, networks, collective, revolution</span></span></div>' },
+      { label: 'The 248-Year Cycle', html: '<p>Pluto takes 248 years to orbit the Sun. It was last in Aquarius from <strong>1778–1798</strong> — the exact period of the American Revolution, French Revolution, and the birth of modern democracy. Before that: <strong>1532–1553</strong>, when the Protestant Reformation shattered the Catholic Church\'s monopoly on power.</p><div class="ati-cycle-bar"><div class="ati-cycle-node"><span class="ati-cycle-year">1532</span><span class="ati-cycle-event">Reformation shatters Rome\'s grip</span></div><div class="ati-cycle-line"></div><div class="ati-cycle-node"><span class="ati-cycle-year">1778</span><span class="ati-cycle-event">American & French Revolutions</span></div><div class="ati-cycle-line"></div><div class="ati-cycle-node ati-cycle-active"><span class="ati-cycle-year">2024</span><span class="ati-cycle-event">Power shifts to technology & networks</span></div></div>' },
+      { label: 'What Changes Under This Transit', html: '<p>Pluto in Aquarius dismantles centralized power and redistributes it through technology: <strong>AI replaces institutions</strong>, crypto challenges state currencies, surveillance capitalism confronts digital rights movements. The question of this era: <em>who controls the networks controls the world</em>.</p>' },
+      { label: 'What to Watch For', html: '<p>Expect: <strong>tech oligarchs in politics</strong>, decentralized finance challenging central banks, <strong>AI governance crises</strong>, mass digital surveillance vs. privacy movements, and the <strong>collapse of legacy media gatekeepers</strong>. Power no longer sits in capitals — it sits in server farms.</p>' },
+    ],
+    echoes: [{id:'french-rev',label:'1789 French Revolution'},{id:'magna-carta',label:'1215 Magna Carta'}]
   }
 };
 
@@ -4634,14 +4779,7 @@ function closeEmailModal() {
 }
 document.getElementById('emailModalClose').addEventListener('click', closeEmailModal);
 emailModal.addEventListener('click', e => { if (e.target === emailModal) closeEmailModal(); });
-document.getElementById('emailModalForm').addEventListener('submit', e => {
-  e.preventDefault();
-  const btn = e.target.querySelector('.email-submit');
-  btn.textContent = 'SUBSCRIBED ✓';
-  btn.style.background = 'rgba(201,169,110,0.3)';
-  btn.style.color = 'var(--gold)';
-  setTimeout(closeEmailModal, 1500);
-});
+// Email modal form now submits natively to FormSubmit
 
 // ─── SHARE MODAL ─────────────────────────────────────────────────────────────
 const shareModal = document.getElementById('shareModal');
@@ -4904,6 +5042,11 @@ contactModal.addEventListener('click', e => { if (e.target === contactModal) clo
 document.getElementById('contactForm').addEventListener('submit', e => {
   e.preventDefault();
   const btn = document.getElementById('contactSubmitBtn');
+  const form = document.getElementById('contactForm');
+  const data = new FormData(form);
+  fetch('https://formsubmit.co/ajax/contact.cosmosdaily@gmail.com', {
+    method: 'POST', body: data
+  }).catch(() => {});
   btn.textContent = 'SENT ✓';
   btn.style.background = 'rgba(201,169,110,0.3)';
   btn.style.color = 'var(--gold)';
@@ -5549,17 +5692,68 @@ buildCards();
   const overlay = document.getElementById('donateOverlay');
   const modal = overlay.querySelector('.donate-modal');
   const closeBtn = document.getElementById('donateModalClose');
-  const fabBtn = document.querySelector('.donate-fab-btn');
+  const fabWrap = document.getElementById('donateFab');
+  const fabToggle = document.getElementById('donateFabToggle');
+  const fabClose = document.getElementById('donateFabClose');
+  const fabGo = document.getElementById('donateFabGo');
+  const fabAmtBtns = fabWrap.querySelectorAll('.donate-fab-amt');
   const amtBtns = overlay.querySelectorAll('.donate-amt');
   const customInput = overlay.querySelector('.donate-custom-input');
   const submitBtn = overlay.querySelector('.donate-submit');
   let selectedAmount = null;
+  let fabDismissed = false;
 
   function openDonate() { overlay.classList.add('open'); }
   function closeDonate() { overlay.classList.remove('open'); }
 
-  // FAB button opens modal
-  fabBtn.addEventListener('click', openDonate);
+  // Show FAB card after scrolling past hero
+  window.addEventListener('scroll', () => {
+    if (fabDismissed) return;
+    if (window.scrollY > 600) {
+      fabWrap.classList.add('visible');
+    } else {
+      fabWrap.classList.remove('visible');
+    }
+  }, { passive: true });
+
+  // Toggle expand/collapse
+  fabToggle.addEventListener('click', () => {
+    fabWrap.classList.toggle('expanded');
+  });
+
+  const fabCustom = document.getElementById('donateFabCustom');
+
+  // FAB amount buttons
+  fabAmtBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      fabAmtBtns.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      fabCustom.value = '';
+      fabGo.textContent = 'Donate $' + btn.dataset.amt;
+    });
+  });
+
+  // Custom amount input
+  fabCustom.addEventListener('input', () => {
+    fabAmtBtns.forEach(b => b.classList.remove('selected'));
+    const val = parseFloat(fabCustom.value);
+    fabGo.textContent = val > 0 ? 'Donate $' + val : 'Donate';
+  });
+  fabCustom.addEventListener('focus', () => {
+    fabAmtBtns.forEach(b => b.classList.remove('selected'));
+  });
+
+  // FAB donate button — opens Stripe
+  fabGo.addEventListener('click', () => {
+    window.open('https://donate.stripe.com/8x2dRa4Bi27K90dfMh8AE00', '_blank');
+  });
+
+  // Close/dismiss FAB
+  fabClose.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fabWrap.classList.remove('visible');
+    fabDismissed = true;
+  });
 
   // Close button
   closeBtn.addEventListener('click', closeDonate);
@@ -5606,7 +5800,7 @@ buildCards();
       setTimeout(() => { customInput.style.borderColor = ''; }, 1500);
       return;
     }
-    window.open('https://ko-fi.com/cosmosdaily', '_blank');
+    window.open('https://donate.stripe.com/8x2dRa4Bi27K90dfMh8AE00', '_blank');
     closeDonate();
   });
 })();
