@@ -1497,6 +1497,39 @@ body {
 .live-card.featured .live-desc { flex: 1; }
 .live-card.featured .live-tags { margin-top: auto; padding-top: 8px; }
 .live-card.featured .live-transit { margin-top: 10px; }
+/* Live news feed under tags */
+.live-news-feed {
+  margin-top: 20px; padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.live-news-header {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(232,230,240,0.4);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+.live-news-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #4ADE80;
+  animation: pulse-glow-green 2s ease-in-out infinite;
+}
+.live-news-updated { margin-left: auto; font-size: 8px; color: rgba(232,230,240,0.25); }
+.live-news-item {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 6px 0; text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.2s;
+}
+.live-news-item:hover { background: rgba(255,255,255,0.02); }
+.live-news-item:last-child { border-bottom: none; }
+.live-news-symbol { font-size: 12px; flex-shrink: 0; }
+.live-news-text {
+  font-family: var(--serif); font-size: 13px; line-height: 1.5;
+  color: rgba(232,230,240,0.7); flex: 1;
+}
+.live-news-item:hover .live-news-text { color: rgba(232,230,240,0.9); }
+.live-news-source {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.5px;
+  color: rgba(232,230,240,0.3); flex-shrink: 0; white-space: nowrap;
+}
 
 /* ─── EMAIL SIGNUP ──────────────────────────────────────────────── */
 .email-section {
@@ -6355,6 +6388,51 @@ document.addEventListener('keydown', e => {
       openShareModal(title, desc, card);
     });
   });
+})();
+
+// ─── LIVE NEWS FEED (from /api/news) ──────────────────────────────────────
+(async function loadLiveNews() {
+  try {
+    const res = await fetch('/api/news');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.stories || !data.stories.length) return;
+
+    // Group by transit
+    const byTransit = {};
+    data.stories.forEach(s => {
+      if (!byTransit[s.transit]) byTransit[s.transit] = [];
+      byTransit[s.transit].push(s);
+    });
+
+    // Find the featured card's .live-tags and add news links below
+    const featuredCard = document.querySelector('.live-card.featured');
+    if (!featuredCard) return;
+    const tagsContainer = featuredCard.querySelector('.live-tags');
+    if (!tagsContainer) return;
+
+    // Create news section
+    const newsSection = document.createElement('div');
+    newsSection.className = 'live-news-feed';
+    newsSection.innerHTML = `
+      <div class="live-news-header">
+        <span class="live-news-dot"></span>
+        LIVE RELATED NEWS
+        <span class="live-news-updated">${new Date(data.updated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+      </div>
+      ${data.stories.slice(0, 8).map(s => {
+        const transitColors = { 'saturn-neptune': '#C9A96E', 'pluto-aquarius': '#6B9E9E', 'blood-moon': '#E84545', 'uranus-gemini': '#8B7EC7' };
+        const transitLabels = { 'saturn-neptune': '☌', 'pluto-aquarius': '♇', 'blood-moon': '◑', 'uranus-gemini': '♅' };
+        const c = transitColors[s.transit] || '#C9A96E';
+        return `<a href="${s.url}" target="_blank" rel="noopener" class="live-news-item" style="--nc:${c}">
+          <span class="live-news-symbol" style="color:${c}">${transitLabels[s.transit] || '·'}</span>
+          <span class="live-news-text">${s.text}</span>
+          <span class="live-news-source">${s.source}</span>
+        </a>`;
+      }).join('')}
+    `;
+    tagsContainer.after(newsSection);
+  } catch (e) { /* Fail silently — hardcoded tags remain */ }
 })();
 
 // ─── HISTORICAL ECHO TAB ────────────────────────────────────────────────────

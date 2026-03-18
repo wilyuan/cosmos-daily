@@ -113,7 +113,8 @@
       "WebFetch(domain:astropro.com)",
       "WebFetch(domain:cafeastrology.com)",
       "WebFetch(domain:www.astrologyzone.com)",
-      "WebFetch(domain:mooncalendar.astro-seek.com)"
+      "WebFetch(domain:mooncalendar.astro-seek.com)",
+      "Bash(curl -s \"https://cosmosdaily.co/api/news\")"
     ]
   }
 }
