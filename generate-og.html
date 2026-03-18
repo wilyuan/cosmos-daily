@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head><title>OG Image Generator</title></head>
+<body style="margin:0;background:#000;">
+<canvas id="c" width="1200" height="630"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 1200, H = 630;
+
+// Background
+ctx.fillStyle = '#07060D';
+ctx.fillRect(0, 0, W, H);
+
+// Subtle gradient orbs
+const grd1 = ctx.createRadialGradient(900, 200, 0, 900, 200, 400);
+grd1.addColorStop(0, 'rgba(232,69,69,0.08)');
+grd1.addColorStop(1, 'transparent');
+ctx.fillStyle = grd1;
+ctx.fillRect(0, 0, W, H);
+
+const grd2 = ctx.createRadialGradient(200, 500, 0, 200, 500, 350);
+grd2.addColorStop(0, 'rgba(139,126,199,0.07)');
+grd2.addColorStop(1, 'transparent');
+ctx.fillStyle = grd2;
+ctx.fillRect(0, 0, W, H);
+
+const grd3 = ctx.createRadialGradient(600, 100, 0, 600, 100, 300);
+grd3.addColorStop(0, 'rgba(201,169,110,0.05)');
+grd3.addColorStop(1, 'transparent');
+ctx.fillStyle = grd3;
+ctx.fillRect(0, 0, W, H);
+
+// Stars
+for (let i = 0; i < 200; i++) {
+  const x = Math.random() * W;
+  const y = Math.random() * H;
+  const r = Math.random() * 1.2 + 0.2;
+  const a = Math.random() * 0.4 + 0.1;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(232,230,240,${a})`;
+  ctx.fill();
+}
+
+// Gold accent line
+ctx.fillStyle = '#C9A96E';
+ctx.fillRect(60, 60, 50, 3);
+
+// Brand
+ctx.font = '500 13px "IBM Plex Mono", monospace';
+ctx.fillStyle = '#C9A96E';
+ctx.letterSpacing = '3px';
+ctx.fillText('COSMOS DAILY', 60, 110);
+
+// Subtitle
+ctx.font = '400 11px "IBM Plex Mono", monospace';
+ctx.fillStyle = 'rgba(110,107,128,0.8)';
+ctx.fillText('CELESTIAL HISTORY · CHRONICLE', 60, 130);
+
+// Main title
+ctx.font = '200 58px "Source Serif 4", Georgia, serif';
+ctx.fillStyle = '#E8E6F0';
+ctx.fillText('When the sky moves,', 60, 220);
+
+ctx.font = 'italic 300 58px "Source Serif 4", Georgia, serif';
+ctx.fillStyle = '#C9A96E';
+ctx.fillText('history follows.', 60, 290);
+
+// Description
+ctx.font = '400 17px "Source Serif 4", Georgia, serif';
+ctx.fillStyle = 'rgba(232,230,240,0.55)';
+ctx.fillText('128 pivotal celestial alignments mapped to the moments', 60, 360);
+ctx.fillText('they shaped — from the Great Pyramid to the present day.', 60, 385);
+
+// Stats bar
+const stats = [
+  { num: '128', label: 'EVENTS' },
+  { num: '4,586', label: 'YEARS' },
+  { num: '6', label: 'TYPES' },
+];
+
+let sx = 60;
+stats.forEach((s, i) => {
+  ctx.font = '400 28px "IBM Plex Mono", monospace';
+  ctx.fillStyle = '#C9A96E';
+  ctx.fillText(s.num, sx, 480);
+
+  ctx.font = '400 9px "IBM Plex Mono", monospace';
+  ctx.fillStyle = 'rgba(110,107,128,0.7)';
+  ctx.fillText(s.label, sx, 500);
+
+  sx += 140;
+});
+
+// Bottom line
+ctx.fillStyle = 'rgba(201,169,110,0.15)';
+ctx.fillRect(60, 540, W - 120, 1);
+
+// URL
+ctx.font = '400 12px "IBM Plex Mono", monospace';
+ctx.fillStyle = 'rgba(201,169,110,0.5)';
+ctx.fillText('cosmosdaily.co', 60, 575);
+
+// Right side — celestial symbols scatter
+const symbols = ['☌','☍','□','♇','♅','♆','☽','◑','♄'];
+symbols.forEach((sym, i) => {
+  const x = 750 + Math.random() * 380;
+  const y = 100 + Math.random() * 400;
+  const size = 20 + Math.random() * 24;
+  ctx.font = `${size}px serif`;
+  ctx.fillStyle = `rgba(201,169,110,${0.06 + Math.random() * 0.12})`;
+  ctx.fillText(sym, x, y);
+});
+
+// Download link
+setTimeout(() => {
+  const link = document.createElement('a');
+  link.download = 'og-image.jpg';
+  link.href = canvas.toDataURL('image/jpeg', 0.95);
+  link.click();
+  document.body.innerHTML = '<p style="color:#C9A96E;font-family:monospace;padding:40px;">OG image downloaded! Move it to your images/ folder.</p>';
+}, 500);
+</script>
+</body>
+</html>
