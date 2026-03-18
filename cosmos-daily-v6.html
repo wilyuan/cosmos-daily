@@ -5321,6 +5321,10 @@ document.querySelectorAll('.ov-tab').forEach(tab => {
 });
 
 // ─── ACTIVE SKY EXPAND ─────────────────────────────────────────────────────
+// Open by default
+document.getElementById('activeSkyPanel').classList.add('open');
+document.getElementById('activeSkyToggle').classList.add('expanded');
+
 document.getElementById('activeSkyToggle').addEventListener('click', () => {
   const panel = document.getElementById('activeSkyPanel');
   const toggle = document.getElementById('activeSkyToggle');
