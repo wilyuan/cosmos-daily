@@ -1698,8 +1698,8 @@ body {
 }
 .map-cta-inner:hover { border-color: rgba(201,169,110,0.25); }
 .map-cta-preview {
-  position: absolute; top: -10%; right: -5%;
-  width: 65%; height: 120%;
+  position: absolute; top: -30%; right: -15%;
+  width: 80%; height: 160%;
   overflow: hidden; pointer-events: none;
 }
 .map-cta-preview::after {
@@ -5583,35 +5583,31 @@ function subscribeBeehiiv(form) {
   btn.style.opacity = '0.6';
   btn.disabled = true;
 
-  // Redirect to Beehiiv subscribe page with email pre-filled
-  window.open('https://cosmosdaily.beehiiv.com/subscribe?email=' + encodeURIComponent(email), '_blank');
-
-  // Show success feedback
-  btn.textContent = 'CHECK YOUR INBOX ✓';
-  btn.style.background = 'rgba(74,222,128,0.15)';
-  btn.style.color = '#4ADE80';
-  btn.style.opacity = '1';
-  btn.disabled = false;
-  emailInput.value = '';
-
-  // Show toast
-  let toast = document.getElementById('subToast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'subToast';
-    toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:10001;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:#4ADE80;background:rgba(13,11,26,0.95);border:1px solid rgba(74,222,128,0.2);border-radius:8px;padding:12px 24px;backdrop-filter:blur(12px);opacity:0;transition:opacity 0.3s ease;pointer-events:none;';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = '✓ Confirm your subscription in the new tab';
-  toast.style.opacity = '1';
-  setTimeout(() => { toast.style.opacity = '0'; }, 4000);
-
-  // Reset button after delay
-  setTimeout(() => {
-    btn.textContent = origText;
-    btn.style.background = '';
-    btn.style.color = '';
-  }, 5000);
+  // Send to FormSubmit
+  fetch('https://formsubmit.co/ajax/contact.cosmosdaily@gmail.com', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, _subject: 'New Cosmos Daily Subscriber' })
+  }).then(res => {
+    if (res.ok) {
+      btn.textContent = 'SUBSCRIBED ✓';
+      btn.style.background = 'rgba(74,222,128,0.15)';
+      btn.style.color = '#4ADE80';
+    } else {
+      btn.textContent = 'ERROR — TRY AGAIN';
+      btn.style.background = 'rgba(232,69,69,0.15)';
+      btn.style.color = '#E84545';
+    }
+  }).catch(() => {
+    btn.textContent = 'ERROR — TRY AGAIN';
+    btn.style.background = 'rgba(232,69,69,0.15)';
+    btn.style.color = '#E84545';
+  }).finally(() => {
+    btn.style.opacity = '1';
+    btn.disabled = false;
+    emailInput.value = '';
+    setTimeout(() => { btn.textContent = origText; btn.style.background = ''; btn.style.color = ''; }, 4000);
+  });
 
   // Close email modal if open
   const emailModal = document.getElementById('emailModal');
@@ -6434,7 +6430,7 @@ document.querySelectorAll('.faq-question').forEach(q => {
       radiusPct: 0.12 + normalizedYear * 0.42,
       size: ev.significance >= 5 ? 3.5 : ev.significance >= 3 ? 2.5 : 1.8,
       color: TYPE_COLORS[ev.celestialType] || '#C9A96E',
-      speed: 0.0002 + Math.random() * 0.0003,
+      speed: 0.0008 + Math.random() * 0.0012,
       label: ev.year < 0 ? Math.abs(ev.year) + ' BC' : String(ev.year),
       sig: ev.significance || 3,
     };
