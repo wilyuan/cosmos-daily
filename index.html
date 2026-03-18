@@ -1442,24 +1442,42 @@ body {
   transition: border-color 0.2s, color 0.2s;
 }
 .live-transit:hover { border-color: var(--gold); color: var(--gold); }
-.transit-tooltip {
-  position: fixed; z-index: 1000;
-  width: 320px; max-width: 90vw;
-  background: #141222; border: 1px solid var(--gold);
-  border-radius: 10px; padding: 16px 18px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+.transit-tooltip-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(3,2,8,0.6);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
   opacity: 0; pointer-events: none;
-  transform: translateY(6px);
-  transition: opacity 0.25s, transform 0.25s;
+  transition: opacity 0.3s ease;
 }
-.transit-tooltip.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.transit-tooltip-overlay.open { opacity: 1; pointer-events: auto; }
+.transit-tooltip {
+  position: relative;
+  width: 520px; max-width: 90vw; max-height: 80vh; overflow-y: auto;
+  background: rgba(14,12,26,0.95); border: 1px solid rgba(201,169,110,0.25);
+  border-radius: 14px; padding: 32px 36px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
+  transform: translateY(12px) scale(0.97);
+  transition: transform 0.3s ease;
+}
+.transit-tooltip-overlay.open .transit-tooltip { transform: translateY(0) scale(1); }
+.transit-tooltip-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(232,230,240,0.5); font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.transit-tooltip-close:hover { background: rgba(255,255,255,0.1); color: rgba(232,230,240,0.8); }
 .transit-tooltip-title {
-  font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px;
-  text-transform: uppercase; color: var(--gold); margin-bottom: 8px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 16px;
+  padding-right: 40px;
 }
 .transit-tooltip-body {
-  font-family: var(--serif); font-size: 13px; line-height: 1.65;
-  color: rgba(232,230,240,0.82);
+  font-family: var(--serif); font-size: 15px; line-height: 1.75;
+  color: rgba(232,230,240,0.85);
 }
 /* Live event tags inside featured card */
 .live-tags {
@@ -6324,97 +6342,48 @@ document.addEventListener('keydown', e => {
 
   panel.innerHTML = featuredHTML + regularHTML + '<button class="mobile-show-more" onclick="this.parentElement.classList.toggle(\'show-all\'); this.textContent = this.parentElement.classList.contains(\'show-all\') ? \'Show less\' : \'Show more stories\'">Show more stories</button>';
 
-  // ── Transit tooltip ──
-  const tooltip = document.createElement('div');
-  tooltip.className = 'transit-tooltip';
-  tooltip.innerHTML = '<div class="transit-tooltip-title"></div><div class="transit-tooltip-body"></div>';
-  document.body.appendChild(tooltip);
+  // ── Centered modal tooltip ──
+  const tooltipOverlay = document.createElement('div');
+  tooltipOverlay.className = 'transit-tooltip-overlay';
+  tooltipOverlay.innerHTML = '<div class="transit-tooltip"><button class="transit-tooltip-close">✕</button><div class="transit-tooltip-title"></div><div class="transit-tooltip-body"></div></div>';
+  document.body.appendChild(tooltipOverlay);
 
-  let activeTag = null;
-  function closeTooltip() { tooltip.classList.remove('open'); activeTag = null; }
+  const tooltip = tooltipOverlay.querySelector('.transit-tooltip');
+
+  function openTooltipModal(title, body) {
+    tooltip.querySelector('.transit-tooltip-title').textContent = title;
+    tooltip.querySelector('.transit-tooltip-body').textContent = body;
+    tooltipOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeTooltip() {
+    tooltipOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  tooltipOverlay.querySelector('.transit-tooltip-close').addEventListener('click', closeTooltip);
+  tooltipOverlay.addEventListener('click', (e) => {
+    if (e.target === tooltipOverlay) closeTooltip();
+  });
 
   panel.querySelectorAll('.live-transit').forEach(tag => {
     tag.addEventListener('click', (e) => {
       e.stopPropagation();
-
-      // Toggle off if clicking the same tag
-      if (activeTag === tag && tooltip.classList.contains('open')) {
-        closeTooltip();
-        return;
-      }
-      activeTag = tag;
-
       const key = tag.dataset.transit;
       const t = TRANSITS[key];
       if (!t || !t.explain) return;
-
-      tooltip.querySelector('.transit-tooltip-title').textContent = t.symbol + ' ' + t.name;
-      tooltip.querySelector('.transit-tooltip-body').textContent = t.explain;
-
-      // Position near the clicked tag
-      const rect = tag.getBoundingClientRect();
-      let top = rect.top - tooltip.offsetHeight - 10;
-      let left = rect.left;
-
-      // Show briefly to measure
-      tooltip.style.visibility = 'hidden';
-      tooltip.classList.add('open');
-      const ttRect = tooltip.getBoundingClientRect();
-      tooltip.classList.remove('open');
-      tooltip.style.visibility = '';
-
-      // If not enough room above, show below
-      if (top < 10) top = rect.bottom + 10;
-      // Keep within viewport horizontally
-      if (left + 320 > window.innerWidth) left = window.innerWidth - 330;
-      if (left < 10) left = 10;
-
-      tooltip.style.top = top + 'px';
-      tooltip.style.left = left + 'px';
-      tooltip.classList.add('open');
+      openTooltipModal(t.symbol + ' ' + t.name, t.explain);
     });
   });
-
-  // ── Live tag tooltips ──
-  function positionTooltip(el) {
-    const rect = el.getBoundingClientRect();
-    tooltip.style.visibility = 'hidden';
-    tooltip.classList.add('open');
-    tooltip.classList.remove('open');
-    tooltip.style.visibility = '';
-    let top = rect.top - 180;
-    if (top < 10) top = rect.bottom + 10;
-    let left = rect.left;
-    if (left + 320 > window.innerWidth) left = window.innerWidth - 330;
-    if (left < 10) left = 10;
-    tooltip.style.top = top + 'px';
-    tooltip.style.left = left + 'px';
-    tooltip.classList.add('open');
-  }
 
   panel.querySelectorAll('.live-tag[data-explain]').forEach(tag => {
     tag.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (activeTag === tag && tooltip.classList.contains('open')) {
-        closeTooltip();
-        return;
-      }
-      activeTag = tag;
       const explain = tag.dataset.explain;
       if (!explain) return;
-      tooltip.querySelector('.transit-tooltip-title').textContent = tag.textContent;
-      tooltip.querySelector('.transit-tooltip-body').textContent = explain;
-      positionTooltip(tag);
+      openTooltipModal(tag.textContent, explain);
     });
   });
-
-  // Close tooltip on outside click or scroll
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.transit-tooltip') && !e.target.closest('.live-transit') && !e.target.closest('.live-tag')) {
-      closeTooltip();
-    }
-  });
-  window.addEventListener('scroll', closeTooltip, { passive: true });
 
   // ── Make live cards open share modal ──
   panel.querySelectorAll('.live-card').forEach(card => {
