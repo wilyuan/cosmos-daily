@@ -2942,6 +2942,7 @@ const EVENTS = [
   {
     id: 'berlin', year: 1989, date: 'November 9, 1989',
     celestialEvent: 'Saturn-Neptune Conjunction at 11° Sagittarius', celestialType: 'conjunction', symbol: '☌',
+    lunarEvent: 'Total Lunar Eclipse in Virgo · Feb 20, 1989',
     worldEvent: 'Berlin Wall Falls',
     category: 'geopolitical',
     image: './images/berlin.jpg',
@@ -2954,6 +2955,7 @@ const EVENTS = [
   {
     id: 'wwii', year: 1939, date: 'September 1, 1939',
     celestialEvent: 'Mars in Gemini (Military Mobilization)', celestialType: 'ingress', symbol: '☀',
+    lunarEvent: 'Total Lunar Eclipse in Virgo · Mar 3, 1942',
     worldEvent: 'World War II Begins',
     category: 'geopolitical',
     image: './images/wwii.jpg',
@@ -4094,6 +4096,7 @@ const EVENTS = [
   {
     id: 'financial-crisis', year: 2008, date: 'September 15, 2008',
     celestialEvent: 'Saturn-Uranus Opposition (system shock)', celestialType: 'opposition', symbol: '☍',
+    lunarEvent: 'Total Lunar Eclipse in Virgo · Feb 21, 2008',
     worldEvent: '2008 Financial Crisis — Lehman Collapses',
     category: 'financial',
     image: './images/financial-crisis.jpg',
@@ -5505,6 +5508,10 @@ function openModal(ev) {
       <span class="label">Celestial Type</span>
       <span class="value">${ev.celestialType.charAt(0).toUpperCase() + ev.celestialType.slice(1)}</span>
     </div>
+    ${ev.lunarEvent ? `<div class="modal-meta-item">
+      <span class="label">Lunar Event</span>
+      <span class="value" style="color:#E84545">${ev.lunarEvent}</span>
+    </div>` : ''}
   `;
 
   document.getElementById('eventModal').classList.add('open');
