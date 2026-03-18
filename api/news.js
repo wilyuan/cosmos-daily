@@ -21,6 +21,13 @@ const JUNK_PATTERNS = [
   /\bobituari/i, /\bin memoriam\b/i,
   /\bpodcast\b/i, /\bepisode\b/i, /\binterview with\b/i,
   /\[\+\d+ chars\]/i, /\[removed\]/i,
+  /\boscar\b/i, /\bvanity fair\b/i, /\bparty\b/i, /\bdrunk/i,
+  /\bcalled.*nazi\b/i, /\bcelebrity feud/i,
+  /\bpage six\b/i, /\btmz\b/i, /\bus weekly\b/i, /\bpeople magazine\b/i,
+  /\baward show/i, /\bemmy/i, /\bgrammy/i, /\bgolden globe/i,
+  /\bbollywood\b/i, /\bhollywood\b/i,
+  /\bkardashian/i, /\btaylor swift\b/i, /\bbeyonc/i,
+  /\bsale\b.*\boff\b/i, /\bpromo code\b/i,
 ];
 
 function isJunk(title, desc) {
@@ -28,14 +35,20 @@ function isJunk(title, desc) {
   return JUNK_PATTERNS.some(p => p.test(text));
 }
 
+// Quality score: articles must meet minimum to pass
+// Higher pageSize = more candidates to filter from
+const PAGE_SIZE = 20;
+
 // Each transit has its own targeted search query and scoring rules
 const TRANSIT_CONFIG = {
   'saturn-neptune': {
     queries: [
       '"Iran war" OR "Iran strikes" OR "Hormuz" OR "Khamenei"',
-      '"NATO" AND ("fracture" OR "split" OR "refuse")',
-      '"BRICS" AND ("dollar" OR "currency" OR "settlement")',
-      '"Ukraine" AND ("peace talks" OR "ceasefire" OR "negotiations")',
+      '"NATO" AND ("fracture" OR "split" OR "refuse" OR "reject")',
+      '"BRICS" AND ("dollar" OR "currency" OR "settlement" OR "de-dollarization")',
+      '"Ukraine" AND ("peace talks" OR "ceasefire" OR "negotiations" OR "frozen")',
+      '"oil price" AND ("surge" OR "spike" OR "crisis" OR "barrel")',
+      '"sanctions" AND ("Iran" OR "Russia" OR "trade war")',
     ],
     keywords: [
       { term: 'iran', weight: 2 }, { term: 'hormuz', weight: 3 }, { term: 'khamenei', weight: 3 },
@@ -54,8 +67,10 @@ const TRANSIT_CONFIG = {
     queries: [
       '"AI regulation" OR "AI governance" OR "AI safety" OR "AI act"',
       '"surveillance" AND ("law" OR "government" OR "privacy")',
-      '"DOGE" AND ("cuts" OR "government" OR "federal")',
-      '"tech monopoly" OR "antitrust" AND ("Google" OR "Apple" OR "Meta" OR "Amazon")',
+      '"DOGE" AND ("cuts" OR "government" OR "federal" OR "layoffs")',
+      '"antitrust" AND ("Google" OR "Apple" OR "Meta" OR "Amazon" OR "tech")',
+      '"data breach" OR "cybersecurity attack" OR "hack"',
+      '"digital rights" OR "internet censorship" OR "social media ban"',
     ],
     keywords: [
       { term: 'ai regulation', weight: 3 }, { term: 'ai governance', weight: 3 },
@@ -70,10 +85,12 @@ const TRANSIT_CONFIG = {
   },
   'blood-moon': {
     queries: [
-      '"health crisis" OR "disease outbreak" OR "contamination"',
-      '"whistleblower" OR "fraud exposed" OR "scandal"',
-      '"infrastructure" AND ("failure" OR "collapse" OR "crisis")',
-      '"government cuts" OR "federal layoffs" OR "DOGE" AND "hamper"',
+      '"health crisis" OR "disease outbreak" OR "contamination" OR "recall"',
+      '"whistleblower" OR "fraud exposed" OR "scandal" OR "cover-up"',
+      '"infrastructure" AND ("failure" OR "collapse" OR "crisis" OR "crumbling")',
+      '"government cuts" AND ("health" OR "safety" OR "workers" OR "hamper")',
+      '"water contamination" OR "PFAS" OR "forever chemicals" OR "lead poisoning"',
+      '"FDA recall" OR "food safety" OR "drug recall"',
     ],
     keywords: [
       { term: 'health crisis', weight: 3 }, { term: 'outbreak', weight: 2 },
@@ -88,9 +105,11 @@ const TRANSIT_CONFIG = {
   'uranus-gemini': {
     queries: [
       '"quantum computing" OR "quantum processor" OR "qubit"',
-      '"OpenAI" OR "ChatGPT" OR "Claude" OR "Gemini AI"',
-      '"bitcoin" AND ("milestone" OR "mining" OR "halving" OR "regulation")',
-      '"misinformation" OR "disinformation" OR "deepfake"',
+      '"OpenAI" OR "ChatGPT" OR "Claude AI" OR "Anthropic"',
+      '"bitcoin" AND ("milestone" OR "mining" OR "halving" OR "regulation" OR "record")',
+      '"misinformation" OR "disinformation" AND ("election" OR "AI" OR "deepfake")',
+      '"Starlink" OR "satellite internet" OR "6G"',
+      '"AI" AND ("breakthrough" OR "AGI" OR "superintelligence" OR "frontier model")',
     ],
     keywords: [
       { term: 'quantum comput', weight: 3 }, { term: 'qubit', weight: 3 },
@@ -104,7 +123,22 @@ const TRANSIT_CONFIG = {
   }
 };
 
-function scoreArticle(title, description, config) {
+// Trusted sources get a score boost
+const TRUSTED_SOURCES = [
+  'reuters', 'associated press', 'bbc', 'al jazeera', 'the guardian',
+  'financial times', 'bloomberg', 'the economist', 'foreign policy',
+  'the new york times', 'washington post', 'wall street journal',
+  'politico', 'abc news', 'cnn', 'nbc news', 'cbs news', 'npr',
+  'techcrunch', 'ars technica', 'wired', 'the verge', 'mit technology review',
+  'nature', 'science', 'new scientist', 'human rights watch', 'amnesty',
+];
+
+const TABLOID_SOURCES = [
+  'page six', 'tmz', 'daily mail', 'the sun', 'new york post',
+  'buzzfeed', 'huffpost', 'salon', 'breitbart', 'infowars',
+];
+
+function scoreArticle(title, description, config, sourceName) {
   const text = (title + ' ' + (description || '')).toLowerCase();
   let totalWeight = 0;
   for (const kw of config.keywords) {
@@ -112,6 +146,12 @@ function scoreArticle(title, description, config) {
       totalWeight += kw.weight;
     }
   }
+
+  // Source quality modifier
+  const src = (sourceName || '').toLowerCase();
+  if (TRUSTED_SOURCES.some(t => src.includes(t))) totalWeight += 2;
+  if (TABLOID_SOURCES.some(t => src.includes(t))) totalWeight -= 3;
+
   return totalWeight;
 }
 
@@ -145,7 +185,7 @@ export default async function handler(req, res) {
 
       for (const q of config.queries) {
         try {
-          const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&language=en&sortBy=publishedAt&pageSize=8&apiKey=${NEWSAPI_KEY}`;
+          const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&language=en&sortBy=relevancy&pageSize=${PAGE_SIZE}&apiKey=${NEWSAPI_KEY}`;
           const response = await fetch(url);
           const data = await response.json();
 
@@ -160,7 +200,7 @@ export default async function handler(req, res) {
               // Check if similar to already used title (across ALL transits)
               if (usedTitles.some(t => isSimilar(t, cleanTitle))) continue;
 
-              const score = scoreArticle(article.title, article.description, config);
+              const score = scoreArticle(article.title, article.description, config, article.source?.name);
               if (score >= config.minWeight) {
                 transitStories.push({
                   text: cleanTitle,
@@ -179,9 +219,9 @@ export default async function handler(req, res) {
         } catch (e) { /* skip failed query */ }
       }
 
-      // Sort by score descending, take top 3
+      // Sort by score descending, take top 4
       transitStories.sort((a, b) => b.score - a.score);
-      allStories[transit] = transitStories.slice(0, 3);
+      allStories[transit] = transitStories.slice(0, 4);
     }
 
     const stories = Object.values(allStories).flat();
