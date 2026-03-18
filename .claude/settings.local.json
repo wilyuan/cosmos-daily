@@ -104,7 +104,10 @@
       "Bash(vercel --prod --yes)",
       "Bash(curl -s -o coastline.geojson \"https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_coastline.geojson\")",
       "Bash(cp logo-option-8.svg favicon.svg)",
-      "Bash(cp logo-option-8.svg images/logo.svg)"
+      "Bash(cp logo-option-8.svg images/logo.svg)",
+      "Bash(cp cosmos-daily-v6-backup.html cosmos-daily-v6.html)",
+      "Bash(cp cosmos-daily-v6.html index.html)",
+      "WebFetch(domain:cosmosdaily.co)"
     ]
   }
 }

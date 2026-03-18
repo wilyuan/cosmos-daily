@@ -1692,12 +1692,11 @@ body {
   min-height: 420px;
   display: flex; align-items: center; gap: 48px;
   overflow: hidden;
-  background: radial-gradient(ellipse at 70% 50%, rgba(201,169,110,0.04) 0%, transparent 60%),
-              radial-gradient(ellipse at 30% 50%, rgba(139,126,199,0.03) 0%, transparent 60%),
-              var(--bg2);
+  background: rgba(7,6,13,0.95);
+  border: 1px solid rgba(201,169,110,0.12);
   transition: border-color 0.4s;
 }
-.map-cta-inner:hover { border-color: rgba(201,169,110,0.3); }
+.map-cta-inner:hover { border-color: rgba(201,169,110,0.25); }
 .map-cta-preview {
   position: absolute; top: -10%; right: -5%;
   width: 65%; height: 120%;
@@ -1705,7 +1704,7 @@ body {
 }
 .map-cta-preview::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(90deg, #0F0E1B 0%, rgba(15,14,27,0.4) 35%, rgba(15,14,27,0.05) 100%);
+  background: linear-gradient(90deg, rgba(7,6,13,1) 0%, rgba(7,6,13,0.5) 35%, rgba(7,6,13,0.05) 100%);
   z-index: 1;
 }
 .map-cta-canvas {
@@ -5574,26 +5573,51 @@ document.getElementById('emailModalClose').addEventListener('click', closeEmailM
 emailModal.addEventListener('click', e => { if (e.target === emailModal) closeEmailModal(); });
 // Beehiiv subscribe function
 function subscribeBeehiiv(form) {
-  const email = form.querySelector('input[name="email"]').value;
+  const emailInput = form.querySelector('input[name="email"]');
+  const email = emailInput.value.trim();
   const btn = form.querySelector('.email-submit') || form.querySelector('button[type="submit"]');
-  if (!email) return;
+  if (!email) { emailInput.style.borderColor = '#E84545'; setTimeout(() => emailInput.style.borderColor = '', 1500); return; }
+
+  const origText = btn.textContent;
   btn.textContent = 'SUBSCRIBING...';
   btn.style.opacity = '0.6';
-  // Open Beehiiv subscribe in background, show success
-  const subWindow = window.open('https://cosmosdaily.beehiiv.com/subscribe?email=' + encodeURIComponent(email), '_blank', 'width=1,height=1');
+  btn.disabled = true;
+
+  // Redirect to Beehiiv subscribe page with email pre-filled
+  window.open('https://cosmosdaily.beehiiv.com/subscribe?email=' + encodeURIComponent(email), '_blank');
+
+  // Show success feedback
+  btn.textContent = 'CHECK YOUR INBOX ✓';
+  btn.style.background = 'rgba(74,222,128,0.15)';
+  btn.style.color = '#4ADE80';
+  btn.style.opacity = '1';
+  btn.disabled = false;
+  emailInput.value = '';
+
+  // Show toast
+  let toast = document.getElementById('subToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'subToast';
+    toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:10001;font-family:var(--mono);font-size:11px;letter-spacing:1px;color:#4ADE80;background:rgba(13,11,26,0.95);border:1px solid rgba(74,222,128,0.2);border-radius:8px;padding:12px 24px;backdrop-filter:blur(12px);opacity:0;transition:opacity 0.3s ease;pointer-events:none;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = '✓ Confirm your subscription in the new tab';
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; }, 4000);
+
+  // Reset button after delay
   setTimeout(() => {
-    if (subWindow) subWindow.close();
-    btn.textContent = 'SUBSCRIBED ✓';
-    btn.style.background = 'rgba(201,169,110,0.3)';
-    btn.style.color = 'var(--gold)';
-    btn.style.opacity = '1';
-    form.querySelector('input[name="email"]').value = '';
-    // Close email modal if open
-    const emailModal = document.getElementById('emailModal');
-    if (emailModal && emailModal.classList.contains('open')) {
-      setTimeout(() => { emailModal.classList.remove('open'); document.body.style.overflow = ''; }, 1500);
-    }
-  }, 2000);
+    btn.textContent = origText;
+    btn.style.background = '';
+    btn.style.color = '';
+  }, 5000);
+
+  // Close email modal if open
+  const emailModal = document.getElementById('emailModal');
+  if (emailModal && emailModal.classList.contains('open')) {
+    setTimeout(() => { emailModal.classList.remove('open'); document.body.style.overflow = ''; }, 2000);
+  }
 }
 
 // ─── SHARE MODAL ─────────────────────────────────────────────────────────────
