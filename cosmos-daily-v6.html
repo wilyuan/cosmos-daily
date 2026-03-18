@@ -1479,6 +1479,35 @@ body {
   font-family: var(--serif); font-size: 15px; line-height: 1.75;
   color: rgba(232,230,240,0.85);
 }
+.transit-tooltip-news { margin-top: 0; }
+.tooltip-news-header {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(232,230,240,0.35);
+  padding: 16px 0 10px; border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 16px; display: flex; align-items: center; gap: 8px;
+}
+.tooltip-news-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: #4ADE80;
+  animation: pulse-glow-green 2s ease-in-out infinite;
+}
+.tooltip-news-item {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 7px 0; text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: background 0.15s;
+}
+.tooltip-news-item:hover { background: rgba(255,255,255,0.03); margin: 0 -8px; padding-left: 8px; padding-right: 8px; border-radius: 6px; }
+.tooltip-news-item:last-child { border-bottom: none; }
+.tooltip-news-sym { font-size: 11px; flex-shrink: 0; }
+.tooltip-news-text {
+  font-family: var(--serif); font-size: 13px; line-height: 1.5;
+  color: rgba(232,230,240,0.65); flex: 1;
+}
+.tooltip-news-item:hover .tooltip-news-text { color: rgba(232,230,240,0.9); }
+.tooltip-news-source {
+  font-family: var(--mono); font-size: 8px; letter-spacing: 0.5px;
+  color: rgba(232,230,240,0.25); flex-shrink: 0; white-space: nowrap;
+}
 /* Live event tags inside featured card */
 .live-tags {
   display: flex; flex-wrap: wrap; gap: 6px;
@@ -6312,7 +6341,7 @@ document.addEventListener('keydown', e => {
       <div class="live-tags">
         ${tagPicks.map(tag => {
           const c = TAG_COLORS[tag.cat];
-          return `<span class="live-tag" data-explain="${(tag.explain||'').replace(/"/g,'&quot;')}" style="background:${c.bg};color:${c.color};border:1px solid ${c.border};cursor:pointer">${tag.text}</span>`;
+          return `<span class="live-tag" data-explain="${(tag.explain||'').replace(/"/g,'&quot;')}" data-transit="${tag.transit||''}" style="background:${c.bg};color:${c.color};border:1px solid ${c.border};cursor:pointer">${tag.text}</span>`;
         }).join('')}
       </div>
       <span class="live-transit" data-transit="${briefing.transit}">${briefTransit.symbol} ${briefTransit.name}</span>
@@ -6335,17 +6364,48 @@ document.addEventListener('keydown', e => {
 
   panel.innerHTML = featuredHTML + regularHTML + '<button class="mobile-show-more" onclick="this.parentElement.classList.toggle(\'show-all\'); this.textContent = this.parentElement.classList.contains(\'show-all\') ? \'Show less\' : \'Show more stories\'">Show more stories</button>';
 
-  // ── Centered modal tooltip ──
+  // ── Centered modal tooltip with live news ──
   const tooltipOverlay = document.createElement('div');
   tooltipOverlay.className = 'transit-tooltip-overlay';
-  tooltipOverlay.innerHTML = '<div class="transit-tooltip"><button class="transit-tooltip-close">✕</button><div class="transit-tooltip-title"></div><div class="transit-tooltip-body"></div></div>';
+  tooltipOverlay.innerHTML = '<div class="transit-tooltip"><button class="transit-tooltip-close">✕</button><div class="transit-tooltip-title"></div><div class="transit-tooltip-body"></div><div class="transit-tooltip-news"></div></div>';
   document.body.appendChild(tooltipOverlay);
 
   const tooltip = tooltipOverlay.querySelector('.transit-tooltip');
+  let liveNewsData = null;
 
-  function openTooltipModal(title, body) {
+  // Fetch news once
+  fetch('/api/news').then(r => r.ok ? r.json() : null).then(data => {
+    if (data && data.stories) liveNewsData = data;
+  }).catch(() => {});
+
+  const transitColors = { 'saturn-neptune': '#C9A96E', 'pluto-aquarius': '#6B9E9E', 'blood-moon': '#E84545', 'uranus-gemini': '#8B7EC7' };
+  const transitSymbols = { 'saturn-neptune': '☌', 'pluto-aquarius': '♇', 'blood-moon': '◑', 'uranus-gemini': '♅' };
+
+  function openTooltipModal(title, body, transitKey) {
     tooltip.querySelector('.transit-tooltip-title').textContent = title;
     tooltip.querySelector('.transit-tooltip-body').textContent = body;
+
+    // Show related news if available
+    const newsEl = tooltip.querySelector('.transit-tooltip-news');
+    if (liveNewsData && transitKey) {
+      const related = liveNewsData.stories.filter(s => s.transit === transitKey).slice(0, 4);
+      if (related.length) {
+        const c = transitColors[transitKey] || '#C9A96E';
+        newsEl.innerHTML = `
+          <div class="tooltip-news-header"><span class="tooltip-news-dot"></span>RELATED NEWS</div>
+          ${related.map(s => `<a href="${s.url}" target="_blank" rel="noopener" class="tooltip-news-item">
+            <span class="tooltip-news-sym" style="color:${c}">${transitSymbols[transitKey] || '·'}</span>
+            <span class="tooltip-news-text">${s.text}</span>
+            <span class="tooltip-news-source">${s.source}</span>
+          </a>`).join('')}
+        `;
+      } else {
+        newsEl.innerHTML = '';
+      }
+    } else {
+      newsEl.innerHTML = '';
+    }
+
     tooltipOverlay.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -6365,16 +6425,18 @@ document.addEventListener('keydown', e => {
       const key = tag.dataset.transit;
       const t = TRANSITS[key];
       if (!t || !t.explain) return;
-      openTooltipModal(t.symbol + ' ' + t.name, t.explain);
+      openTooltipModal(t.symbol + ' ' + t.name, t.explain, key);
     });
   });
 
+  // Each live-tag stores its transit in a data attribute
   panel.querySelectorAll('.live-tag[data-explain]').forEach(tag => {
     tag.addEventListener('click', (e) => {
       e.stopPropagation();
       const explain = tag.dataset.explain;
       if (!explain) return;
-      openTooltipModal(tag.textContent, explain);
+      const transit = tag.dataset.transit || '';
+      openTooltipModal(tag.textContent, explain, transit);
     });
   });
 
@@ -6390,50 +6452,6 @@ document.addEventListener('keydown', e => {
   });
 })();
 
-// ─── LIVE NEWS FEED (from /api/news) ──────────────────────────────────────
-(async function loadLiveNews() {
-  try {
-    const res = await fetch('/api/news');
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!data.stories || !data.stories.length) return;
-
-    // Group by transit
-    const byTransit = {};
-    data.stories.forEach(s => {
-      if (!byTransit[s.transit]) byTransit[s.transit] = [];
-      byTransit[s.transit].push(s);
-    });
-
-    // Find the featured card's .live-tags and add news links below
-    const featuredCard = document.querySelector('.live-card.featured');
-    if (!featuredCard) return;
-    const tagsContainer = featuredCard.querySelector('.live-tags');
-    if (!tagsContainer) return;
-
-    // Create news section
-    const newsSection = document.createElement('div');
-    newsSection.className = 'live-news-feed';
-    newsSection.innerHTML = `
-      <div class="live-news-header">
-        <span class="live-news-dot"></span>
-        LIVE RELATED NEWS
-        <span class="live-news-updated">${new Date(data.updated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-      </div>
-      ${data.stories.slice(0, 8).map(s => {
-        const transitColors = { 'saturn-neptune': '#C9A96E', 'pluto-aquarius': '#6B9E9E', 'blood-moon': '#E84545', 'uranus-gemini': '#8B7EC7' };
-        const transitLabels = { 'saturn-neptune': '☌', 'pluto-aquarius': '♇', 'blood-moon': '◑', 'uranus-gemini': '♅' };
-        const c = transitColors[s.transit] || '#C9A96E';
-        return `<a href="${s.url}" target="_blank" rel="noopener" class="live-news-item" style="--nc:${c}">
-          <span class="live-news-symbol" style="color:${c}">${transitLabels[s.transit] || '·'}</span>
-          <span class="live-news-text">${s.text}</span>
-          <span class="live-news-source">${s.source}</span>
-        </a>`;
-      }).join('')}
-    `;
-    tagsContainer.after(newsSection);
-  } catch (e) { /* Fail silently — hardcoded tags remain */ }
-})();
 
 // ─── HISTORICAL ECHO TAB ────────────────────────────────────────────────────
 (function buildEchoCards() {
