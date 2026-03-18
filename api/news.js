@@ -3,111 +3,129 @@ const NEWSAPI_KEY = process.env.NEWSAPI_KEY;
 
 // Junk filter — reject articles matching these patterns
 const JUNK_PATTERNS = [
-  /\bfilm[s]?\b.*\bwatch\b/i, /\bmovie[s]?\b/i, /\bnetflix\b/i, /\bstreaming\b/i,
-  /\brecipe[s]?\b/i, /\bcooking\b/i, /\bsport[s]?\b/i, /\bnascar\b/i, /\bnfl\b/i,
-  /\bnba\b/i, /\bmlb\b/i, /\bfootball\b/i, /\bsoccer\b/i, /\bcricket\b/i,
+  /\bfilm[s]?\b.*\bwatch\b/i, /\bmovie[s]?\b/i, /\bnetflix\b/i, /\bhulu\b/i, /\bdisney\+/i,
+  /\bstreaming\b/i, /\bbox office\b/i, /\btrailer\b/i, /\bseason \d/i,
+  /\brecipe[s]?\b/i, /\bcooking\b/i, /\brestaurant\b/i, /\bfood\b/i,
+  /\bnascar\b/i, /\bnfl\b/i, /\bnba\b/i, /\bmlb\b/i, /\bnhl\b/i, /\bmls\b/i,
+  /\bfootball\b/i, /\bsoccer\b/i, /\bcricket\b/i, /\btennis\b/i, /\bgolf\b/i,
+  /\bfifa\b/i, /\bworld cup\b/i, /\bolympic/i, /\bsuper bowl\b/i, /\bchampion/i,
   /\bcelebrit/i, /\bentertainment\b/i, /\bgossip\b/i, /\bred carpet\b/i,
-  /\bgaming\b/i, /\bvideo game/i, /\bplaystation\b/i, /\bxbox\b/i,
+  /\bgaming\b/i, /\bvideo game/i, /\bplaystation\b/i, /\bxbox\b/i, /\bnintendo\b/i,
   /\bhoroscope\b/i, /\bzodiac sign\b/i, /\bastrology tip/i,
-  /\bweather forecast\b/i, /\btravel deal/i, /\bbest [0-9]+ /i,
-  /\bhow to\b.*\byour\b/i, /\btips for\b/i, /\breview:/i,
+  /\bweather forecast\b/i, /\btravel deal/i, /\bbest [0-9]+ /i, /\btop [0-9]+ /i,
+  /\bhow to\b.*\byour\b/i, /\btips for\b/i, /\breview:/i, /\bopinion:/i,
+  /\bfashion\b/i, /\bbeauty\b/i, /\bwedding\b/i, /\bdating\b/i, /\brelationship/i,
+  /\breal estate\b/i, /\bmortgage\b/i, /\bhome decor\b/i,
+  /\bwordle\b/i, /\bpuzzle\b/i, /\bcrossword\b/i, /\btrivia\b/i,
+  /\bstock pick/i, /\bbuy now\b/i, /\bdeal of/i, /\bcoupon/i, /\bdiscount/i,
+  /\bobituari/i, /\bin memoriam\b/i,
+  /\bpodcast\b/i, /\bepisode\b/i, /\binterview with\b/i,
+  /\[\+\d+ chars\]/i, /\[removed\]/i,
 ];
 
-// Require at least 2 keyword matches for saturn-neptune (too many false positives with single 'war')
-const TRANSIT_RULES = {
+function isJunk(title, desc) {
+  const text = title + ' ' + (desc || '');
+  return JUNK_PATTERNS.some(p => p.test(text));
+}
+
+// Each transit has its own targeted search query and scoring rules
+const TRANSIT_CONFIG = {
   'saturn-neptune': {
-    keywords: [
-      { term: 'iran', weight: 3 }, { term: 'hormuz', weight: 3 }, { term: 'khamenei', weight: 3 },
-      { term: 'nato', weight: 2 }, { term: 'alliance fracture', weight: 3 },
-      { term: 'sanctions', weight: 2 }, { term: 'ceasefire', weight: 2 }, { term: 'peace talks', weight: 2 },
-      { term: 'de-dollarization', weight: 3 }, { term: 'brics', weight: 2 },
-      { term: 'oil price', weight: 2 }, { term: 'oil crisis', weight: 3 },
-      { term: 'dollar', weight: 1 }, { term: 'currency', weight: 1 },
-      { term: 'regime', weight: 1 }, { term: 'military strike', weight: 2 },
-      { term: 'geopolitical', weight: 2 }, { term: 'sovereignty', weight: 2 },
-      { term: 'border', weight: 1 }, { term: 'treaty', weight: 2 },
-      { term: 'institutional collapse', weight: 3 }, { term: 'empire', weight: 1 },
-      { term: 'ukraine', weight: 2 }, { term: 'russia', weight: 1 },
+    queries: [
+      '"Iran war" OR "Iran strikes" OR "Hormuz" OR "Khamenei"',
+      '"NATO" AND ("fracture" OR "split" OR "refuse")',
+      '"BRICS" AND ("dollar" OR "currency" OR "settlement")',
+      '"Ukraine" AND ("peace talks" OR "ceasefire" OR "negotiations")',
     ],
-    minWeight: 3,
-    cat: 'conflict'
+    keywords: [
+      { term: 'iran', weight: 2 }, { term: 'hormuz', weight: 3 }, { term: 'khamenei', weight: 3 },
+      { term: 'nato', weight: 2 }, { term: 'alliance', weight: 1 },
+      { term: 'sanctions', weight: 2 }, { term: 'ceasefire', weight: 2 },
+      { term: 'de-dollarization', weight: 3 }, { term: 'brics', weight: 2 },
+      { term: 'oil crisis', weight: 3 }, { term: 'oil price', weight: 2 },
+      { term: 'strait of hormuz', weight: 3 },
+      { term: 'ukraine', weight: 1 }, { term: 'peace talks', weight: 2 },
+      { term: 'geopolitical', weight: 2 }, { term: 'regime', weight: 1 },
+      { term: 'institutional collapse', weight: 3 },
+    ],
+    minWeight: 4,
   },
   'pluto-aquarius': {
+    queries: [
+      '"AI regulation" OR "AI governance" OR "AI safety" OR "AI act"',
+      '"surveillance" AND ("law" OR "government" OR "privacy")',
+      '"DOGE" AND ("cuts" OR "government" OR "federal")',
+      '"tech monopoly" OR "antitrust" AND ("Google" OR "Apple" OR "Meta" OR "Amazon")',
+    ],
     keywords: [
       { term: 'ai regulation', weight: 3 }, { term: 'ai governance', weight: 3 },
-      { term: 'artificial intelligence', weight: 2 }, { term: 'ai safety', weight: 3 },
+      { term: 'ai safety', weight: 3 }, { term: 'ai act', weight: 3 },
       { term: 'surveillance', weight: 2 }, { term: 'privacy law', weight: 2 },
-      { term: 'data law', weight: 2 }, { term: 'digital rights', weight: 3 },
-      { term: 'antitrust', weight: 2 }, { term: 'tech monopol', weight: 3 },
-      { term: 'crypto regulation', weight: 3 }, { term: 'decentraliz', weight: 2 },
-      { term: 'deepfake', weight: 2 }, { term: 'censorship', weight: 2 },
-      { term: 'cybersecurity', weight: 2 }, { term: 'doge', weight: 2 },
+      { term: 'digital rights', weight: 3 }, { term: 'censorship', weight: 2 },
+      { term: 'cybersecurity', weight: 2 }, { term: 'antitrust', weight: 2 },
+      { term: 'tech monopol', weight: 3 }, { term: 'doge', weight: 2 },
+      { term: 'deepfake law', weight: 3 }, { term: 'data breach', weight: 2 },
     ],
     minWeight: 3,
-    cat: 'tech'
   },
   'blood-moon': {
+    queries: [
+      '"health crisis" OR "disease outbreak" OR "contamination"',
+      '"whistleblower" OR "fraud exposed" OR "scandal"',
+      '"infrastructure" AND ("failure" OR "collapse" OR "crisis")',
+      '"government cuts" OR "federal layoffs" OR "DOGE" AND "hamper"',
+    ],
     keywords: [
       { term: 'health crisis', weight: 3 }, { term: 'outbreak', weight: 2 },
       { term: 'contamination', weight: 3 }, { term: 'infrastructure fail', weight: 3 },
       { term: 'whistleblower', weight: 3 }, { term: 'fraud exposed', weight: 3 },
-      { term: 'cover-up', weight: 3 }, { term: 'recall', weight: 2 },
-      { term: 'famine', weight: 3 }, { term: 'budget cuts', weight: 2 },
-      { term: 'government cuts', weight: 2 }, { term: 'federal workers', weight: 2 },
-      { term: 'scandal', weight: 2 }, { term: 'exposed', weight: 1 },
+      { term: 'cover-up', weight: 3 }, { term: 'famine', weight: 3 },
+      { term: 'federal workers', weight: 2 }, { term: 'scandal', weight: 2 },
+      { term: 'recall', weight: 2 }, { term: 'public health', weight: 2 },
     ],
     minWeight: 3,
-    cat: 'exposure'
   },
   'uranus-gemini': {
+    queries: [
+      '"quantum computing" OR "quantum processor" OR "qubit"',
+      '"OpenAI" OR "ChatGPT" OR "Claude" OR "Gemini AI"',
+      '"bitcoin" AND ("milestone" OR "mining" OR "halving" OR "regulation")',
+      '"misinformation" OR "disinformation" OR "deepfake"',
+    ],
     keywords: [
-      { term: 'quantum comput', weight: 3 }, { term: 'quantum', weight: 2 },
+      { term: 'quantum comput', weight: 3 }, { term: 'qubit', weight: 3 },
       { term: 'openai', weight: 3 }, { term: 'chatgpt', weight: 3 },
       { term: 'bitcoin', weight: 2 }, { term: 'blockchain', weight: 2 },
       { term: 'misinformation', weight: 2 }, { term: 'disinformation', weight: 2 },
       { term: 'neural', weight: 2 }, { term: 'brain-computer', weight: 3 },
-      { term: 'satellite internet', weight: 3 }, { term: 'starlink', weight: 2 },
-      { term: 'media disruption', weight: 3 }, { term: 'ai breakthrough', weight: 3 },
+      { term: 'ai breakthrough', weight: 3 }, { term: 'starlink', weight: 2 },
     ],
     minWeight: 3,
-    cat: 'tech'
   }
 };
 
-function isJunk(title) {
-  return JUNK_PATTERNS.some(p => p.test(title));
-}
-
-function categorizeHeadline(title, description) {
-  if (isJunk(title)) return null;
+function scoreArticle(title, description, config) {
   const text = (title + ' ' + (description || '')).toLowerCase();
-
-  let bestTransit = null;
-  let bestWeight = 0;
-  let bestCat = 'geopolitics';
-
-  for (const [transit, config] of Object.entries(TRANSIT_RULES)) {
-    let totalWeight = 0;
-    for (const kw of config.keywords) {
-      if (text.includes(kw.term.toLowerCase())) {
-        totalWeight += kw.weight;
-      }
-    }
-    if (totalWeight >= config.minWeight && totalWeight > bestWeight) {
-      bestWeight = totalWeight;
-      bestTransit = transit;
-      bestCat = config.cat;
+  let totalWeight = 0;
+  for (const kw of config.keywords) {
+    if (text.includes(kw.term.toLowerCase())) {
+      totalWeight += kw.weight;
     }
   }
-
-  return bestTransit ? { transit: bestTransit, cat: bestCat } : null;
+  return totalWeight;
 }
 
-// Deduplicate similar titles (Levenshtein-like check)
+// Fuzzy dedup — compare first 8 words
 function isSimilar(a, b) {
-  const wordsA = a.toLowerCase().split(/\s+/).slice(0, 6).join(' ');
-  const wordsB = b.toLowerCase().split(/\s+/).slice(0, 6).join(' ');
-  return wordsA === wordsB;
+  const wa = a.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(/\s+/).slice(0, 8).join(' ');
+  const wb = b.toLowerCase().replace(/[^a-z0-9 ]/g, '').split(/\s+/).slice(0, 8).join(' ');
+  if (wa === wb) return true;
+  // Check if one contains most of the other's words
+  const setA = new Set(wa.split(' '));
+  const setB = new Set(wb.split(' '));
+  let overlap = 0;
+  setA.forEach(w => { if (setB.has(w)) overlap++; });
+  return overlap >= Math.min(setA.size, setB.size) * 0.75;
 }
 
 export default async function handler(req, res) {
@@ -119,59 +137,55 @@ export default async function handler(req, res) {
   }
 
   try {
-    const queries = [
-      'Iran war OR Hormuz OR NATO OR sanctions OR BRICS OR de-dollarization',
-      'AI regulation OR AI governance OR quantum computing OR OpenAI',
-      'health crisis OR infrastructure failure OR whistleblower OR fraud exposed',
-      'bitcoin OR quantum computing OR misinformation OR AI breakthrough'
-    ];
+    const allStories = {};
+    const usedTitles = []; // Global dedup across transits
 
-    const allArticles = [];
-    for (const q of queries) {
-      const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&language=en&sortBy=publishedAt&pageSize=15&apiKey=${NEWSAPI_KEY}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      if (data.articles) allArticles.push(...data.articles);
-    }
+    for (const [transit, config] of Object.entries(TRANSIT_CONFIG)) {
+      const transitStories = [];
 
-    // Deduplicate
-    const seen = [];
-    const unique = allArticles.filter(a => {
-      if (!a.title || a.title === '[Removed]') return false;
-      if (seen.some(s => isSimilar(s, a.title))) return false;
-      seen.push(a.title);
-      return true;
-    });
+      for (const q of config.queries) {
+        try {
+          const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&language=en&sortBy=publishedAt&pageSize=8&apiKey=${NEWSAPI_KEY}`;
+          const response = await fetch(url);
+          const data = await response.json();
 
-    // Categorize
-    const categorized = [];
-    for (const article of unique) {
-      const match = categorizeHeadline(article.title, article.description);
-      if (match) {
-        const cleanTitle = article.title.replace(/ [-–—|].*$/, '').trim();
-        if (cleanTitle.length < 15) continue; // Skip very short titles
-        categorized.push({
-          text: cleanTitle,
-          cat: match.cat,
-          transit: match.transit,
-          explain: (article.description || '').slice(0, 300),
-          source: article.source?.name || '',
-          url: article.url || '',
-          publishedAt: article.publishedAt || '',
-        });
+          if (data.articles) {
+            for (const article of data.articles) {
+              if (!article.title || article.title === '[Removed]') continue;
+              if (isJunk(article.title, article.description)) continue;
+
+              const cleanTitle = article.title.replace(/\s*[-–—|].{0,30}$/, '').trim();
+              if (cleanTitle.length < 20) continue;
+
+              // Check if similar to already used title (across ALL transits)
+              if (usedTitles.some(t => isSimilar(t, cleanTitle))) continue;
+
+              const score = scoreArticle(article.title, article.description, config);
+              if (score >= config.minWeight) {
+                transitStories.push({
+                  text: cleanTitle,
+                  score,
+                  cat: transit === 'saturn-neptune' ? 'conflict' : transit === 'blood-moon' ? 'exposure' : 'tech',
+                  transit,
+                  explain: (article.description || '').slice(0, 300),
+                  source: article.source?.name || '',
+                  url: article.url || '',
+                  publishedAt: article.publishedAt || '',
+                });
+                usedTitles.push(cleanTitle);
+              }
+            }
+          }
+        } catch (e) { /* skip failed query */ }
       }
+
+      // Sort by score descending, take top 3
+      transitStories.sort((a, b) => b.score - a.score);
+      allStories[transit] = transitStories.slice(0, 3);
     }
 
-    // Max 3 per transit
-    const result = {};
-    for (const item of categorized) {
-      if (!result[item.transit]) result[item.transit] = [];
-      if (result[item.transit].length < 3) {
-        result[item.transit].push(item);
-      }
-    }
+    const stories = Object.values(allStories).flat();
 
-    const stories = Object.values(result).flat();
     return res.status(200).json({
       updated: new Date().toISOString(),
       count: stories.length,
