@@ -5517,7 +5517,7 @@ function openModal(ev) {
     </div>
     ${ev.secondaryEvent ? `<div class="modal-meta-item">
       <span class="label">Also Active</span>
-      <span class="value" style="color:#C9A96E">${ev.secondaryEvent}</span>
+      <span class="value" style="color:${ev.secondaryEvent.includes('Saturn-Neptune') ? '#C9A96E' : ev.secondaryEvent.includes('Pluto') ? '#6B9E9E' : ev.secondaryEvent.includes('Uranus') ? '#8B7EC7' : ev.secondaryEvent.includes('Eclipse') || ev.secondaryEvent.includes('Lunar') ? '#E84545' : '#C9A96E'}">${ev.secondaryEvent}</span>
     </div>` : ''}
   `;
 
