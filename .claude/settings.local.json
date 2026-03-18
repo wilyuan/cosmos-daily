@@ -92,7 +92,8 @@
       "Bash(brew install:*)",
       "Bash(gh repo:*)",
       "Bash(vercel --yes --prod --name cosmos-daily)",
-      "Bash(ls -la \"/Users/william/Cosmos Daily/\"*.html)"
+      "Bash(ls -la \"/Users/william/Cosmos Daily/\"*.html)",
+      "Bash(/dev/null wc:*)"
     ]
   }
 }

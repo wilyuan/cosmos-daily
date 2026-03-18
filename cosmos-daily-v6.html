@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cosmos Daily — Celestial History Chronicle</title>
-<meta name="description" content="128 pivotal celestial alignments mapped to the moments they shaped. Eclipses, conjunctions, and retrogrades that coincided with the events that changed the world. From the Great Pyramid to the war with Iran.">
+<meta name="description" content="177 pivotal celestial alignments mapped to the moments they shaped. Eclipses, conjunctions, and retrogrades that coincided with the events that changed the world. From the Great Pyramid to the war with Iran.">
 <meta name="keywords" content="mundane astrology, celestial events, historical events, eclipses, conjunctions, planetary alignments, world history, astrology history, Saturn Neptune conjunction, celestial chronicle">
 <meta name="author" content="Cosmos Daily">
 <link rel="canonical" href="https://cosmosdaily.co">
@@ -17,7 +17,7 @@
   "name": "Cosmos Daily",
   "alternateName": "Cosmos Daily — Celestial History Chronicle",
   "url": "https://cosmosdaily.co",
-  "description": "128 pivotal celestial alignments mapped to the moments they shaped. Eclipses, conjunctions, and retrogrades that coincided with the events that changed the world.",
+  "description": "177 pivotal celestial alignments mapped to the moments they shaped. Eclipses, conjunctions, and retrogrades that coincided with the events that changed the world.",
   "inLanguage": "en",
   "publisher": {
     "@type": "Organization",
@@ -40,13 +40,13 @@
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   "name": "Celestial History Archive",
-  "description": "A chronicle mapping 128 celestial events to pivotal moments in world history, spanning 4,500+ years from the Great Pyramid to 2026.",
+  "description": "A chronicle mapping 175 celestial events to pivotal moments in world history, spanning 5,800+ years from 3811 BC to 2026.",
   "url": "https://cosmosdaily.co",
   "mainEntity": {
     "@type": "ItemList",
     "name": "Celestial Events Archive",
     "description": "Historical events mapped to celestial alignments",
-    "numberOfItems": 128,
+    "numberOfItems": 177,
     "itemListOrder": "https://schema.org/ItemListUnordered"
   },
   "about": [
@@ -73,7 +73,7 @@
       "name": "What is Cosmos Daily?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Cosmos Daily is a celestial history chronicle that maps major celestial events — eclipses, conjunctions, oppositions, and planetary ingresses — to the pivotal world events they coincide with. We span over 4,500 years of history."
+        "text": "Cosmos Daily is a celestial history chronicle that maps major celestial events — eclipses, conjunctions, oppositions, and planetary ingresses — to the pivotal world events they coincide with. We span over 5,800 years of history."
       }
     },
     {
@@ -108,7 +108,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://cosmosdaily.co">
 <meta property="og:title" content="Cosmos Daily — When the sky moves, history follows.">
-<meta property="og:description" content="128 pivotal celestial alignments mapped to the moments they shaped. Eclipses, conjunctions, and retrogrades that coincided with the events that changed the world.">
+<meta property="og:description" content="177 pivotal celestial alignments mapped to the moments they shaped. Eclipses, conjunctions, and retrogrades that coincided with the events that changed the world.">
 <meta property="og:image" content="https://cosmosdaily.co/images/og-image.jpg">
 <meta property="og:site_name" content="Cosmos Daily">
 
@@ -116,7 +116,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://cosmosdaily.co">
 <meta name="twitter:title" content="Cosmos Daily — When the sky moves, history follows.">
-<meta name="twitter:description" content="128 pivotal celestial alignments mapped to the moments they shaped. From the Great Pyramid to 2026.">
+<meta name="twitter:description" content="177 pivotal celestial alignments mapped to the moments they shaped. From the Great Pyramid to 2026.">
 <meta name="twitter:image" content="https://cosmosdaily.co/images/og-image.jpg">
 
 <!-- Robots & Indexing -->
@@ -1259,7 +1259,24 @@ body {
   gap: 14px;
 }
 @media(max-width:900px){ .ov-panel.current-panel.active { grid-template-columns: 1fr 1fr; } }
-@media(max-width:580px){ .ov-panel.current-panel.active { grid-template-columns: 1fr; } }
+@media(max-width:580px){
+  .ov-panel.current-panel.active { grid-template-columns: 1fr; }
+  .ov-panel.current-panel.active .live-card:not(.featured) { display: none; }
+  .ov-panel.current-panel.active .live-card.featured ~ .mobile-show-more { display: block; }
+}
+.mobile-show-more {
+  display: none;
+  width: 100%; padding: 12px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; text-align: center;
+  color: var(--gold); background: rgba(201,169,110,0.06);
+  border: 1px solid rgba(201,169,110,0.15);
+  border-radius: 10px; cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 4px;
+}
+.mobile-show-more:hover { background: rgba(201,169,110,0.12); }
+.ov-panel.current-panel.active.show-all .live-card:not(.featured) { display: flex !important; }
 
 /* Future events panel — mirrors .ov-card / echo design */
 .ov-panel.future-panel.active {
@@ -1920,10 +1937,28 @@ body {
   .modal-content { flex-direction: column; max-height: 92vh; }
   .modal-image-side { flex: 0 0 200px; }
   .hero-title { font-size: 32px; }
-  .stats-row { flex-direction: column; width: 100%; }
-  .stat-cell { border-right: none; border-bottom: 1px solid rgba(201,169,110,0.08); padding: 16px 24px; }
-  .stat-cell:last-child { border-bottom: none; }
-  .stat-cell.active-now { flex: unset; }
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    width: 100%;
+  }
+  .stat-cell {
+    border-right: none;
+    padding: 18px 12px;
+  }
+  .stat-cell + .stat-cell::before { display: none; }
+  .stat-cell:nth-child(1),
+  .stat-cell:nth-child(2) {
+    border-right: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat-cell.active-now {
+    grid-column: 1 / -1;
+    flex: unset;
+    border-right: none;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .stat-num { font-size: 26px; }
+  .stat-label { font-size: 8px; letter-spacing: 1.5px; text-align: center; }
 }
 @media (max-width: 480px) {
   .header-inner { padding: 0 16px; gap: 12px; }
@@ -2311,16 +2346,16 @@ body {
   <div class="hero-headline">
     <span class="hero-overline">Celestial History · Historical Record</span>
     <h1 class="hero-title">When the sky moves,<br><em>history follows.</em></h1>
-    <p class="hero-desc">128 pivotal celestial alignments mapped to the moments they shaped — from the Great Pyramid to the war with Iran.</p>
+    <p class="hero-desc">177 pivotal celestial alignments mapped to the moments they shaped — from the Rigveda to the war with Iran.</p>
   </div>
   <div class="stats-wrapper">
   <div class="stats-row">
     <div class="stat-cell">
-      <span class="stat-num">128</span>
+      <span class="stat-num">177</span>
       <span class="stat-label">Events Mapped</span>
     </div>
     <div class="stat-cell">
-      <span class="stat-num">4,586</span>
+      <span class="stat-num">5,837</span>
       <span class="stat-label">Years Spanned</span>
     </div>
     <div class="stat-cell">
@@ -2354,7 +2389,7 @@ body {
         <div class="ati-tag tag-teal">Ingress · Since Nov 2024</div>
         <div class="ati-name">Pluto in Aquarius</div>
         <div class="ati-reading">Pluto entered Aquarius in November 2024 for a 20-year transit — the first since the American and French Revolutions (1778–1798). Power shifts from centralized institutions to decentralized networks. Technology becomes the new seat of power. AI, crypto, and surveillance capitalism define this era.</div>
-        <div class="ati-echo-label">Previous Pluto in Aquarius</div>
+        <div class="ati-echo-label">Historical echoes</div>
         <div class="ati-links">
           <button class="ati-link" data-id="french-rev">1789 French Revolution</button>
           <button class="ati-link" data-id="magna-carta">1215 Magna Carta</button>
@@ -2365,7 +2400,7 @@ body {
         <div class="ati-tag tag-red">Eclipse · Mar 3, 2026</div>
         <div class="ati-name">Blood Moon in Virgo</div>
         <div class="ati-reading">Total lunar eclipse in Virgo — sign of systems, health, and hidden flaws. Institutional weaknesses are exposed. What was operating below the surface is suddenly visible. Eclipse windows last 6 months. Virgo eclipses historically coincide with systemic health crises and intelligence failures.</div>
-        <div class="ati-echo-label">Historical parallels</div>
+        <div class="ati-echo-label">Historical echoes</div>
         <div class="ati-links">
           <button class="ati-link" data-id="fukushima">2011 Fukushima</button>
           <button class="ati-link" data-id="covid">2020 COVID</button>
@@ -2377,7 +2412,7 @@ body {
         <div class="ati-tag tag-violet">Ingress · Since Jul 2025</div>
         <div class="ati-name">Uranus in Gemini</div>
         <div class="ati-reading">Uranus (revolution, disruption) enters Gemini (communication, technology, information) for the first time in 84 years. The last time: 1941–1942, when radio and telecommunications became weapons of total war. Now: AI, quantum networks, and the infrastructure of reality itself are being radically transformed.</div>
-        <div class="ati-echo-label">Resonant events</div>
+        <div class="ati-echo-label">Historical echoes</div>
         <div class="ati-links">
           <button class="ati-link" data-id="sept11">2001 Sept 11</button>
           <button class="ati-link" data-id="jfk">1963 JFK</button>
@@ -2461,13 +2496,13 @@ body {
     <div class="map-cta-copy">
       <div class="map-cta-overline">Interactive Experience</div>
       <h2 class="map-cta-title">See history as <em>the sky sees it.</em></h2>
-      <p class="map-cta-desc">Explore all 128 events mapped onto a radial celestial chart. Events orbit outward from the origin of recorded time — color-coded by alignment, sized by significance. Zoom, pan, and trace the constellations of history.</p>
+      <p class="map-cta-desc">Explore all 175 events mapped onto a radial celestial chart. Events orbit outward from the origin of recorded time — color-coded by alignment, sized by significance. Zoom, pan, and trace the constellations of history.</p>
       <a href="celestial-map.html" class="map-cta-btn">
         Open Celestial Map
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <div class="map-cta-stats">
-        <div class="map-cta-stat"><strong>128</strong>Events Mapped</div>
+        <div class="map-cta-stat"><strong>177</strong>Events Mapped</div>
         <div class="map-cta-stat"><strong>4,000+</strong>Years Covered</div>
         <div class="map-cta-stat"><strong>6</strong>Celestial Types</div>
       </div>
@@ -2507,7 +2542,7 @@ body {
   <div class="faq-grid">
     <div class="faq-item">
       <div class="faq-question">What is Cosmos Daily?</div>
-      <div class="faq-answer"><p>Cosmos Daily is a celestial history chronicle that maps major celestial events — eclipses, conjunctions, oppositions, and planetary ingresses — to the pivotal world events they coincide with. We span over 4,500 years of history, from the construction of the Great Pyramid to the present day, revealing the patterns between what happens in the sky and what happens on Earth.</p></div>
+      <div class="faq-answer"><p>Cosmos Daily is a celestial history chronicle that maps major celestial events — eclipses, conjunctions, oppositions, and planetary ingresses — to the pivotal world events they coincide with. We span over 5,800 years of history, from the Rigveda Eclipse of 3811 BC to the present day, revealing the patterns between what happens in the sky and what happens on Earth.</p></div>
     </div>
     <div class="faq-item">
       <div class="faq-question">Is this astrology?</div>
@@ -2768,7 +2803,7 @@ body {
     <div class="donate-mission">
       <div class="donate-mission-item">
         <div class="donate-mission-icon">☽</div>
-        <div class="donate-mission-text">128 events researched, written, and mapped — free forever</div>
+        <div class="donate-mission-text">175 events researched, written, and mapped — free forever</div>
       </div>
       <div class="donate-mission-item">
         <div class="donate-mission-icon">⚡</div>
@@ -4364,6 +4399,594 @@ const EVENTS = [
     description: 'A group of San Francisco journalists, artists, and musicians founded the Bohemian Club as a gathering place for creative minds. Within decades, it transformed into an exclusive retreat for America\'s most powerful men. Every July, roughly 2,500 members and guests gather at the 2,700-acre Bohemian Grove in Monte Rio, California for two weeks of talks, performances, and the notorious "Cremation of Care" ceremony — a theatrical ritual before a 40-foot concrete owl. Past attendees include every Republican president since Herbert Hoover, Henry Kissinger, David Rockefeller, and defense secretaries who reportedly discussed the Manhattan Project at the 1942 encampment. The Grove\'s motto: "Weaving Spiders Come Not Here" — ostensibly banning business deals, though critics argue the real business of power happens informally.',
     cosmicLink: 'Founded under Pluto in Taurus — the placement of hidden (Pluto) wealth and material power (Taurus). Jupiter conjoined Neptune, blending expansion with mysticism, illusion, and secrecy — the essence of an elite gathering cloaked in theatrical ritual and artistic pretense. The owl symbolism connects to ancient associations with Minerva/Athena (wisdom) and Lilith (hidden feminine power), both linked to nocturnal celestial observation.',
     historicalParallel: 'The Hellfire Club (1718, England) similarly brought together powerful men under the guise of revelry and ritual. The Bilderberg Group (1954) and World Economic Forum (1971) continue the tradition of elite, invitation-only gatherings where global policy is discussed behind closed doors. Each emerged under Jupiter-Neptune aspects that blur the line between public performance and private power.'
+  },
+  {
+  id: 'rigveda-eclipse', year: -3811, date: 'c. 3811 BC',
+  celestialEvent: 'Total Solar Eclipse (Rigveda Reference)', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Oldest Eclipse Reference in World Literature',
+  category: 'cultural',
+  image: './images/rigveda-eclipse.jpg',
+  significance: 5,
+  rippleEffects: ['Established eclipse as divine omen in Vedic tradition', 'Shaped Hindu cosmological framework for millennia', 'Earliest known astronomical observation in recorded text'],
+  description: 'The Rigveda, humanity\'s oldest surviving religious text, contains a hymn describing the demon Svarbhanu swallowing the sun—widely interpreted as the earliest literary reference to a solar eclipse. Composed by Vedic priests on the Indo-Gangetic plain, this passage transformed a terrifying celestial event into sacred mythology. The hymn credits the sage Atri with restoring the sun through ritual incantation, establishing the priestly class as cosmic mediators. This single observation seeded an astronomical tradition that would produce some of the ancient world\'s most precise celestial calculations.',
+  cosmicLink: 'In Vedic astrology (Jyotish), eclipses are caused by the shadow nodes Rahu and Ketu—the severed head and tail of the demon who dared drink the nectar of immortality. This eclipse mythology encodes a sophisticated understanding of the lunar nodes, the very points where eclipses occur, millennia before Western astronomy formalized the concept.',
+  historicalParallel: 'Just as this Rigvedic eclipse birthed an entire cosmological system, the Eclipse of Thales in 585 BC similarly catalyzed Greek natural philosophy. Both moments show how the terror of a darkened sun drives civilizations to create frameworks of understanding—religious in India, rational in Greece.',
+  },
+  {
+  id: 'rise-of-uruk', year: -3500, date: 'c. 3500 BC',
+  celestialEvent: 'Venus Cycle Observations Begin', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Rise of Uruk — Birth of the First City',
+  category: 'geopolitical',
+  image: './images/rise-of-uruk.jpg',
+  significance: 5,
+  rippleEffects: ['Invented writing (cuneiform) to record celestial omens', 'Created first professional astronomer-priests', 'Established urban civilization as humanity\'s dominant social form'],
+  description: 'Uruk, in southern Mesopotamia, swelled to become the world\'s first true city—home to perhaps 40,000 people clustered around the great temples of Anu (sky god) and Inanna (Venus). Its priests developed cuneiform writing partly to record the movements of Venus and other celestial bodies, believing the gods communicated through the stars. The city\'s monumental architecture was oriented to celestial events, its calendar governed by lunar and stellar cycles. Uruk was not merely a city—it was humanity\'s first systematic attempt to read the mind of the cosmos.',
+  cosmicLink: 'Inanna, patron goddess of Uruk, was identified with Venus—the brilliant wanderer whose eight-year cycle of appearances and disappearances as morning and evening star structured Mesopotamian ritual life. The city\'s rise coincided with the formalization of Venus-watching, making Uruk the birthplace of systematic planetary observation.',
+  historicalParallel: 'Uruk\'s fusion of political power and celestial observation echoes in every subsequent imperial capital, from Babylon to Chang\'an to Rome. The pattern repeats: great cities rise where stargazing priesthoods accumulate enough knowledge—and thus authority—to organize mass society.',
+  },
+  {
+  id: 'unification-of-egypt', year: -3100, date: 'c. 3100 BC',
+  celestialEvent: 'Heliacal Rising of Sirius (Sothic Cycle)', celestialType: 'ingress', symbol: '♈',
+  worldEvent: 'Unification of Upper and Lower Egypt',
+  category: 'geopolitical',
+  image: './images/unification-of-egypt.jpg',
+  significance: 5,
+  rippleEffects: ['Created longest-lasting continuous civilization in history', 'Established Sothic calendar that anchored ancient chronology', 'Fused political authority with celestial observation for 3,000 years'],
+  description: 'When Narmer (or Menes) united the Two Lands of Egypt under a single crown, he inaugurated a civilization that would endure for three millennia. The unification was cosmologically sealed by the heliacal rising of Sirius—the star the Egyptians called Sopdet—whose annual reappearance at dawn heralded the life-giving Nile flood. This celestial coincidence was no accident to Egyptian priests: it confirmed that heaven and earth were aligned under the new divine order. The 1,461-year Sothic cycle became the backbone of Egyptian chronology, the longest continuously maintained calendar in the ancient world.',
+  cosmicLink: 'The heliacal rising of Sirius functioned as a celestial ingress—a star crossing the threshold of visibility to inaugurate a new cosmic year. Egyptian theology held that Sirius was the celestial form of Isis, and its rising literally resurrected the land through the Nile inundation. Political unification mirrored celestial unification: as Sirius joined the sun at dawn, so the Two Lands became one.',
+  historicalParallel: 'The fusion of celestial timing with political legitimacy echoes across history. Augustus reformed the Roman calendar around the heliacal rising of Sirius (the "Dog Days"), and the Japanese imperial line traces its authority to the sun goddess Amaterasu. Power and celestial order remain intertwined.',
+  },
+  {
+  id: 'stonehenge-phase-i', year: -3000, date: 'c. 3000 BC',
+  celestialEvent: 'Major Lunar Standstill Alignment', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Construction of Stonehenge Phase I',
+  category: 'scientific',
+  image: './images/stonehenge-phase-i.jpg',
+  significance: 5,
+  rippleEffects: ['Demonstrated Neolithic understanding of 18.6-year lunar cycle', 'Created enduring monument to astronomical observation', 'Proved prehistoric societies tracked complex celestial patterns'],
+  description: 'On Salisbury Plain, Neolithic Britons began constructing a circular ditch and bank aligned to the extreme rising and setting points of the moon—the so-called lunar standstill positions that shift over an 18.6-year cycle. The 56 Aubrey Holes ringing the monument may have served as an eclipse prediction computer, allowing priests to anticipate when the sun or moon would be swallowed by shadow. This was not primitive superstition but sophisticated observational astronomy encoded in earth and stone. Stonehenge Phase I represents humanity\'s oldest known attempt to build a permanent celestial calculator.',
+  cosmicLink: 'The lunar standstill cycle governs when eclipses can occur at particular latitudes. By tracking the moon\'s extreme positions over nearly two decades, Stonehenge\'s builders could predict eclipse seasons—moments of cosmic crisis when the boundary between worlds grew thin. The monument functioned as a massive orrery, mapping heaven onto earth.',
+  historicalParallel: 'Stonehenge\'s role as an eclipse predictor parallels the Antikythera mechanism built 2,800 years later in Greece—both are analog computers designed to forecast celestial events. The human drive to predict eclipses spans from Neolithic stone circles to NASA\'s modern ephemeris calculations.',
+  },
+  {
+  id: 'sargon-of-akkad', year: -2334, date: 'c. 2334 BC',
+  celestialEvent: 'Solar Eclipse Over Mesopotamia', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Sargon of Akkad Founds First Empire',
+  category: 'geopolitical',
+  image: './images/sargon-of-akkad.jpg',
+  significance: 5,
+  rippleEffects: ['Created template for imperial rule used for millennia', 'Formalized celestial omen tradition (basis of all Western astrology)', 'Established precedent that cosmic signs validate political revolution'],
+  description: 'Sargon the Great rose from obscure origins—legend says he was a cup-bearer—to conquer all of Sumer and Akkad, forging history\'s first multi-ethnic empire stretching from the Persian Gulf to the Mediterranean. Mesopotamian omen literature credits celestial signs with heralding his rise, establishing the tradition that the heavens announce great political transformations. His court astronomers began systematically recording celestial events and correlating them with earthly outcomes. The Akkadian Empire lasted barely a century, but the omen tradition it formalized would endure for two thousand years and seed every subsequent astrological system.',
+  cosmicLink: 'Akkadian omen texts established the foundational principle of mundane astrology: celestial events are not random but are communications from the gods about the fate of kings and nations. Solar eclipses specifically portended the death or overthrow of rulers, making Sargon\'s rise during such a period a divine mandate written in the sky.',
+  historicalParallel: 'Sargon\'s celestially-validated seizure of power echoes in Augustus claiming a comet as Julius Caesar\'s divine apotheosis, in Constantine\'s vision before the Milvian Bridge, and in the Aztec interpretation of Cortés\'s arrival as fulfilling the prophecy of Quetzalcoatl\'s return.',
+  },
+  {
+  id: 'venus-tablet-ammisaduqa', year: -1646, date: 'c. 1646 BC',
+  celestialEvent: 'Venus Synodic Cycle Observations', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Venus Tablet of Ammisaduqa — Oldest Planetary Record',
+  category: 'scientific',
+  image: './images/venus-tablet-ammisaduqa.jpg',
+  significance: 5,
+  rippleEffects: ['Created oldest surviving planetary observation record', 'Anchored Babylonian chronology for modern historians', 'Proved systematic astronomy existed by the 17th century BC'],
+  description: 'During the reign of King Ammisaduqa of Babylon, court astronomers compiled 21 years of meticulous observations of Venus\'s appearances and disappearances as morning and evening star onto a single cuneiform tablet. This unassuming clay document is the oldest surviving record of systematic planetary observation in human history. Each entry records the date Venus was last seen, how long it remained invisible, and when it reappeared—data precise enough that modern astronomers use it to calibrate ancient Babylonian chronology. The tablet reveals a civilization that had already been watching the skies with disciplined attention for centuries.',
+  cosmicLink: 'Venus\'s 584-day synodic cycle—its dance between morning star (Lucifer) and evening star (Hesperus)—was the cornerstone of Babylonian celestial divination. The planet\'s periods of invisibility, when it passed behind or in front of the sun, were interpreted as Inanna\'s descent to the underworld. Each reappearance was a resurrection, charged with omens for the kingdom.',
+  historicalParallel: 'The Venus Tablet\'s systematic observation methodology directly prefigures Tycho Brahe\'s meticulous planetary records two millennia later, which Kepler would use to derive the laws of planetary motion. Both demonstrate that transformative science begins with patient, precise observation over years.',
+  },
+  {
+  id: 'nebra-sky-disk', year: -1600, date: 'c. 1600 BC',
+  celestialEvent: 'Pleiades Conjunction with Crescent Moon', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Creation of the Nebra Sky Disk — Oldest Cosmos Depiction',
+  category: 'scientific',
+  image: './images/nebra-sky-disk.jpg',
+  significance: 4,
+  rippleEffects: ['Oldest known realistic depiction of celestial objects', 'Revealed sophisticated Bronze Age European astronomy', 'Demonstrated intercultural astronomical knowledge networks'],
+  description: 'Buried on a hilltop in Saxony-Anhalt, Germany, a bronze disk inlaid with gold depicts the sun, a crescent moon, the Pleiades star cluster, and horizon arcs marking the solstice sunrise and sunset positions. The Nebra Sky Disk is the oldest known realistic depiction of the cosmos—a Bronze Age astronomical instrument that encoded knowledge of the lunisolar calendar. The Pleiades\' position relative to the crescent moon indicated when to insert a leap month, synchronizing lunar and solar years. This single artifact proves that Bronze Age Europeans possessed far more sophisticated astronomical knowledge than previously believed.',
+  cosmicLink: 'The disk encodes the conjunction of the crescent moon with the Pleiades—a celestial configuration used across ancient cultures as a calendar signal. When the Pleiades appeared near the young crescent moon in spring, Babylonian astronomers knew whether to add an intercalary month. The Nebra Disk proves this knowledge had traveled far beyond Mesopotamia into the heart of Europe.',
+  historicalParallel: 'The Nebra Disk\'s role as a portable astronomical reference parallels the Antikythera mechanism and medieval astrolabes—each era produced devices to carry the cosmos in human hands. The impulse to miniaturize heaven for practical use is as old as civilization itself.',
+  },
+  {
+  id: 'akhenaten-revolution', year: -1351, date: 'c. 1351 BC',
+  celestialEvent: 'Total Solar Eclipse Over Egypt', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Akhenaten\'s Monotheistic Revolution',
+  category: 'religious',
+  image: './images/akhenaten-revolution.jpg',
+  significance: 5,
+  rippleEffects: ['First known attempt at monotheism in world history', 'Influenced development of Abrahamic religious traditions', 'Demonstrated celestial events as catalysts for theological revolution'],
+  description: 'Pharaoh Amenhotep IV renamed himself Akhenaten and abolished Egypt\'s entire pantheon in favor of a single god—the Aten, the visible disk of the sun. This radical theological revolution, the first known experiment in monotheism, may have been catalyzed by a total solar eclipse visible from Thebes that revealed the sun\'s corona as a luminous disk radiating light-rays. Akhenaten built an entirely new capital at Amarna, composed hymns to the Aten that prefigure Psalm 104, and overturned two millennia of religious tradition. His revolution was crushed after his death, his name erased from monuments—but the idea of one God would prove immortal.',
+  cosmicLink: 'A total solar eclipse reveals the sun\'s corona—a radiant disk with streaming rays—precisely the image Akhenaten chose for the Aten. In mundane astrology, total solar eclipses over a nation\'s capital portend revolutionary change in leadership and ideology. The eclipse that may have inspired Akhenaten literalized this principle: the old sun died, and a new solar theology was born from the corona\'s light.',
+  historicalParallel: 'Akhenaten\'s solar monotheism eerily prefigures Constantine\'s conversion to Christianity—both emperors imposed a new solar-influenced theology on reluctant empires. The pattern of eclipses catalyzing religious transformation repeats with the crucifixion darkness described in the Gospels and the solar eclipse before Muhammad\'s son Ibrahim died.',
+  },
+  {
+  id: 'shang-oracle-bones', year: -1200, date: 'c. 1200 BC',
+  celestialEvent: 'Lunar and Solar Eclipse Records', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Shang Dynasty Oracle Bone Eclipse Records',
+  category: 'scientific',
+  image: './images/shang-oracle-bones.jpg',
+  significance: 4,
+  rippleEffects: ['Created oldest Chinese astronomical archive', 'Established divination-astronomy link in Chinese civilization', 'Provided modern astronomers with datable ancient eclipse records'],
+  description: 'Shang Dynasty diviners inscribed questions to ancestral spirits on heated turtle shells and ox scapulae, and among the thousands of surviving oracle bones are the oldest Chinese records of solar and lunar eclipses. These terse inscriptions—"The sun was eaten"—represent a parallel astronomical tradition developing independently of Mesopotamia. The Shang court treated eclipses as urgent communications from heaven requiring immediate ritual response, establishing a pattern that would persist through every subsequent Chinese dynasty. Each oracle bone eclipse record is now a precious data point for modern astronomers reconstructing the history of Earth\'s rotation.',
+  cosmicLink: 'In Chinese cosmology, eclipses represented a dragon devouring the sun or moon—a catastrophic disruption of the cosmic order that directly threatened the king\'s mandate. The Shang divination system treated celestial events as questions posed by heaven to the ruler, demanding correct ritual response. This framework evolved into the Mandate of Heaven doctrine that governed Chinese political legitimacy for three millennia.',
+  historicalParallel: 'The Shang oracle bone records parallel the Babylonian astronomical diaries that began centuries later—both represent state-sponsored celestial monitoring programs where political survival depended on correctly interpreting the sky. The Chinese and Mesopotamian traditions developed independently but converged on the same conclusion: eclipses are politically meaningful.',
+  },
+  {
+  id: 'trojan-war-eclipse', year: -1218, date: 'c. 1218 BC (April 16)',
+  celestialEvent: 'Annular Solar Eclipse Over the Aegean', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Eclipse During the Trojan War',
+  category: 'cultural',
+  image: './images/trojan-war-eclipse.jpg',
+  significance: 4,
+  rippleEffects: ['Potentially datable astronomical reference in Homer', 'Connected Bronze Age collapse to celestial narrative', 'Demonstrated eclipses as markers for dating ancient conflicts'],
+  description: 'Modern astronomical calculations have identified an annular solar eclipse on April 16, 1218 BC, whose path crossed the Aegean Sea and the plain of Troy—aligning with the traditional dating of the Trojan War. Homer\'s Odyssey contains a cryptic passage describing the sun being "obliterated from the sky" on the day Odysseus returns to slaughter the suitors, which some scholars interpret as an eclipse reference. If correct, this would make the Odyssey\'s return narrative astronomically datable, anchoring myth to celestial mechanics. The eclipse fell during the broader Bronze Age Collapse, when the entire eastern Mediterranean civilization system was disintegrating.',
+  cosmicLink: 'An annular eclipse—where the moon\'s disk is too small to fully cover the sun, creating a ring of fire—was considered an especially ominous sign in ancient omen literature. Occurring over a besieged city during a civilizational collapse, this eclipse would have been interpreted as the gods withdrawing their light from the doomed. In mundane astrology, eclipses over war zones accelerate existing conflicts toward their violent conclusion.',
+  historicalParallel: 'The use of eclipse records to date the Trojan War mirrors how the Assyrian Eclipse of 763 BC anchors Near Eastern chronology. In both cases, the clockwork precision of celestial mechanics provides fixed points that transform myth and legend into datable history.',
+  },
+  {
+  id: 'joshuas-eclipse', year: -1207, date: 'c. 1207 BC (October 30)',
+  celestialEvent: 'Annular Solar Eclipse Over Canaan', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Joshua\'s "Sun Standing Still" at Gibeon',
+  category: 'religious',
+  image: './images/joshuas-eclipse.jpg',
+  significance: 4,
+  rippleEffects: ['Shaped Judeo-Christian understanding of divine intervention', 'Provided astronomically verifiable biblical event', 'Demonstrated celestial events as theological turning points'],
+  description: 'The Book of Joshua records that during the Israelite conquest of Canaan, Joshua commanded the sun to stand still over Gibeon and the moon over the valley of Aijalon so that his army could complete its victory. Modern research has identified an annular solar eclipse on October 30, 1207 BC, visible from Canaan, and proposed that the Hebrew text may describe the sun and moon "ceasing" their normal appearance—darkening rather than halting. If correct, this eclipse provides an astronomically precise date for the Israelite settlement of Canaan. The passage became one of the most debated texts in the history of science and religion.',
+  cosmicLink: 'In the mundane astrological framework, a solar eclipse over a territory during a military conquest represents the most powerful possible omen—the heavens themselves intervening in the outcome of battle. The eclipse\'s path over Canaan precisely when a new people claimed the land suggests the celestial event was read as divine validation, transforming a military campaign into a cosmic mandate.',
+  historicalParallel: 'Joshua\'s celestially-assisted victory parallels Constantine\'s vision of the cross before the Battle of Milvian Bridge in 312 AD—both narratives use celestial phenomena to legitimize military conquest as divinely ordained. The pattern of heaven validating conquest recurs across cultures and centuries.',
+  },
+  {
+  id: 'zhou-mandate-of-heaven', year: -1046, date: '1046 BC (January 20)',
+  celestialEvent: 'Five-Planet Conjunction + Halley\'s Comet', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Zhou Dynasty Overthrows Shang — Mandate of Heaven',
+  category: 'geopolitical',
+  image: './images/zhou-mandate-of-heaven.jpg',
+  significance: 5,
+  rippleEffects: ['Created Mandate of Heaven doctrine governing Chinese politics for 3,000 years', 'Established five-planet conjunction as supreme celestial omen', 'Linked cometary appearances to dynastic change permanently in Chinese thought'],
+  description: 'When King Wu of Zhou overthrew the last Shang king at the Battle of Muye, Chinese astronomers recorded a spectacular five-planet conjunction—Mercury, Venus, Mars, Jupiter, and Saturn gathered in the same region of sky—accompanied by an appearance of Halley\'s Comet. This extraordinary celestial convergence was declared proof that Heaven had withdrawn its mandate from the corrupt Shang and bestowed it upon the virtuous Zhou. The doctrine of the Mandate of Heaven, born from this astronomical moment, became the foundational political philosophy of Chinese civilization. For the next three millennia, every dynastic change would be read through this cosmic lens.',
+  cosmicLink: 'A five-planet conjunction is the rarest and most powerful configuration in mundane astrology—all visible planets united in one sign signals a total reset of the cosmic order. Combined with Halley\'s Comet (the classic harbinger of regime change), this double portent created an irrefutable celestial case for revolution. The Zhou established the principle that planetary alignments reveal Heaven\'s political will.',
+  historicalParallel: 'The Zhou conjunction prefigures the Star of Bethlehem theories proposing a Jupiter-Saturn conjunction heralded a new spiritual king. Both events demonstrate how rare planetary gatherings become celestial birth announcements for new orders—political in China, spiritual in Judea.',
+  },
+  {
+  id: 'phoenician-alphabet', year: -1050, date: 'c. 1050 BC',
+  celestialEvent: 'Iron Age Transition — Saturn-Jupiter Cycle Shift', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Phoenician Alphabet Spreads Across the Mediterranean',
+  category: 'cultural',
+  image: './images/phoenician-alphabet.jpg',
+  significance: 4,
+  rippleEffects: ['Ancestor of virtually every alphabet in use today', 'Democratized literacy beyond priestly scribal classes', 'Enabled the intellectual revolutions of the Axial Age'],
+  description: 'From their coastal cities of Tyre, Sidon, and Byblos, Phoenician merchants carried a revolutionary technology across the Mediterranean: a simple 22-letter alphabet that anyone could learn, replacing the complex cuneiform and hieroglyphic systems that had kept literacy locked within elite scribal classes for millennia. This alphabet would evolve into Greek, Latin, Arabic, and Hebrew scripts—virtually every alphabet in use today descends from this Phoenician innovation. Emerging during the Iron Age transition after the Bronze Age Collapse, the alphabet arrived precisely when the old palace civilizations and their scribal monopolies had been destroyed, creating space for a radically accessible writing system.',
+  cosmicLink: 'In mundane astrology, the great Jupiter-Saturn conjunction cycle (approximately every 20 years, with element shifts every 200 years) marks epochal transitions in civilization. The Iron Age transition around 1050 BC coincided with such a shift, as the old Bronze Age order dissolved and new, more distributed forms of knowledge and power emerged. The alphabet was the quintessential Iron Age technology—simple, portable, democratic.',
+  historicalParallel: 'The Phoenician alphabet\'s democratization of literacy parallels Gutenberg\'s printing press in 1440 AD—both technologies broke elite monopolies on written knowledge and triggered cascading cultural revolutions. Each emerged during a period of civilizational transition marked by major celestial configurations.',
+  },
+  {
+  id: 'first-olympic-games', year: -776, date: '776 BC (July/August)',
+  celestialEvent: 'Full Moon After Summer Solstice', celestialType: 'opposition', symbol: '☍',
+  worldEvent: 'First Olympic Games at Olympia',
+  category: 'cultural',
+  image: './images/first-olympic-games.jpg',
+  significance: 4,
+  rippleEffects: ['Created four-year Olympiad cycle used to date all Greek history', 'Established athletic competition as sacred celestial ritual', 'Provided foundational chronological framework for Western history'],
+  description: 'The first recorded Olympic Games were held at Olympia in 776 BC, timed to the second or third full moon after the summer solstice—a lunisolar calculation that placed the sacred athletic contest at the peak of the sun\'s power, illuminated by the moon\'s fullest light. The four-year Olympiad cycle became the standard chronological framework for all of Greek history, an astronomical calendar that unified the fractious city-states under shared celestial time. The games were a religious festival honoring Zeus, and their timing was determined by official moon-watchers who calculated the precise full moon. Athletics, religion, and astronomy were inseparable in the Greek mind.',
+  cosmicLink: 'The full moon is an opposition aspect—sun and moon facing each other from opposite sides of the Earth, creating maximum illumination. Scheduling the Olympics at the full moon after summer solstice placed the games at the moment of greatest celestial energy: the sun at its annual peak, the moon at its monthly peak. This double maximum created what mundane astrology considers the most potent window for public spectacle and collective expression.',
+  historicalParallel: 'The Olympic cycle\'s astronomical timing echoes the Saros eclipse cycle used by Babylonian astronomers—both are multi-year celestial periods that structure human time. The modern revival of the Olympics in 1896 occurred during a period of major planetary configurations, and the games remain tied to a four-year cycle that originated in lunar observation.',
+  },
+  {
+  id: 'assyrian-eclipse-nineveh', year: -763, date: '763 BC (June 15)',
+  celestialEvent: 'Total Solar Eclipse Over Nineveh', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Assyrian Eclipse — Anchor of Ancient Chronology',
+  category: 'scientific',
+  image: './images/assyrian-eclipse-nineveh.jpg',
+  significance: 5,
+  rippleEffects: ['Provides fixed chronological anchor for all ancient Near Eastern history', 'Recorded in Assyrian limmu lists with exact date', 'Enabled modern scholars to calibrate millennia of ancient dates'],
+  description: 'On June 15, 763 BC, a total solar eclipse swept across the Assyrian heartland and was recorded in the limmu (eponym) lists of Nineveh—bureaucratic records that named each year after a different official. This single astronomical observation, corroborated by modern celestial mechanics, provides the absolute chronological anchor for the entire ancient Near Eastern timeline. Every Assyrian, Babylonian, and biblical date within centuries of this event is calibrated against it. The eclipse is also linked to the biblical story of Jonah, whose prophetic mission to Nineveh may have coincided with the terror of the darkened sun that made the Assyrians receptive to a foreign prophet\'s warning.',
+  cosmicLink: 'In Mesopotamian omen literature, a total solar eclipse over the capital city was the most dire possible portent—it predicted the death of the king. The Assyrian response was to install a substitute king (a condemned prisoner) on the throne during the eclipse period, allowing the real king to evade the celestial death sentence. This ritual demonstrates the depth of conviction that eclipses directly governed political fate.',
+  historicalParallel: 'The Assyrian Eclipse\'s role as a chronological anchor parallels the Athenian archon list and the Roman consular fasti—all are bureaucratic records that become invaluable when cross-referenced with astronomical events. The precision of celestial mechanics continues to be the ultimate arbiter of ancient chronology.',
+  },
+  {
+  id: 'archilochus-eclipse', year: -648, date: '648 BC (April 6)',
+  celestialEvent: 'Total Solar Eclipse Over the Aegean', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Archilochus Eclipse — Oldest Western Literary Eclipse',
+  category: 'cultural',
+  image: './images/archilochus-eclipse.jpg',
+  significance: 3,
+  rippleEffects: ['Oldest datable eclipse reference in Western literature', 'Demonstrated Greek awareness of eclipse as natural phenomenon', 'Bridged mythological and philosophical approaches to celestial events'],
+  description: 'The Greek poet Archilochus of Paros witnessed a total solar eclipse and composed a fragment declaring that Zeus had made night from noonday, and that after this nothing should surprise mortals—for even dolphins might now trade places with mountain goats. This is the oldest securely datable eclipse reference in Western literature, identified as the total solar eclipse of April 6, 648 BC. Archilochus\'s response was neither purely mythological nor scientifically analytical but something uniquely literary: he used the cosmic event as a metaphor for the overthrow of all certainty. His fragment captures the precise psychological moment when a solar eclipse shatters the assumption that the natural order is stable.',
+  cosmicLink: 'Archilochus interpreted the eclipse through what would become the core principle of mundane astrology: celestial disruptions mirror earthly disruptions. His poetic leap—from darkened sun to overturned natural order—encodes the astrological insight that eclipses destabilize existing structures and make the previously impossible suddenly thinkable.',
+  historicalParallel: 'Archilochus\'s literary response to an eclipse prefigures the Eclipse of Thales in 585 BC by just 63 years—but where Archilochus used the eclipse as poetic metaphor, Thales reportedly predicted his, marking the transition from mythological to scientific thinking about celestial events.',
+  },
+  {
+  id: 'birth-of-buddha', year: -563, date: 'c. 563 BC',
+  celestialEvent: 'Auspicious Planetary Configuration at Birth', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Birth of Siddhartha Gautama (The Buddha)',
+  category: 'religious',
+  image: './images/birth-of-buddha.jpg',
+  significance: 5,
+  rippleEffects: ['Founded Buddhism, now practiced by 500+ million people', 'Axial Age transformation of human consciousness', 'Established karmic cosmology as alternative to Vedic astral determinism'],
+  description: 'Siddhartha Gautama was born in Lumbini (modern Nepal) under what Buddhist tradition describes as supremely auspicious celestial conditions—the full moon of Vesak (April/May), with benevolent planetary configurations that court astrologers interpreted as signs of a world-transforming figure. The Jataka tales record that his father consulted Brahmin astrologers who predicted the child would become either a universal monarch or a fully enlightened Buddha. Born during the heart of the Axial Age—when Confucius, Pythagoras, and the Hebrew prophets were simultaneously transforming human thought—Siddhartha\'s life represents one of history\'s most consequential individual destinies.',
+  cosmicLink: 'Buddhist tradition holds that the Buddha was born, achieved enlightenment, and died all on the full moon of Vesak—three pivotal moments united by the same lunar phase. In Vedic astrology, the full moon represents the culmination of consciousness, the moment of maximum illumination. The Buddha\'s birth chart was read as indicating a being whose inner light would rival the celestial bodies themselves.',
+  historicalParallel: 'The astrological prediction of the Buddha\'s greatness parallels the Magi following a star to the birth of Jesus and the celestial signs attending the birth of Augustus. Across cultures, the births of transformative figures are retroactively or contemporaneously marked by celestial validation—heaven announcing that the cosmic order has changed.',
+  },
+  {
+  id: 'confucius-halleys-comet', year: -551, date: '551 BC',
+  celestialEvent: 'Halley\'s Comet Perihelion', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Birth of Confucius During Halley\'s Comet Apparition',
+  category: 'cultural',
+  image: './images/confucius-halleys-comet.jpg',
+  significance: 4,
+  rippleEffects: ['One of earliest confirmed observations of Halley\'s Comet', 'Founded Confucianism, shaping East Asian civilization', 'Linked cometary appearances to births of epoch-defining thinkers'],
+  description: 'Chinese astronomical records document an appearance of Halley\'s Comet around 551 BC—one of the earliest confirmed observations of the most famous periodic comet—coinciding with the traditional birth year of Kong Qiu (Confucius) in the state of Lu. While the connection was likely noted retrospectively, it became emblematic of the Chinese tradition that comets herald great change. Confucius would go on to establish the philosophical and ethical system that governed Chinese civilization for over two millennia, influencing Korea, Japan, and Vietnam. His teachings on social harmony, filial piety, and righteous governance became the intellectual operating system of East Asia.',
+  cosmicLink: 'In Chinese celestial omen tradition, comets are "broom stars" that sweep away the old order and herald the new. Halley\'s Comet\'s approximately 76-year period meant it appeared roughly once per human lifetime, marking generational transitions. Its appearance near Confucius\'s birth year symbolically announced that a new philosophical dispensation was arriving to reform a chaotic age.',
+  historicalParallel: 'Halley\'s Comet has appeared at pivotal historical moments with uncanny regularity: the Battle of Hastings (1066 AD), Giotto\'s painting of the Star of Bethlehem (1301 AD), and Mark Twain\'s birth and death (1835 and 1910). The comet functions as a cosmic metronome marking civilizational turning points.',
+  },
+  {
+  id: 'indus-valley-collapse', year: -1900, date: 'c. 1900 BC',
+  celestialEvent: 'Solar Activity Minimum / Prolonged Drought Cycle', celestialType: 'opposition', symbol: '☍',
+  worldEvent: 'Collapse of the Indus Valley Civilization',
+  category: 'geopolitical',
+  image: './images/indus-valley-collapse.jpg',
+  significance: 4,
+  rippleEffects: ['Ended one of the world\'s three earliest urban civilizations', 'Triggered migrations that reshaped South Asian demographics', 'Demonstrated climate-civilization vulnerability pattern repeated throughout history'],
+  description: 'The Indus Valley Civilization—with its sophisticated cities of Mohenjo-daro and Harappa, its advanced drainage systems, and its undeciphered script—collapsed over the course of centuries as the monsoon patterns that sustained it shifted catastrophically. A mega-drought lasting two centuries, possibly linked to solar activity variations, caused the Ghaggar-Hakra river system to dry up and the monsoon to weaken. The great cities were gradually abandoned as populations dispersed into smaller settlements. One of humanity\'s three original urban civilizations—contemporary with Mesopotamia and Egypt—simply dissolved, its writing system lost, its people scattered across the subcontinent.',
+  cosmicLink: 'Solar activity minima—periods when the sun\'s energy output decreases—have been correlated with major drought episodes throughout history. The opposition between solar forcing and terrestrial climate creates a cosmic tension that civilizations built on narrow environmental margins cannot survive. The Indus collapse demonstrates the mundane astrological principle that celestial cycles operating on centennial scales can destroy what decades of human effort have built.',
+  historicalParallel: 'The Indus Valley collapse foreshadows the Classic Maya collapse around 900 AD, also driven by prolonged drought and monsoon failure. Both civilizations built sophisticated urban systems dependent on specific rainfall patterns, and both dissolved when those celestial-driven climate cycles shifted. The pattern warns that even the most advanced societies remain vulnerable to solar and orbital forcing.',
+  },
+  {
+  id: 'aztec-tenochtitlan-founding', year: 1325, date: 'c. 1325',
+  celestialEvent: 'Total Solar Eclipse & Triple Planetary Clustering', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Founding of Tenochtitlan',
+  category: 'geopolitical',
+  image: './images/aztec-tenochtitlan-founding.jpg',
+  significance: 4,
+  rippleEffects: ['Birth of the Aztec Empire', 'Creation of chinampas agricultural system', 'Rise of Mesoamerican superpower lasting two centuries'],
+  description: 'The Mexica people, guided by a prophecy to settle where an eagle perched on a cactus devouring a serpent, founded Tenochtitlan on an island in Lake Texcoco. A total solar eclipse and rare triple planetary clustering marked the skies above what would become one of the largest cities in the world. The city grew into the capital of an empire spanning central Mexico, with causeways, aqueducts, and floating gardens that astonished European visitors two centuries later.',
+  cosmicLink: 'The Aztecs were among the most astronomically sophisticated civilizations in history, and a total solar eclipse held profound significance as a moment when cosmic forces realigned. The triple planetary clustering amplified this as a convergence of celestial power, interpreted as divine confirmation of the eagle-and-serpent prophecy that guided the Mexica to their promised land.',
+  historicalParallel: 'The founding of Rome in 753 BC was similarly tied to celestial omens and augury, with Romulus interpreting the flight of birds as divine sanction. Both civilizations built imperial capitals on the strength of cosmological legitimacy, and both were eventually conquered by foreign invaders who dismantled their sacred calendars.'
+  },
+  {
+  id: 'black-death-celestial-cause', year: 1345, date: 'March 20, 1345',
+  celestialEvent: 'Triple Conjunction of Saturn, Jupiter & Mars in Aquarius', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Black Death Blamed on the Stars',
+  category: 'pandemic',
+  image: './images/black-death-celestial-cause.jpg',
+  significance: 5,
+  rippleEffects: ['Death of one-third of Europe\'s population', 'Collapse of feudal labor systems', 'Rise of vernacular literature and proto-Renaissance thought'],
+  description: 'When the Black Death began its apocalyptic sweep across Europe, King Philip VI of France commissioned the University of Paris medical faculty to explain its cause. Their 1348 report pointed directly to the triple conjunction of Saturn, Jupiter, and Mars in Aquarius on March 20, 1345, declaring it had corrupted the air and poisoned the world. This was not fringe belief but the official scientific consensus of medieval Europe, shaping public health responses for generations.',
+  cosmicLink: 'The conjunction of the three slowest visible planets in Aquarius, an air sign, was interpreted through Aristotelian-Galenic medicine as a corruption of atmospheric humors. Saturn brought cold and decay, Jupiter drew poisonous vapors upward, and Mars ignited them into pestilential heat. This represents perhaps the most consequential astrological diagnosis in history, directly shaping how nations responded to the deadliest pandemic ever recorded.',
+  historicalParallel: 'The 2020 Saturn-Pluto conjunction in Capricorn preceded the COVID-19 pandemic by weeks, echoing this ancient pattern of outer-planet conjunctions aligning with global plagues. In both cases, the astrological framework shaped public narrative, though modern astrologers observed from the margins rather than from the center of institutional authority.'
+  },
+  {
+  id: 'fall-of-aztec-empire', year: 1521, date: 'August 13, 1521',
+  celestialEvent: 'Solar Eclipse Following Conquest & Eight Omens of Moctezuma', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Fall of the Aztec Empire',
+  category: 'geopolitical',
+  image: './images/fall-of-aztec-empire.jpg',
+  significance: 5,
+  rippleEffects: ['Destruction of Mesoamerican civilization', 'Spanish colonial empire established', 'Columbian exchange transforms global agriculture'],
+  description: 'Hernán Cortés and his conquistadors, allied with thousands of Indigenous enemies of the Aztecs, captured Tenochtitlan after a brutal 80-day siege. A solar eclipse followed within a month of the city\'s fall, punctuating the cosmic dimension of the catastrophe. Aztec sources recorded eight celestial omens that preceded the conquest, including a comet, a pillar of fire, and boiling lakes, suggesting the heavens themselves had announced the empire\'s doom.',
+  cosmicLink: 'For a civilization whose entire political and religious order was built on astronomical observation and cosmic cycles, the eight omens represented a fundamental rupture in the celestial contract between gods and empire. The post-conquest solar eclipse served as a final cosmic seal on the destruction, darkening the sun that the Aztecs had fed with sacrificial blood to keep burning.',
+  historicalParallel: 'The fall of Constantinople in 1453 was similarly preceded by celestial omens, including a lunar eclipse that fulfilled a prophecy that the city would fall when the moon went dark. Both represent moments when astronomically literate civilizations watched the sky confirm their own destruction.'
+  },
+  {
+  id: 'fall-of-inca-empire', year: 1533, date: 'July 26, 1533',
+  celestialEvent: 'Comet of 1533 & Execution of Atahualpa', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Fall of the Inca Empire',
+  category: 'geopolitical',
+  image: './images/fall-of-inca-empire.jpg',
+  significance: 5,
+  rippleEffects: ['Destruction of largest empire in pre-Columbian Americas', 'Spanish control of Andean silver mines', 'Demographic collapse of Indigenous populations'],
+  description: 'Francisco Pizarro executed the Inca emperor Atahualpa by garrote after extracting the largest ransom in history, a room filled with gold. The Great Comet of 1533, visible across both hemispheres, blazed through the sky during this period of conquest and betrayal. The Inca themselves had a sophisticated astronomical tradition, and Atahualpa\'s father Huayna Capac had reportedly prophesied the empire\'s fall after observing a celestial omen years earlier.',
+  cosmicLink: 'Comets were universally interpreted as harbingers of the death of kings and the fall of empires, and the Great Comet of 1533 fulfilled this archetype with devastating precision. In Inca cosmology, celestial phenomena were direct communications from Inti, the sun god, making the comet a cosmic announcement that the divine mandate of the Sapa Inca had been withdrawn.',
+  historicalParallel: 'The appearance of Halley\'s Comet in 1066 preceded the Norman Conquest of England and the death of King Harold, establishing the enduring pattern of comets marking the violent transfer of sovereignty. Both the Inca and Anglo-Saxon cases show comets accompanying not just regime change but civilizational rupture.'
+  },
+  {
+  id: 'magellan-circumnavigation', year: 1522, date: 'September 6, 1522',
+  celestialEvent: 'Lunar-Planetary Conjunctions Used for Navigation', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'First Circumnavigation of the Globe',
+  category: 'scientific',
+  image: './images/magellan-circumnavigation.jpg',
+  significance: 4,
+  rippleEffects: ['Proof of Earth\'s spherical shape', 'Discovery of the International Date Line paradox', 'Opening of Pacific trade routes'],
+  description: 'The remnants of Ferdinand Magellan\'s fleet completed the first circumnavigation of the Earth, though Magellan himself had been killed in the Philippines. The surviving crew of the Victoria, led by Juan Sebastián Elcano, navigated by the stars using lunar-planetary conjunctions to determine longitude across vast, uncharted oceans. When they arrived home, they discovered they had lost an entire day, the first empirical encounter with what would become the International Date Line.',
+  cosmicLink: 'Lunar-planetary conjunctions served as the primary method for determining longitude at sea, as the precise angular distance between the Moon and bright planets provided a celestial clock readable from any point on Earth. The expedition was fundamentally an act of celestial navigation, using the predictable geometry of the solar system to traverse the unpredictable surface of the planet.',
+  historicalParallel: 'The Apollo 8 mission in 1968 represented a similar leap in human spatial consciousness, with astronauts using star sightings for navigation just as Magellan\'s crew had done. Both journeys fundamentally altered humanity\'s understanding of its place in the cosmos and were made possible by reading the positions of celestial bodies.'
+  },
+  {
+  id: 'salem-witch-trials', year: 1692, date: 'February–October 1692',
+  celestialEvent: 'Mars-Chiron Conjunction & Jupiter-Saturn Opposition', celestialType: 'opposition', symbol: '☍',
+  worldEvent: 'Salem Witch Trials',
+  category: 'cultural',
+  image: './images/salem-witch-trials.jpg',
+  significance: 4,
+  rippleEffects: ['Execution of 20 people for witchcraft', 'Discrediting of spectral evidence in courts', 'Foundation of church-state separation principles'],
+  description: 'In Salem Village, Massachusetts, a wave of hysteria led to the accusation of over 200 people and the execution of 20 for the crime of witchcraft. The Mars-Chiron conjunction intensified collective wounds and martial aggression, while a Jupiter-Saturn opposition split the community between expansive fear and rigid authoritarian response. The trials ended only when the governor\'s own wife was accused, shattering the illusion that the accusations served justice rather than paranoia.',
+  cosmicLink: 'Mars conjunct Chiron activates deep collective wounds through aggression and scapegoating, channeling pain outward onto vulnerable targets. The simultaneous Jupiter-Saturn opposition created a tension between Jupiterian excess of belief and Saturnian structures of punishment, producing a judicial system that amplified rather than contained mass hysteria.',
+  historicalParallel: 'The McCarthy hearings of the 1950s, occurring under a similar climate of paranoid accusation and spectral evidence, replicated the Salem pattern of communities devouring themselves through ideological purity tests. Both episodes ended in disgrace when the accusers overreached, and both left lasting scars on the American understanding of justice.'
+  },
+  {
+  id: 'treaty-of-westphalia', year: 1648, date: 'October 24, 1648',
+  celestialEvent: 'Saturn-Pluto Conjunction in Gemini', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Treaty of Westphalia — Birth of the Nation-State',
+  category: 'geopolitical',
+  image: './images/treaty-of-westphalia.jpg',
+  significance: 5,
+  rippleEffects: ['End of the Thirty Years\' War', 'Establishment of national sovereignty as international law', 'Decline of Holy Roman Empire\'s authority'],
+  description: 'The Peace of Westphalia ended the catastrophic Thirty Years\' War, which had killed eight million people and devastated Central Europe. More than a peace treaty, it established the revolutionary principle that each state possessed sovereign authority over its territory, free from imperial or papal interference. This moment birthed the modern international system of nation-states that persists to this day, fundamentally restructuring how human beings organize political power.',
+  cosmicLink: 'Saturn-Pluto conjunctions mark the death and rebirth of power structures, and in Gemini, this transformation operated through treaties, negotiations, and the written word. The conjunction demanded the total destruction of the old imperial-religious order before a new framework of sovereign nation-states could emerge from the ashes of three decades of war.',
+  historicalParallel: 'The Saturn-Pluto conjunction of January 2020 in Capricorn similarly challenged the existing global order, with the pandemic exposing the fragility of international cooperation. Every Saturn-Pluto cycle since Westphalia has coincided with fundamental restructurings of global power, from the Congress of Vienna to the World Wars.'
+  },
+  {
+  id: 'discovery-of-neptune', year: 1846, date: 'September 23, 1846',
+  celestialEvent: 'Saturn-Neptune Conjunction in Aquarius', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Discovery of Neptune — First Planet Found by Mathematics',
+  category: 'scientific',
+  image: './images/discovery-of-neptune.jpg',
+  significance: 4,
+  rippleEffects: ['Triumph of Newtonian physics and predictive mathematics', 'Expansion of the known solar system', 'Inspired search for additional planets leading to Pluto'],
+  description: 'Urbain Le Verrier and John Couch Adams independently predicted the existence of an unseen planet by analyzing gravitational perturbations in Uranus\'s orbit, and Johann Galle found Neptune within one degree of Le Verrier\'s predicted position. The discovery occurred during a Saturn-Neptune conjunction in Aquarius, the planet revealing itself under its own astrological signature. This was the greatest triumph of mathematical physics since Newton, proving that unseen realities could be deduced from their effects on visible ones.',
+  cosmicLink: 'Neptune being discovered during a Saturn-Neptune conjunction represents one of astrology\'s most poetic synchronicities, as the planet of dreams and hidden realities emerged into Saturnian empirical knowledge under its own conjunction. In Aquarius, the sign of scientific innovation and collective consciousness, the discovery expanded humanity\'s awareness of what lay beyond the visible.',
+  historicalParallel: 'The discovery of gravitational waves in 2015 similarly confirmed the existence of an invisible phenomenon predicted by mathematics decades earlier. Both discoveries validated the principle that the universe contains hidden structures detectable only through their subtle influence on what we can observe.'
+  },
+  {
+  id: 'discovery-of-pluto', year: 1930, date: 'February 18, 1930',
+  celestialEvent: 'Jupiter-Pluto Conjunction in Cancer', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Discovery of Pluto',
+  category: 'scientific',
+  image: './images/discovery-of-pluto.jpg',
+  significance: 3,
+  rippleEffects: ['Expansion of known solar system to ninth planet', 'Discovery of the Kuiper Belt decades later', 'Nuclear age foreshadowed by planet named for god of the underworld'],
+  description: 'Clyde Tombaugh, a young Kansas farm boy turned astronomer, discovered Pluto at Lowell Observatory by painstakingly comparing photographic plates of the night sky. The planet was found during a Jupiter-Pluto conjunction in Cancer, the planet of depth and transformation revealing itself under its own astrological signature. Named after the Roman god of the underworld, Pluto\'s discovery preceded by only 15 years the detonation of the atomic bomb, the ultimate expression of plutonian power drawn from the hidden core of matter.',
+  cosmicLink: 'Like Neptune before it, Pluto was discovered under its own conjunction, as if the planet chose to reveal itself when its astrological energy was most concentrated. The Jupiter-Pluto conjunction in Cancer amplified themes of deep transformation within the domestic sphere, and Pluto\'s emergence into human consciousness coincided with the rise of depth psychology, nuclear physics, and totalitarian power.',
+  historicalParallel: 'The splitting of the atom in 1938 and the Manhattan Project fulfilled the mythological promise of Pluto\'s discovery, as humanity literally reached into the underworld of matter to extract transformative and destructive power. Pluto\'s demotion to dwarf planet in 2006 coincided with the decentralization of power structures its discovery had portended.'
+  },
+  {
+  id: 'irish-great-famine', year: 1845, date: '1845–1852',
+  celestialEvent: 'Hybrid Solar Eclipse & Uranus in Taurus', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'The Irish Great Famine',
+  category: 'pandemic',
+  image: './images/irish-great-famine.jpg',
+  significance: 5,
+  rippleEffects: ['Death of one million Irish people', 'Emigration of another million, reshaping global demographics', 'Birth of Irish independence movement'],
+  description: 'The potato blight that triggered Ireland\'s Great Famine struck during a hybrid solar eclipse and the transit of Uranus through Taurus, the sign governing agriculture, food, and material sustenance. Over seven years, one million people died and another million emigrated, reducing Ireland\'s population by 25 percent. The famine was not merely a natural disaster but a political catastrophe, as British policies continued grain exports from Ireland while its people starved.',
+  cosmicLink: 'Uranus in Taurus disrupts the most fundamental structures of material security, and its transits have historically coincided with agricultural crises, financial upheavals, and revolutions in how societies produce and distribute food. The hybrid solar eclipse darkened the skies over a land about to descend into darkness, as the celestial interruption of light mirrored the interruption of the most basic sustenance.',
+  historicalParallel: 'Uranus returned to Taurus in 2018-2026, coinciding with global supply chain disruptions, food price inflation, and renewed anxiety about agricultural sustainability. The pattern of Uranian disruption to Taurean stability repeats with striking regularity, from the Dust Bowl of the 1930s to the present era of climate-driven food insecurity.'
+  },
+  {
+  id: 'meiji-restoration', year: 1868, date: 'January 3, 1868',
+  celestialEvent: 'Total Solar Eclipse & Discovery of Helium', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Meiji Restoration — Japan\'s Transformation',
+  category: 'geopolitical',
+  image: './images/meiji-restoration.jpg',
+  significance: 4,
+  rippleEffects: ['End of 250 years of Tokugawa shogunate', 'Rapid industrialization of Japan', 'Japan emerges as global imperial power'],
+  description: 'The Meiji Restoration overthrew the Tokugawa shogunate and restored imperial rule under Emperor Meiji, launching Japan\'s transformation from feudal isolation to industrial modernity in a single generation. A total solar eclipse visible from the Indian subcontinent that year also led to the discovery of helium, a new element found in the sun before it was found on Earth. Japan\'s own rising sun was being reborn, as the nation reinvented itself with an intensity that stunned the Western world.',
+  cosmicLink: 'Solar eclipses have historically coincided with the fall of rulers and the transformation of empires, and the Meiji Restoration exemplifies this pattern with precision. The simultaneous discovery of helium in the solar corona during the eclipse added a layer of cosmic revelation, as both Japan and science unveiled hidden elements of power that had been present but unseen.',
+  historicalParallel: 'China\'s Communist Revolution of 1949, also accompanied by significant celestial events, similarly transformed an ancient civilization through radical modernization. Both the Meiji Restoration and the Chinese Revolution represented Asian powers reasserting sovereignty after periods of Western domination, driven by the conviction that survival required total reinvention.'
+  },
+  {
+  id: 'neptune-pluto-conjunction', year: 1892, date: 'August 2, 1891 – April 30, 1892',
+  celestialEvent: 'Neptune-Pluto Conjunction in Gemini', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Rarest Conjunction — Birth of the Modern Age',
+  category: 'scientific',
+  image: './images/neptune-pluto-conjunction.jpg',
+  significance: 5,
+  rippleEffects: ['Electrification of cities worldwide', 'Birth of cinema, radio, and recorded music', 'Foundations of quantum physics and psychoanalysis'],
+  description: 'The conjunction of Neptune and Pluto, occurring only once every 492 years, marked the birth of the modern age with an intensity befitting the rarest alignment in the solar system. During this period, Tesla and Edison electrified the world, the Lumière brothers invented cinema, Marconi developed radio, Freud published his first psychoanalytic works, and Röntgen discovered X-rays. It was as if the collective unconscious itself was being rewired, every hidden dimension of reality suddenly demanding to be seen and heard.',
+  cosmicLink: 'Neptune governs dreams, illusions, and the invisible dimensions of reality, while Pluto rules transformation, power, and what lies buried beneath the surface. Their conjunction in Gemini, the sign of communication and information, unleashed technologies that made the invisible visible and the inaudible heard, from X-rays penetrating flesh to radio waves carrying voices through empty air.',
+  historicalParallel: 'The previous Neptune-Pluto conjunction around 1399 coincided with the early Renaissance, the invention of moveable type, and the beginning of global maritime exploration. Each conjunction resets the deepest cycle in the solar system, inaugurating centuries-long transformations in how humanity perceives and communicates reality.'
+  },
+  {
+  id: 'armenian-genocide', year: 1915, date: 'April 24, 1915',
+  celestialEvent: 'Annular Solar Eclipse — February 14, 1915', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Armenian Genocide Begins',
+  category: 'deaths',
+  image: './images/armenian-genocide.jpg',
+  significance: 5,
+  rippleEffects: ['Death of 1.5 million Armenians', 'Term "genocide" coined to describe this event', 'Blueprint studied by subsequent perpetrators of genocide'],
+  description: 'The Ottoman Empire began the systematic deportation and mass murder of its Armenian population, ultimately killing an estimated 1.5 million people in what became the twentieth century\'s first genocide. An annular solar eclipse on Valentine\'s Day, February 14, 1915, preceded the April 24 roundup of Armenian intellectuals in Constantinople that marked the genocide\'s official beginning. Raphael Lemkin later coined the word "genocide" specifically to describe what happened to the Armenians, giving language to a crime that had previously had no name.',
+  cosmicLink: 'Solar eclipses have long presaged the fall of peoples and the darkening of civilizations, and the February 1915 annular eclipse cast its shadow over a region about to descend into industrialized mass murder. The eclipse\'s ring of fire, visible but not warming, mirrored the hollow promise of Ottoman reform that Armenian communities had trusted before the darkness came.',
+  historicalParallel: 'The Holocaust that followed three decades later was directly influenced by the Armenian Genocide, with Hitler reportedly asking "Who, after all, speaks today of the annihilation of the Armenians?" before launching his own campaign of extermination. Both genocides occurred during world wars that provided cover for systematic destruction of minority populations.'
+  },
+  {
+  id: 'gandhis-salt-march', year: 1930, date: 'March 12 – April 6, 1930',
+  celestialEvent: 'Solar & Lunar Eclipses Bracket the March', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Gandhi\'s Salt March',
+  category: 'geopolitical',
+  image: './images/gandhis-salt-march.jpg',
+  significance: 4,
+  rippleEffects: ['Galvanized Indian independence movement', 'Demonstrated power of nonviolent resistance', 'Inspired civil rights movements worldwide'],
+  description: 'Mahatma Gandhi led 78 followers on a 240-mile march to the sea to make salt in defiance of British colonial law, an act of civil disobedience that electrified India and the world. Solar and lunar eclipses bracketed the 24-day march, as if the cosmos itself framed this journey between darkness and illumination. By the time Gandhi reached the coast and picked up a handful of salt, he had broken not just a law but the psychological hold of the British Empire over 300 million people.',
+  cosmicLink: 'Eclipses bracketing a transformative event create a celestial container of accelerated change, with the solar eclipse disrupting established authority and the lunar eclipse illuminating the emotional power of the oppressed. Gandhi walked between these two cosmic poles, his march literally spanning the space between one eclipse and another, as if the heavens had opened a corridor for revolution.',
+  historicalParallel: 'Martin Luther King Jr.\'s March on Washington in 1963 and the Selma to Montgomery marches of 1965 drew directly from Gandhi\'s model, using the same strategy of disciplined nonviolent confrontation with unjust law. Both movements understood that the drama of peaceful resistance against violent authority creates a moral eclipse that darkens the legitimacy of power.'
+  },
+  {
+  id: 'gandhi-assassination', year: 1948, date: 'January 30, 1948',
+  celestialEvent: 'Saturn Transit Conjunctions', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Assassination of Mahatma Gandhi',
+  category: 'deaths',
+  image: './images/gandhi-assassination.jpg',
+  significance: 5,
+  rippleEffects: ['Martyrdom cemented Gandhi\'s global legacy', 'Accelerated Indian secularism', 'Inspired worldwide nonviolent movements for decades'],
+  description: 'Nathuram Godse assassinated Mahatma Gandhi with three gunshots at point-blank range during an evening prayer meeting in New Delhi, just five months after India achieved the independence Gandhi had spent his life pursuing. Saturn transit conjunctions weighed heavily on the chart of the new Indian nation, as the planet of karma and consequence delivered its verdict on the violence of Partition. Gandhi\'s last words were "He Ram" — Oh God — as the father of nonviolence fell to the very violence he had spent his life opposing.',
+  cosmicLink: 'Saturn conjunctions mark moments of karmic reckoning, when the consequences of past actions crystallize into unavoidable reality. The assassination occurred as Saturn transited key points in both Gandhi\'s natal chart and the chart of newly independent India, suggesting that the violence of Partition carried a karmic debt that would be paid in the blood of the man who had tried hardest to prevent it.',
+  historicalParallel: 'The assassinations of Martin Luther King Jr. in 1968 and Yitzhak Rabin in 1995 followed the same tragic pattern of peacemakers killed by extremists within their own communities. In each case, the murder of the reconciler deepened the very divisions the victim had sought to heal, as if history punishes the messenger of peace to test whether the message survives.'
+  },
+  {
+  id: 'korean-war', year: 1950, date: 'June 25, 1950',
+  celestialEvent: 'Mars Conjunct US Natal Mars in Gemini', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Korean War Begins',
+  category: 'geopolitical',
+  image: './images/korean-war.jpg',
+  significance: 4,
+  rippleEffects: ['Division of Korea persists to present day', 'Establishment of US military-industrial complex', 'Cold War proxy war model established'],
+  description: 'North Korean forces crossed the 38th parallel in a surprise invasion that drew the United States into its first major Cold War military confrontation. Mars was conjunct the United States\' natal Mars in Gemini, activating the martial energy embedded in America\'s birth chart and compelling the nation toward armed conflict. The "Forgotten War" killed over three million people and established the template for Cold War proxy conflicts that would define the next four decades.',
+  cosmicLink: 'When transiting Mars returns to conjunct a nation\'s natal Mars, it reactivates the martial impulse encoded at the nation\'s founding. For the United States, born with Mars in Gemini, this activation manifests as military engagement driven by ideological duality and communication, precisely the dynamic of the Korean War, which was framed as freedom versus communism across a divided peninsula.',
+  historicalParallel: 'The Vietnam War escalation under similar Mars return cycles continued the pattern of American military engagement at moments of natal Mars activation. Both wars divided the American public along the same Gemini fault line of dual narratives, with hawks and doves speaking past each other in the sign of communication.'
+  },
+  {
+  id: 'cuban-revolution', year: 1959, date: 'January 1, 1959',
+  celestialEvent: 'Total Solar Eclipse — October 2, 1959', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Cuban Revolution',
+  category: 'geopolitical',
+  image: './images/cuban-revolution.jpg',
+  significance: 4,
+  rippleEffects: ['Soviet-American Cold War flashpoint established', 'Cuban Missile Crisis three years later', 'Export of revolution across Latin America and Africa'],
+  description: 'Fidel Castro\'s guerrilla forces overthrew the Batista dictatorship, and a total solar eclipse on October 2 sealed the cosmic signature of a revolution that would reshape Cold War geopolitics for decades. The bearded revolutionaries descending from the Sierra Maestra became icons of Third World liberation, while Cuba itself became the most dangerous flashpoint of the nuclear age. Within three years, the island would bring the world closer to annihilation than any other event in human history.',
+  cosmicLink: 'Solar eclipses mark the fall of rulers and the dramatic reshuffling of power, and the October 1959 eclipse followed the revolution like a cosmic confirmation of regime change. The eclipse path and the revolution together signaled a darkening of the old colonial order in the Caribbean, as a small island nation defied the hemisphere\'s superpower ninety miles from its shore.',
+  historicalParallel: 'The Iranian Revolution of 1979, also accompanied by a total solar eclipse, followed a remarkably similar pattern of a charismatic revolutionary movement overthrowing a Western-backed dictator. Both revolutions transformed their nations into ideological adversaries of the United States and became defining struggles of their respective decades.'
+  },
+  {
+  id: 'civil-rights-act', year: 1964, date: 'July 2, 1964',
+  celestialEvent: 'Solar Eclipse July 9 & Uranus-Pluto Conjunction Era', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Civil Rights Act Signed',
+  category: 'geopolitical',
+  image: './images/civil-rights-act.jpg',
+  significance: 5,
+  rippleEffects: ['Legal end of racial segregation in United States', 'Foundation for subsequent civil rights legislation', 'Model for anti-discrimination law worldwide'],
+  description: 'President Lyndon Johnson signed the Civil Rights Act of 1964 just one week before a solar eclipse on July 9, ending legal racial segregation in the United States during the explosive Uranus-Pluto conjunction era of the 1960s. The act outlawed discrimination based on race, color, religion, sex, or national origin, translating into law what the blood of civil rights martyrs had written in the streets. It was the most significant expansion of human rights in American history since the abolition of slavery a century before.',
+  cosmicLink: 'The Uranus-Pluto conjunction of the 1960s was the astrological engine of revolutionary transformation, and the Civil Rights Act crystallized this energy into lasting structural change. The solar eclipse one week later served as a cosmic reset, darkening the old order of Jim Crow and illuminating the possibility of a more just society. Uranus brought the shock of liberation while Pluto demanded the total destruction of entrenched power.',
+  historicalParallel: 'The Uranus-Pluto square of 2012-2015 reactivated civil rights energy through the Black Lives Matter movement, demonstrating that the conjunction\'s work remained unfinished. Each major Uranus-Pluto aspect since the 1960s has reignited the struggle for racial justice, as the slow planets continue to agitate the wounds and promises of that revolutionary decade.'
+  },
+  {
+  id: 'mlk-assassination', year: 1968, date: 'April 4, 1968',
+  celestialEvent: 'Between Solar Eclipse March 28 & Blood Moon April 13', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Assassination of Martin Luther King Jr.',
+  category: 'deaths',
+  image: './images/mlk-assassination.jpg',
+  significance: 5,
+  rippleEffects: ['Riots erupt in over 100 American cities', 'Fair Housing Act passed within a week', 'Fracturing of American civil rights coalition'],
+  description: 'Martin Luther King Jr. was shot and killed on the balcony of the Lorraine Motel in Memphis, Tennessee, his murder falling precisely between a solar eclipse on March 28 and a blood moon on April 13. The cosmos had opened a window of darkness between two eclipses, and America\'s greatest prophet of nonviolence was slain within it. Over 100 cities erupted in riots as the nation that had been slowly bending toward justice snapped violently backward.',
+  cosmicLink: 'The assassination occurred in the exact center of an eclipse corridor, the liminal space between a solar eclipse that disrupts authority and a lunar blood moon that reveals suppressed rage. This celestial bracketing suggests King\'s death was a cosmic inflection point, a moment when the forces of shadow overwhelmed the light precisely at the midpoint between two different kinds of darkness.',
+  historicalParallel: 'The assassination of Robert F. Kennedy just two months later, on June 5, 1968, completed a devastating pattern of American leaders being killed during this eclipse season. The year 1968 itself became a global inflection point, with assassinations, riots, and revolutions erupting from Memphis to Paris to Prague, all under the same turbulent skies.'
+  },
+  {
+  id: 'nixon-ends-gold-standard', year: 1971, date: 'August 15, 1971',
+  celestialEvent: 'Triple Jupiter-Neptune Conjunction', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Nixon Ends the Gold Standard',
+  category: 'financial',
+  image: './images/nixon-ends-gold-standard.jpg',
+  significance: 5,
+  rippleEffects: ['Birth of fiat currency era', 'Permanent inflation becomes structural feature', 'Foundation of modern financialization and debt economies'],
+  description: 'President Richard Nixon unilaterally ended the convertibility of the US dollar to gold, dissolving the Bretton Woods system that had anchored the global economy since 1944. A triple Jupiter-Neptune conjunction perfected the astrological signature of this act, as the planet of expansion met the planet of illusion three times in succession. Money itself became an act of collective imagination rather than a claim on physical reality, inaugurating the age of fiat currency that defines global finance to this day.',
+  cosmicLink: 'Jupiter-Neptune conjunctions dissolve boundaries between the real and the imaginary, and Nixon\'s decision literally severed the link between currency and physical gold, making money a pure abstraction. The triple conjunction, occurring three times due to retrograde motion, emphasized the thoroughness of this dissolution, as if the cosmos insisted that every thread connecting money to material reality be cut one by one.',
+  historicalParallel: 'The Jupiter-Neptune conjunction of April 2022 coincided with the explosion of cryptocurrency adoption and the metaverse boom, continuing the pattern of these conjunctions dissolving boundaries between real and imagined value. Each Jupiter-Neptune cycle further abstracts the concept of money, from gold to paper to digital to algorithmic.'
+  },
+  {
+  id: 'iranian-revolution', year: 1979, date: 'February 11, 1979',
+  celestialEvent: 'Total Solar Eclipse — February 26, 1979', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Iranian Revolution',
+  category: 'geopolitical',
+  image: './images/iranian-revolution.jpg',
+  significance: 5,
+  rippleEffects: ['Birth of modern political Islam', 'Iran hostage crisis reshapes US politics', 'Shia-Sunni geopolitical rivalry intensified'],
+  description: 'Ayatollah Khomeini\'s Islamic Revolution overthrew Shah Mohammad Reza Pahlavi just fifteen days before a total solar eclipse swept across North America on February 26. The revolution replaced a Western-backed monarchy with a theocratic republic, fundamentally altering the geopolitics of the Middle East and introducing political Islam as a global force. The hostage crisis that followed consumed the final year of Jimmy Carter\'s presidency and reshaped American politics for a generation.',
+  cosmicLink: 'The total solar eclipse following the revolution by just two weeks served as a cosmic exclamation point on the fall of the Shah, continuing the ancient pattern of eclipses marking the demise of kings. The proximity was striking, as if the cosmos waited for the revolution to succeed before extinguishing the solar light that monarchs have always claimed as their divine source of authority.',
+  historicalParallel: 'The Cuban Revolution of 1959, also accompanied by a total solar eclipse, followed an identical template of revolutionary forces overthrowing a US-backed dictator. Both revolutions produced decades of hostile standoff with the United States and fundamentally reordered regional power, demonstrating that eclipse-era revolutions tend to create permanent geopolitical fault lines.'
+  },
+  {
+  id: 'tiananmen-square', year: 1989, date: 'June 4, 1989',
+  celestialEvent: 'Saturn-Neptune Conjunction in Capricorn', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Tiananmen Square Massacre',
+  category: 'geopolitical',
+  image: './images/tiananmen-square.jpg',
+  significance: 5,
+  rippleEffects: ['Suppression of Chinese democracy movement', 'China\'s authoritarian capitalist model solidified', 'Image of Tank Man becomes global symbol of resistance'],
+  description: 'The Chinese government sent tanks and soldiers to crush pro-democracy protests in Tiananmen Square, killing hundreds or possibly thousands of students and workers. The Saturn-Neptune conjunction in Capricorn, the sign of government and institutional power, captured the collision between Saturnian authoritarian control and Neptunian idealistic dreams. The image of a lone man standing before a column of tanks became the defining photograph of the twentieth century\'s struggle between individual conscience and state power.',
+  cosmicLink: 'Saturn-Neptune conjunctions dissolve existing structures while simultaneously hardening new ones, and in Capricorn, this process operated directly on the machinery of government. The conjunction presented a fork in the road between Neptunian dissolution of authoritarian control, as happened in Eastern Europe months later, and Saturnian reinforcement of it, as China chose. The same conjunction produced opposite outcomes depending on how each nation resolved the tension.',
+  historicalParallel: 'The fall of the Berlin Wall just five months later, under the same Saturn-Neptune conjunction, represented the other possible outcome of this cosmic moment. Where China chose Saturn and crushed the dreams, Eastern Europe chose Neptune and dissolved the walls, demonstrating that conjunctions present choices rather than predetermined fates.'
+  },
+  {
+  id: 'fall-of-soviet-union', year: 1991, date: 'December 26, 1991',
+  celestialEvent: 'Total Solar Eclipse July 11 & Solstice Lunar Eclipse December 21', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Dissolution of the Soviet Union',
+  category: 'geopolitical',
+  image: './images/fall-of-soviet-union.jpg',
+  significance: 5,
+  rippleEffects: ['End of the Cold War', 'United States becomes sole superpower', 'Birth of 15 independent nations from Soviet republics'],
+  description: 'The Soviet Union, the great ideological rival of the West for seven decades, formally dissolved on December 26, 1991, just five days after a rare solstice lunar eclipse on December 21. A total solar eclipse on July 11 had already marked the year as one of epochal transformation, as the longest eclipse of the century darkened skies from Hawaii to Brazil. The hammer and sickle was lowered from the Kremlin for the last time, ending the political order that had defined the twentieth century.',
+  cosmicLink: 'The year 1991 was bookended by eclipses of extraordinary power, with the July total solar eclipse being the longest of the century and the December solstice lunar eclipse falling on the darkest day of the year. This dual eclipse architecture created a celestial corridor of dissolution, with the solar eclipse extinguishing the old authority and the solstice lunar eclipse illuminating the finality of its death in the deepest darkness.',
+  historicalParallel: 'The fall of the Roman Empire, traditionally dated to 476 AD, similarly ended a centuries-long superpower through gradual dissolution rather than dramatic conquest. Both empires fragmented into successor states, both left behind ideological legacies that continued to shape their former territories, and both collapses were followed by periods of dangerous instability as the old order\'s restraints disappeared.'
+  },
+  {
+  id: 'dot-com-crash', year: 2000, date: 'March 10, 2000',
+  celestialEvent: 'Jupiter-Saturn Great Conjunction Square Neptune', celestialType: 'square', symbol: '□',
+  worldEvent: 'Dot-Com Bubble Crash',
+  category: 'financial',
+  image: './images/dot-com-crash.jpg',
+  significance: 4,
+  rippleEffects: ['$5 trillion in market value destroyed', 'Silicon Valley reshaped around sustainable business models', 'Seeds planted for social media era'],
+  description: 'The NASDAQ peaked at 5,048 on March 10 before beginning a catastrophic collapse that would destroy five trillion dollars in market value over the next two years. The Jupiter-Saturn Great Conjunction squared Neptune, pitting the reality-check of Saturn against the speculative euphoria of Jupiter and Neptune\'s shared illusions. Companies with no revenue and no products had been valued in the billions on pure faith, and the square aspect shattered that faith with the precision of a geometric blade.',
+  cosmicLink: 'The square between the Jupiter-Saturn conjunction and Neptune created maximum tension between structural economic reality and speculative fantasy. Jupiter inflated Neptune\'s dreams to impossible proportions while Saturn demanded concrete results, and the square forced a violent reckoning between these irreconcilable forces. This aspect pattern is the astrological signature of bubbles bursting, when collective delusion collides with immovable reality.',
+  historicalParallel: 'The 2008 financial crisis echoed the same pattern of Neptune-fueled speculative excess meeting Saturn\'s demand for structural integrity, this time in the housing market rather than technology stocks. Both crashes revealed that financial markets run on the same psychological currents that astrology has always tracked: the eternal tension between hope and reality.'
+  },
+  {
+  id: 'hurricane-katrina', year: 2005, date: 'August 29, 2005',
+  celestialEvent: 'Sun Opposite Uranus & Mars Square Neptune', celestialType: 'opposition', symbol: '☍',
+  worldEvent: 'Hurricane Katrina Devastates New Orleans',
+  category: 'geopolitical',
+  image: './images/hurricane-katrina.jpg',
+  significance: 4,
+  rippleEffects: ['1,800 deaths and $125 billion in damage', 'Exposure of systemic racial and class inequality', 'Erosion of public trust in federal government'],
+  description: 'Hurricane Katrina struck the Gulf Coast as a Category 5 storm, breaching the levees of New Orleans and submerging 80 percent of the city. The Sun opposing Uranus brought sudden, shocking disruption, while Mars squaring Neptune dissolved the boundaries that were supposed to hold, both the physical levees and the social contract between government and citizens. The catastrophe exposed America\'s deepest inequalities, as poor and Black communities bore the brunt of both the storm and the government\'s catastrophic failure to respond.',
+  cosmicLink: 'Sun opposite Uranus is the signature of sudden, shocking events that expose what has been hidden beneath the surface, while Mars square Neptune dissolves martial effectiveness into confusion and helplessness. Together, these aspects described a disaster where the structures meant to protect failed catastrophically and the response meant to save dissolved into chaos, as if the planets had mapped the precise mechanism of institutional collapse.',
+  historicalParallel: 'The Galveston Hurricane of 1900, which killed between 6,000 and 12,000 people, similarly exposed the vulnerability of Gulf Coast cities and the inadequacy of infrastructure against nature\'s power. Both disasters forced painful reckonings with who society considers expendable, and both revealed that the real catastrophe was not the storm but the failure of human systems.'
+  },
+  {
+  id: 'hong-kong-protests', year: 2019, date: 'June 9 – November 2019',
+  celestialEvent: 'Total Solar Eclipse in Cancer (Hong Kong\'s Sun Sign)', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Hong Kong Pro-Democracy Protests',
+  category: 'geopolitical',
+  image: './images/hong-kong-protests.jpg',
+  significance: 4,
+  rippleEffects: ['Imposition of National Security Law by Beijing', 'Effective end of Hong Kong\'s autonomous governance', 'Mass emigration of Hong Kong residents'],
+  description: 'Two million Hong Kong residents, nearly a third of the population, took to the streets in the largest protests the territory had ever seen, demanding democratic rights and resisting Beijing\'s encroachment on their autonomy. A total solar eclipse in Cancer, Hong Kong\'s natal sun sign, fell directly on the city\'s astrological identity, signaling a fundamental crisis of sovereignty and belonging. The protests were ultimately crushed by Beijing\'s National Security Law, which effectively ended the "one country, two systems" framework that had governed Hong Kong since its 1997 handover.',
+  cosmicLink: 'A solar eclipse falling on a city\'s or nation\'s natal sun sign represents a direct challenge to its core identity and sovereignty, and Hong Kong\'s Cancer sun was eclipsed at the precise moment its people fought to define who they were. Cancer governs home, belonging, and the emotional bonds of community, and the eclipse darkened all of these for a city caught between two identities and two political systems.',
+  historicalParallel: 'The Tiananmen Square protests of 1989 under the Saturn-Neptune conjunction in Capricorn represented an earlier iteration of the same struggle between Chinese state authority and democratic aspiration. Both movements were ultimately suppressed, but both burned indelible images of resistance into global consciousness that continue to challenge the official narrative of inevitable authoritarian control.'
+  },
+  {
+  id: 'chatgpt-ai-revolution', year: 2022, date: 'November 30, 2022',
+  celestialEvent: 'Lunar Eclipse Conjunct Uranus — November 8, 2022', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'ChatGPT Launch — AI Revolution Begins',
+  category: 'scientific',
+  image: './images/chatgpt-ai-revolution.jpg',
+  significance: 5,
+  rippleEffects: ['Fastest-growing consumer technology in history', 'Existential debates about artificial intelligence', 'Transformation of every knowledge-based industry'],
+  description: 'OpenAI released ChatGPT on November 30, 2022, just three weeks after a lunar eclipse conjunct Uranus in Taurus on November 8 that electrified the collective unconscious with sudden technological revelation. The chatbot reached 100 million users faster than any technology in human history, and within months, artificial intelligence had moved from a specialized research field to the central preoccupation of global civilization. The world woke up to discover that machines could now write, reason, and create, and nothing would ever be the same.',
+  cosmicLink: 'The lunar eclipse conjunct Uranus is the most potent signature of sudden technological breakthrough disrupting established reality, as the emotional illumination of the eclipse fused with Uranus\'s lightning-bolt innovation in Taurus, the sign of material resources and values. This aspect demanded that humanity confront a radical revaluation of what intelligence, creativity, and human labor are actually worth in a world where machines can simulate all three.',
+  historicalParallel: 'The launch of the World Wide Web in 1991 under that year\'s extraordinary eclipse pattern similarly transformed human communication with a speed that outpaced society\'s ability to adapt. Both technologies democratized access to knowledge while simultaneously raising existential questions about truth, identity, and the nature of human connection in a mediated world.'
+  },
+  {
+  id: 'chinese-cultural-revolution', year: 1966, date: 'May 16, 1966',
+  celestialEvent: 'Uranus-Pluto Conjunction in Virgo', celestialType: 'conjunction', symbol: '☌',
+  worldEvent: 'Chinese Cultural Revolution',
+  category: 'geopolitical',
+  image: './images/chinese-cultural-revolution.jpg',
+  significance: 5,
+  rippleEffects: ['Millions persecuted, tortured, or killed', 'Destruction of Chinese cultural heritage', 'Red Guards terrorize intellectuals and elders', 'Mao consolidates absolute power', 'Generational trauma reshapes Chinese society'],
+  description: 'Chairman Mao Zedong launched the Cultural Revolution to purge the Communist Party of his rivals and reimpose ideological purity on China. For a decade, Red Guards — students weaponized by revolutionary fervor — destroyed temples, burned books, humiliated teachers, and turned children against parents. Millions were killed, imprisoned, or sent to labor camps. Ancient artifacts were smashed, intellectuals were forced into manual labor, and an entire civilization\'s cultural memory was systematically attacked.',
+  cosmicLink: 'The Uranus-Pluto conjunction in Virgo was the defining alignment of the 1960s, driving revolutionary upheaval worldwide. In China, this energy manifested as Pluto\'s ruthless transformation fused with Uranus\'s radical overthrow of tradition, filtered through Virgo\'s obsession with purification and service. The conjunction demanded the destruction of the old order — and Mao channeled it into the most extreme political purge of the twentieth century.',
+  historicalParallel: 'The same Uranus-Pluto conjunction drove the counterculture revolution in the West, the Civil Rights movement, and the Prague Spring. Each society channeled the conjunction differently: America got Woodstock and civil rights legislation, Czechoslovakia got tanks, China got the Red Guards. The cosmic energy was identical — the human response was shaped by existing power structures.'
+  },
+  {
+  id: 'iphone-social-media', year: 2007, date: 'June 29, 2007',
+  celestialEvent: 'Saturn-Neptune Opposition in Leo-Aquarius', celestialType: 'opposition', symbol: '☍',
+  worldEvent: 'iPhone Launch — The Smartphone Revolution',
+  category: 'scientific',
+  image: './images/iphone-social-media.jpg',
+  significance: 5,
+  rippleEffects: ['Smartphones become primary computing devices for 4 billion people', 'Social media rewires human attention and politics', 'App economy creates trillion-dollar industry', 'Traditional media gatekeepers collapse', 'Attention economy replaces information economy'],
+  description: 'Steve Jobs unveiled the first iPhone four days after the third exact pass of the Saturn-Neptune opposition, dissolving the boundary between phone, computer, and camera in a single device. Within a year, Facebook had opened to the public, Twitter had launched, and YouTube had been acquired by Google. The smartphone placed the entire internet in every pocket, and social media placed every human being inside a network of perpetual connection. Nothing — politics, media, relationships, commerce, truth itself — would survive unchanged.',
+  cosmicLink: 'Saturn opposite Neptune dissolves established structures (Saturn) through Neptunian forces of imagination, virtuality, and boundary-erasure. In Leo-Aquarius, this opposition pitted individual creative expression (Leo) against collective technological networks (Aquarius). The iPhone was the physical embodiment of this cosmic tension — a personal device (Leo) that connected every individual to the collective hive mind (Aquarius). Old media structures dissolved; new virtual realities took their place.',
+  historicalParallel: 'The Gutenberg press (1440s) similarly democratized information and destroyed existing gatekeepers, triggering the Reformation within decades. Both the printing press and the smartphone empowered individuals against institutions, and both unleashed forces — misinformation, polarization, upheaval — that their creators never anticipated. Each technology\'s transformative power was amplified by the celestial signature of its birth.'
+  },
+  {
+  id: 'penicillin-mass-use', year: 1942, date: '1942–1943',
+  celestialEvent: 'Solar Eclipse in Virgo — Sign of Health & Medicine', celestialType: 'eclipse', symbol: '☉',
+  worldEvent: 'Penicillin Mass Production Saves Millions',
+  category: 'scientific',
+  image: './images/penicillin-mass-use.jpg',
+  significance: 4,
+  rippleEffects: ['Saved millions of Allied soldiers in WWII', 'Launched the antibiotic era', 'Average human lifespan increased by decades', 'Transformed surgery from last resort to routine', 'Antibiotic resistance crisis begins decades later'],
+  description: 'Alexander Fleming discovered penicillin accidentally in 1928, but it was not until 1942 that Howard Florey and Ernst Chain developed methods for mass production, deploying the antibiotic to treat wounded Allied soldiers. A solar eclipse in Virgo — the zodiac sign governing health, medicine, and systems of care — coincided with this transformation from laboratory curiosity to civilization-saving drug. Penicillin turned previously fatal infections into minor inconveniences, and its mass production is credited with saving an estimated 200 million lives since its introduction.',
+  cosmicLink: 'A solar eclipse in Virgo activates the sign most associated with healing, medicine, and the meticulous systems that sustain life. Virgo\'s domain is the body\'s hidden processes — bacteria, immune response, the invisible systems that determine whether we live or die. The eclipse illuminated what had been hidden: a mold that could defeat the ancient enemy of infection, transforming medicine as fundamentally as any event in human history.',
+  historicalParallel: 'The discovery of vaccination by Edward Jenner in 1796 similarly arrived during a period of major celestial activity and transformed humanity\'s relationship with disease. Both breakthroughs were initially met with skepticism before proving so effective that they reshaped the human lifespan itself. The pattern of medical revolution under Virgo-influenced celestial events recurs throughout history.'
   }
 ];
 
@@ -4826,10 +5449,14 @@ function closeModal() {
 
 // ── Event modal share button ──
 document.getElementById('modalShareBtn').addEventListener('click', () => {
+  const year = document.getElementById('modalYearDisplay').textContent;
+  const celestial = document.getElementById('modalCelestialTag').textContent;
   const title = document.getElementById('modalTitle').textContent;
   const desc = document.getElementById('modalDesc').textContent.slice(0, 140) + '…';
+  const shareTitle = `${year} — ${title}`;
+  const shareDesc = `${celestial}\n${desc}`;
   closeModal();
-  setTimeout(() => openShareModal(title, desc, null), 300);
+  setTimeout(() => openShareModal(shareTitle, shareDesc, null), 300);
 });
 
 // ─── FILTERS ───────────────────────────────────────────────────────────────
@@ -5488,7 +6115,7 @@ document.addEventListener('keydown', e => {
       </div>`;
   }).join('');
 
-  panel.innerHTML = featuredHTML + regularHTML;
+  panel.innerHTML = featuredHTML + regularHTML + '<button class="mobile-show-more" onclick="this.parentElement.classList.toggle(\'show-all\'); this.textContent = this.parentElement.classList.contains(\'show-all\') ? \'Show less\' : \'Show more stories\'">Show more stories</button>';
 
   // ── Transit tooltip ──
   const tooltip = document.createElement('div');
