@@ -5388,7 +5388,9 @@ document.addEventListener('click', e => {
 });
 
 // ─── MODAL ─────────────────────────────────────────────────────────────────
+let _currentModalEventId = null;
 function openModal(ev) {
+  _currentModalEventId = ev.id;
   const accent = TYPE_ACCENT[ev.celestialType] || TYPE_ACCENT.conjunction;
 
   const modalImg = document.getElementById('modalImg');
@@ -5458,8 +5460,9 @@ document.getElementById('modalShareBtn').addEventListener('click', () => {
   const desc = document.getElementById('modalDesc').textContent.slice(0, 140) + '…';
   const shareTitle = `${year} — ${title}`;
   const shareDesc = `${celestial}\n${desc}`;
+  const eventId = _currentModalEventId;
   closeModal();
-  setTimeout(() => openShareModal(shareTitle, shareDesc, null), 300);
+  setTimeout(() => openShareModal(shareTitle, shareDesc, null, eventId), 300);
 });
 
 // ─── FILTERS ───────────────────────────────────────────────────────────────
@@ -5560,11 +5563,19 @@ function subscribeBeehiiv(form) {
 const shareModal = document.getElementById('shareModal');
 let shareCardElement = null;
 
-function openShareModal(title, desc, cardEl) {
+function openShareModal(title, desc, cardEl, eventId) {
   shareCardElement = cardEl;
-  const url = window.location.href.split('#')[0];
+  const baseUrl = window.location.origin || 'https://cosmosdaily.co';
+  const url = eventId ? baseUrl + '/#event-' + eventId : baseUrl;
   document.getElementById('sharePreviewText').textContent = title;
   document.getElementById('shareCopyInput').value = url;
+  // Update modal title based on context
+  const modalTitle = document.querySelector('.share-modal-title');
+  if (eventId) {
+    modalTitle.innerHTML = 'Share <em>this event</em>';
+  } else {
+    modalTitle.innerHTML = 'Share <em>this briefing</em>';
+  }
   shareModal.classList.add('open');
   document.body.style.overflow = 'hidden';
 
@@ -6626,6 +6637,16 @@ buildCards();
       closeDonate();
     });
   });
+})();
+
+// ─── DEEP LINK: Open event from URL hash ────────────────────────────────────
+(function() {
+  const hash = window.location.hash;
+  if (hash && hash.startsWith('#event-')) {
+    const eventId = hash.replace('#event-', '');
+    const ev = EVENTS.find(e => e.id === eventId);
+    if (ev) setTimeout(() => openModal(ev), 500);
+  }
 })();
 </script>
 
