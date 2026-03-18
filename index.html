@@ -3842,6 +3842,7 @@ const EVENTS = [
   {
     id: 'civil-war-us', year: 1861, date: 'April 12, 1861',
     celestialEvent: 'Saturn-Pluto Conjunction in Virgo', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Uranus in Gemini (1858–1866)',
     worldEvent: 'American Civil War Begins',
     category: 'geopolitical',
     image: './images/civil-war-us.jpg',
@@ -5509,6 +5510,10 @@ function openModal(ev) {
     ${ev.lunarEvent ? `<div class="modal-meta-item">
       <span class="label">Lunar Event</span>
       <span class="value" style="color:#E84545">${ev.lunarEvent}</span>
+    </div>` : ''}
+    ${ev.secondaryEvent ? `<div class="modal-meta-item">
+      <span class="label">Secondary Event</span>
+      <span class="value" style="color:#8B7EC7">${ev.secondaryEvent}</span>
     </div>` : ''}
   `;
 
