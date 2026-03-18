@@ -93,7 +93,8 @@
       "Bash(gh repo:*)",
       "Bash(vercel --yes --prod --name cosmos-daily)",
       "Bash(ls -la \"/Users/william/Cosmos Daily/\"*.html)",
-      "Bash(/dev/null wc:*)"
+      "Bash(/dev/null wc:*)",
+      "Bash(grep -o \"\"toolName\"\":\"\"[^\"\"]*\"\")"
     ]
   }
 }
