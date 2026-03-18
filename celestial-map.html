@@ -146,6 +146,39 @@ html, body {
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 40px;
 }
+.sig-filters {
+  position: fixed;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(7,6,13,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 30px;
+}
+.sig-btn {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: none;
+  background: transparent;
+  color: rgba(232,228,220,0.35);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.sig-btn:hover { color: rgba(232,228,220,0.7); }
+.sig-btn.active {
+  color: var(--gold);
+  background: rgba(201,169,110,0.1);
+}
 .filter-chip {
   font-family: var(--mono);
   font-size: 10px;
@@ -514,6 +547,12 @@ html, body {
 <div class="legend" id="legend"></div>
 
 <div class="filters" id="filters"></div>
+<div class="sig-filters" id="sigFilters">
+  <button class="sig-btn active" data-sig="all">All</button>
+  <button class="sig-btn" data-sig="5">Civilizational</button>
+  <button class="sig-btn" data-sig="4">Major</button>
+  <button class="sig-btn" data-sig="3">Significant</button>
+</div>
 
 <div class="zoom-indicator">
   <button class="zoom-btn" id="zoomIn">+</button>
@@ -2966,6 +3005,7 @@ let dragStartX, dragStartY, panStartX, panStartY;
 let hoveredEvent = null;
 let selectedEvent = null;
 let activeFilters = new Set();
+let activeSigFilter = 'all';
 let rotationAngle = 0;
 let eventNodes = [];
 let currentView = 'radial';
@@ -3163,7 +3203,9 @@ function drawMap(time) {
   // Draw event nodes
   for (const node of eventNodes) {
     const pos = getTransformedPos(node);
-    const isActive = activeFilters.size === 0 || activeFilters.has(node.celestialType);
+    const typeActive = activeFilters.size === 0 || activeFilters.has(node.celestialType);
+    const sigActive = activeSigFilter === 'all' || (activeSigFilter === '3' ? node.significance <= 3 : node.significance == activeSigFilter);
+    const isActive = typeActive && sigActive;
     const isHovered = hoveredEvent === node;
     const isSelected = selectedEvent === node;
 
@@ -3423,6 +3465,15 @@ function buildFilters() {
   });
 }
 
+// ── Significance filter ──
+document.getElementById('sigFilters').addEventListener('click', e => {
+  const btn = e.target.closest('.sig-btn');
+  if (!btn) return;
+  document.querySelectorAll('.sig-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeSigFilter = btn.dataset.sig;
+});
+
 function buildLegend() {
   const container = document.getElementById('legend');
   const types = [
@@ -3524,7 +3575,9 @@ function drawWorldMap(time) {
     if (!loc) continue;
 
     const pos = geoToScreen(loc.lat, loc.lon);
-    const isActive = activeFilters.size === 0 || activeFilters.has(node.celestialType);
+    const typeActive = activeFilters.size === 0 || activeFilters.has(node.celestialType);
+    const sigActive = activeSigFilter === 'all' || (activeSigFilter === '3' ? node.significance <= 3 : node.significance == activeSigFilter);
+    const isActive = typeActive && sigActive;
     const isHovered = hoveredEvent === node;
     const isSelected = selectedEvent === node;
     const color = TYPE_COLORS[node.celestialType] || '#C9A96E';
