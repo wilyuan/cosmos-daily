@@ -2968,6 +2968,7 @@ const EVENTS = [
   {
     id: 'hiroshima', year: 1945, date: 'August 6, 1945',
     celestialEvent: 'Pluto enters Leo (Nuclear Transformation)', celestialType: 'ingress', symbol: '☀',
+    secondaryEvent: 'Uranus in Gemini (1941–1949)',
     worldEvent: 'Hiroshima & Nagasaki — Atomic Age Begins',
     category: 'geopolitical',
     image: './images/hiroshima.jpg',
@@ -2992,6 +2993,7 @@ const EVENTS = [
   {
     id: 'french-rev', year: 1789, date: 'July 14, 1789',
     celestialEvent: 'Pluto in Capricorn (Death of Monarchical Order)', celestialType: 'ingress', symbol: '☀',
+    secondaryEvent: 'Pluto in Aquarius (1778–1798)',
     worldEvent: 'French Revolution — Bastille Stormed',
     category: 'geopolitical',
     image: './images/french-rev.jpg',
@@ -3016,6 +3018,7 @@ const EVENTS = [
   {
     id: 'russian-rev', year: 1917, date: 'November 7, 1917',
     celestialEvent: 'Uranus-Pluto Cycle (Revolutionary Transformation)', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Saturn-Neptune Conjunction in Leo · Aug 1917',
     worldEvent: 'Russian Revolution',
     category: 'geopolitical',
     image: './images/russian-rev.jpg',
@@ -3760,6 +3763,7 @@ const EVENTS = [
   {
     id: 'american-independence', year: 1776, date: 'July 4, 1776',
     celestialEvent: 'Pluto at 27° Capricorn (national birth)', celestialType: 'ingress', symbol: '☀',
+    secondaryEvent: 'Uranus in Gemini (1774–1782)',
     worldEvent: 'American Declaration of Independence',
     category: 'geopolitical',
     image: './images/american-independence.jpg',
@@ -3989,6 +3993,7 @@ const EVENTS = [
   {
     id: 'transistor', year: 1947, date: 'December 23, 1947',
     celestialEvent: 'Saturn-Pluto Opposition in Leo-Aquarius', celestialType: 'opposition', symbol: '☍',
+    secondaryEvent: 'Uranus in Gemini (1941–1949)',
     worldEvent: 'Invention of the Transistor — Digital Age Foundations',
     category: 'scientific',
     image: './images/transistor.jpg',
@@ -4097,7 +4102,7 @@ const EVENTS = [
   {
     id: 'financial-crisis', year: 2008, date: 'September 15, 2008',
     celestialEvent: 'Saturn-Uranus Opposition (system shock)', celestialType: 'opposition', symbol: '☍',
-    lunarEvent: 'Total Lunar Eclipse in Virgo · Feb 21, 2008',
+    secondaryEvent: 'Total Lunar Eclipse in Virgo · Feb 21, 2008',
     worldEvent: '2008 Financial Crisis — Lehman Collapses',
     category: 'financial',
     image: './images/financial-crisis.jpg',
@@ -4928,6 +4933,7 @@ const EVENTS = [
   {
   id: 'fall-of-soviet-union', year: 1991, date: 'December 26, 1991',
   celestialEvent: 'Total Solar Eclipse July 11 & Solstice Lunar Eclipse December 21', celestialType: 'eclipse', symbol: '☉',
+  secondaryEvent: 'Saturn-Neptune Conjunction aftermath (exact 1989)',
   worldEvent: 'Dissolution of the Soviet Union',
   category: 'geopolitical',
   image: './images/fall-of-soviet-union.jpg',
@@ -5509,13 +5515,9 @@ function openModal(ev) {
       <span class="label">Celestial Type</span>
       <span class="value">${ev.celestialType.charAt(0).toUpperCase() + ev.celestialType.slice(1)}</span>
     </div>
-    ${ev.lunarEvent ? `<div class="modal-meta-item">
-      <span class="label">Lunar Event</span>
-      <span class="value" style="color:#E84545">${ev.lunarEvent}</span>
-    </div>` : ''}
     ${ev.secondaryEvent ? `<div class="modal-meta-item">
-      <span class="label">Secondary Event</span>
-      <span class="value" style="color:#8B7EC7">${ev.secondaryEvent}</span>
+      <span class="label">Also Active</span>
+      <span class="value" style="color:#C9A96E">${ev.secondaryEvent}</span>
     </div>` : ''}
   `;
 
@@ -6388,8 +6390,7 @@ document.addEventListener('keydown', e => {
       window: 'Nov 2024–2044 · 248-year cycle',
       echoes: [
         { id: 'french-rev', label: '1789 French Revolution' },
-        { id: 'american-independence', label: '1776 American Independence' },
-        { id: 'reformation', label: '1534 Henry VIII Breaks Rome' },
+        { id: 'american-independence', label: '1776–83 American Revolution' },
       ]
     },
     { key: 'uranus-gemini', color: '#8B7EC7', symbol: '♅', tag: 'Ingress · Since Jul 2025',
