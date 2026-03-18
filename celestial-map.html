@@ -3436,7 +3436,7 @@ function drawWorldMap(time) {
   ctx.clearRect(0, 0, W, H);
 
   // Graticule grid
-  ctx.strokeStyle = 'rgba(232,228,220,0.03)';
+  ctx.strokeStyle = 'rgba(232,228,220,0.06)';
   ctx.lineWidth = 0.5;
   ctx.setLineDash([4, 8]);
   for (let lon = -180; lon <= 180; lon += 30) {
@@ -3458,8 +3458,8 @@ function drawWorldMap(time) {
   ctx.setLineDash([]);
 
   // Coastlines
-  ctx.strokeStyle = 'rgba(232,228,220,0.1)';
-  ctx.lineWidth = 0.8 * Math.min(zoom, 2);
+  ctx.strokeStyle = 'rgba(232,228,220,0.22)';
+  ctx.lineWidth = 1.2 * Math.min(zoom, 2);
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   for (const polyline of COASTLINES) {
