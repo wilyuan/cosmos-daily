@@ -2896,6 +2896,7 @@ const EVENTS = [
   {
     id: 'sept11', year: 2001, date: 'September 11, 2001',
     celestialEvent: 'Saturn Opposite Pluto', celestialType: 'opposition', symbol: '☍',
+    secondaryEvent: 'Jupiter-Saturn Great Conjunction (2000)',
     worldEvent: 'September 11 Attacks',
     category: 'geopolitical',
     image: './images/sept11.jpg',
@@ -2932,6 +2933,7 @@ const EVENTS = [
   {
     id: 'covid', year: 2020, date: 'December 31, 2019',
     celestialEvent: 'Saturn-Pluto Conjunction in Capricorn at 22°', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Jupiter-Saturn Great Conjunction (2020)',
     worldEvent: 'COVID-19 Pandemic Emerges',
     category: 'pandemic',
     image: './images/covid.jpg',
@@ -2956,6 +2958,7 @@ const EVENTS = [
   {
     id: 'wwii', year: 1939, date: 'September 1, 1939',
     celestialEvent: 'Mars in Gemini (Military Mobilization)', celestialType: 'ingress', symbol: '☀',
+    secondaryEvent: 'Jupiter-Saturn Great Conjunction (1940–1941)',
     worldEvent: 'World War II Begins',
     category: 'geopolitical',
     image: './images/wwii.jpg',
@@ -3031,6 +3034,7 @@ const EVENTS = [
   {
     id: 'dday', year: 1944, date: 'June 6, 1944',
     celestialEvent: 'Saturn in Cancer (Invasion of Homeland Security)', celestialType: 'ingress', symbol: '☀',
+    secondaryEvent: 'Uranus in Gemini (1941–1949)',
     worldEvent: 'D-Day — Normandy Invasion',
     category: 'geopolitical',
     image: './images/dday.jpg',
@@ -3043,6 +3047,7 @@ const EVENTS = [
   {
     id: 'great-fire', year: 1666, date: 'September 2, 1666',
     celestialEvent: 'Saturn in Virgo (Systems Destroyed and Rebuilt)', celestialType: 'ingress', symbol: '☀',
+    secondaryEvent: 'Saturn-Neptune Conjunction (1667)',
     worldEvent: 'Great Fire of London',
     category: 'cultural',
     image: './images/great-fire.jpg',
@@ -3055,6 +3060,7 @@ const EVENTS = [
   {
     id: 'jan6', year: 2021, date: 'January 6, 2021',
     celestialEvent: 'Saturn Square Uranus (Authority Violently Challenged)', celestialType: 'square', symbol: '□',
+    secondaryEvent: 'Saturn-Pluto Conjunction (2020) · Jupiter-Saturn Great Conjunction (2020)',
     worldEvent: 'January 6 — Capitol Riot',
     category: 'geopolitical',
     image: './images/jan6.jpg',
@@ -3103,6 +3109,7 @@ const EVENTS = [
   {
     id: 'trump-attempt', year: 2024, date: 'July 13, 2024',
     celestialEvent: 'Mars-Saturn Square (Assassination Attempt Configuration)', celestialType: 'square', symbol: '□',
+    secondaryEvent: 'Pluto in Aquarius (2023–2044)',
     worldEvent: 'Trump Assassination Attempt',
     category: 'deaths',
     image: './images/trump-fight.jpg',
@@ -3127,6 +3134,7 @@ const EVENTS = [
   {
     id: 'george-floyd', year: 2020, date: 'May 25, 2020',
     celestialEvent: 'Chiron at 7° Aries (Wounding of Identity & Justice)', celestialType: 'ingress', symbol: '☀',
+    secondaryEvent: 'Saturn-Pluto Conjunction (2020) · Jupiter-Saturn Great Conjunction (2020)',
     worldEvent: 'George Floyd Murder — BLM Movement',
     category: 'geopolitical',
     image: './images/george-floyd.jpg',
@@ -3475,6 +3483,7 @@ const EVENTS = [
   {
     id: 'crab-nebula', year: 1054, date: 'July 4, 1054',
     celestialEvent: 'Supernova in Taurus (Crab Nebula) — Guest Star', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Pluto in Aquarius (1041–1063)',
     worldEvent: 'Crab Nebula Supernova Observed Worldwide',
     category: 'scientific',
     significance: 4,
@@ -3487,6 +3496,7 @@ const EVENTS = [
   {
     id: 'great-schism', year: 1054, date: 'July 16, 1054',
     celestialEvent: 'SN 1054 Supernova + Saturn in Aries', celestialType: 'ingress', symbol: '☀',
+    secondaryEvent: 'Pluto in Aquarius (1041–1063)',
     worldEvent: 'Great Schism — East-West Church Split',
     category: 'religious',
     significance: 3,
@@ -3776,6 +3786,7 @@ const EVENTS = [
   {
     id: 'uranus-discovered', year: 1781, date: 'March 13, 1781',
     celestialEvent: 'Uranus Discovered — Planet of Revolution', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Pluto in Aquarius (1777–1798) · Uranus in Gemini (1774–1782)',
     worldEvent: 'Discovery of Uranus — Industrial Revolution Accelerates',
     category: 'scientific',
     image: './images/uranus-discovered.jpg',
@@ -3836,6 +3847,7 @@ const EVENTS = [
   {
     id: 'darwin', year: 1859, date: 'November 24, 1859',
     celestialEvent: 'Saturn-Uranus Conjunction (revolutionary structure)', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Uranus in Gemini (1858–1866)',
     worldEvent: 'Darwin Publishes On the Origin of Species',
     category: 'scientific',
     image: './images/darwin.jpg',
@@ -3848,7 +3860,7 @@ const EVENTS = [
   {
     id: 'civil-war-us', year: 1861, date: 'April 12, 1861',
     celestialEvent: 'Saturn-Pluto Conjunction in Virgo', celestialType: 'conjunction', symbol: '☌',
-    secondaryEvent: 'Uranus in Gemini (1858–1866)',
+    secondaryEvent: 'Uranus in Gemini (1858–1866) · Jupiter-Saturn Great Conjunction (1861)',
     worldEvent: 'American Civil War Begins',
     category: 'geopolitical',
     image: './images/civil-war-us.jpg',
@@ -3861,6 +3873,7 @@ const EVENTS = [
   {
     id: 'emancipation', year: 1863, date: 'January 1, 1863',
     celestialEvent: 'Uranus-Pluto Conjunction (revolutionary transformation)', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Uranus in Gemini (1858–1866)',
     worldEvent: 'Emancipation Proclamation',
     category: 'geopolitical',
     image: './images/emancipation.jpg',
@@ -3885,6 +3898,7 @@ const EVENTS = [
   {
     id: 'electricity-age', year: 1882, date: 'September 4, 1882',
     celestialEvent: 'Uranus in Virgo (technology systems revolution)', celestialType: 'ingress', symbol: '☀',
+    secondaryEvent: 'Saturn-Neptune Conjunction (1882) · Jupiter-Saturn Great Conjunction (1881)',
     worldEvent: 'Edison Opens Pearl Street Station — Electric Age',
     category: 'scientific',
     image: './images/electricity-age.jpg',
@@ -3897,6 +3911,7 @@ const EVENTS = [
   {
     id: 'krakatoa', year: 1883, date: 'August 27, 1883',
     celestialEvent: 'Neptune-Pluto Conjunction approaching (492-year cycle)', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Saturn-Neptune Conjunction (1882)',
     worldEvent: 'Krakatoa Eruption — Global Climate Impact',
     category: 'scientific',
     image: './images/krakatoa.jpg',
@@ -3969,6 +3984,7 @@ const EVENTS = [
   {
     id: 'pearl-harbor', year: 1941, date: 'December 7, 1941',
     celestialEvent: 'Saturn square Uranus in Gemini', celestialType: 'square', symbol: '□',
+    secondaryEvent: 'Uranus in Gemini (1941–1949) · Jupiter-Saturn Great Conjunction (1940–1941)',
     worldEvent: 'Attack on Pearl Harbor — US Enters WWII',
     category: 'geopolitical',
     image: './images/pearl-harbor.jpg',
@@ -3981,6 +3997,7 @@ const EVENTS = [
   {
     id: 'indian-partition', year: 1947, date: 'August 15, 1947',
     celestialEvent: 'Saturn-Pluto Opposition (imperial collapse)', celestialType: 'opposition', symbol: '☍',
+    secondaryEvent: 'Uranus in Gemini (1941–1949)',
     worldEvent: 'Indian Independence and Partition',
     category: 'geopolitical',
     image: './images/indian-partition.jpg',
@@ -4006,6 +4023,7 @@ const EVENTS = [
   {
     id: 'china-revolution', year: 1949, date: 'October 1, 1949',
     celestialEvent: 'Saturn square Neptune (revolutionary idealism)', celestialType: 'square', symbol: '□',
+    secondaryEvent: 'Uranus in Gemini (1941–1949)',
     worldEvent: 'Chinese Communist Revolution — Mao Declares PRC',
     category: 'geopolitical',
     image: './images/china-revolution.jpg',
@@ -4018,6 +4036,7 @@ const EVENTS = [
   {
     id: 'dna-discovery', year: 1953, date: 'April 25, 1953',
     celestialEvent: 'Neptune trine Uranus (invisible structures revealed)', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Saturn-Neptune Conjunction (1953)',
     worldEvent: 'Watson and Crick Discover DNA Structure',
     category: 'scientific',
     image: './images/dna-discovery.jpg',
@@ -4030,6 +4049,7 @@ const EVENTS = [
   {
     id: 'cuban-missile-crisis', year: 1962, date: 'October 16-28, 1962',
     celestialEvent: 'Saturn-Pluto Square (nuclear brinkmanship)', celestialType: 'square', symbol: '□',
+    secondaryEvent: 'Jupiter-Saturn Great Conjunction (1961)',
     worldEvent: 'Cuban Missile Crisis — Nuclear War Averted',
     category: 'geopolitical',
     image: './images/cuban-missile-crisis.jpg',
@@ -4127,6 +4147,7 @@ const EVENTS = [
   {
     id: 'isis-caliphate', year: 2014, date: 'June 29, 2014',
     celestialEvent: 'Mars-Pluto Square (extremist violence)', celestialType: 'square', symbol: '□',
+    secondaryEvent: 'Uranus-Pluto Square (2012–2015)',
     worldEvent: 'ISIS Declares Caliphate',
     category: 'geopolitical',
     image: './images/isis-caliphate.jpg',
@@ -4151,6 +4172,7 @@ const EVENTS = [
   {
     id: 'us-iran-war', year: 2025, date: '2025-2026',
     celestialEvent: 'Saturn-Neptune at 0° Aries + Mars in Cancer', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Pluto in Aquarius (2023–2044) · Uranus in Gemini (2025–2033)',
     worldEvent: 'US-Israel War with Iran — Middle East Escalation',
     category: 'geopolitical',
     image: './images/us-iran-war.jpg',
@@ -4163,6 +4185,7 @@ const EVENTS = [
   {
     id: 'womens-suffrage', year: 1920, date: 'August 18, 1920',
     celestialEvent: 'Jupiter square Neptune (idealism enacted)', celestialType: 'square', symbol: '□',
+    secondaryEvent: 'Jupiter-Saturn Great Conjunction (1921)',
     worldEvent: '19th Amendment — Women Win the Vote',
     category: 'geopolitical',
     image: './images/womens-suffrage.jpg',
@@ -4175,6 +4198,7 @@ const EVENTS = [
   {
     id: 'trump-born', year: 1946, date: 'June 14, 1946',
     celestialEvent: 'Total Lunar Eclipse in Sagittarius (Blood Moon)', celestialType: 'eclipse', symbol: '◑',
+    secondaryEvent: 'Uranus in Gemini (1941–1949) · Saturn-Pluto Conjunction (1947)',
     worldEvent: 'Donald Trump Born on Blood Moon Eclipse',
     category: 'geopolitical',
     image: './images/trump-born.jpg',
@@ -4187,6 +4211,7 @@ const EVENTS = [
   {
     id: 'charlie-kirk', year: 2025, date: 'September 10, 2025',
     celestialEvent: 'Total Lunar Eclipse in Pisces (Blood Moon Aftermath)', celestialType: 'eclipse', symbol: '◑',
+    secondaryEvent: 'Saturn-Neptune Conjunction (2026) · Pluto in Aquarius (2023–2044) · Uranus in Gemini (2025–2033)',
     worldEvent: 'Assassination of Charlie Kirk',
     category: 'deaths',
     image: './images/charlie-kirk.jpg',
@@ -4199,6 +4224,7 @@ const EVENTS = [
   {
     id: 'epstein-arrest', year: 2019, date: 'July 6, 2019',
     celestialEvent: 'Total Solar Eclipse in Cancer (Exposure of Hidden Power)', celestialType: 'eclipse', symbol: '◑',
+    secondaryEvent: 'Saturn-Pluto Conjunction (2020)',
     worldEvent: 'Jeffrey Epstein Arrested — Elite Trafficking Exposed',
     category: 'geopolitical',
     image: './images/epstein.jpg',
@@ -4247,6 +4273,7 @@ const EVENTS = [
   {
     id: 'operation-paperclip', year: 1945, date: 'July 20, 1945',
     celestialEvent: 'Total Solar Eclipse at 13° Cancer (National Secrets)', celestialType: 'eclipse', symbol: '◑',
+    secondaryEvent: 'Uranus in Gemini (1941–1949)',
     worldEvent: 'Operation Paperclip — US Recruits Nazi Scientists',
     category: 'geopolitical',
     image: './images/paperclip.jpg',
@@ -4307,6 +4334,7 @@ const EVENTS = [
   {
     id: 'maxwell-trial', year: 2021, date: 'December 29, 2021',
     celestialEvent: 'Trial Between Two Eclipses (Exposure Window)', celestialType: 'eclipse', symbol: '◑',
+    secondaryEvent: 'Saturn-Pluto Conjunction (2020) · Jupiter-Saturn Great Conjunction (2020)',
     worldEvent: 'Ghislaine Maxwell Found Guilty — Epstein Network Convicted',
     category: 'geopolitical',
     image: './images/maxwell.jpg',
@@ -4355,6 +4383,7 @@ const EVENTS = [
   {
     id: 'united-nations', year: 1945, date: 'October 24, 1945',
     celestialEvent: 'Jupiter-Neptune Conjunction in Libra', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Uranus in Gemini (1941–1949)',
     worldEvent: 'United Nations Founded',
     category: 'geopolitical',
     image: './images/united-nations.jpg',
@@ -4367,6 +4396,7 @@ const EVENTS = [
   {
     id: 'nato-formed', year: 1949, date: 'April 4, 1949',
     celestialEvent: 'Mars-Saturn Conjunction in Virgo + Pluto in Leo', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Uranus in Gemini (1941–1949)',
     worldEvent: 'NATO Alliance Formed',
     category: 'geopolitical',
     image: './images/nato.jpg',
@@ -4405,6 +4435,7 @@ const EVENTS = [
   {
     id: 'illuminati', year: 1776, date: 'May 1, 1776',
     celestialEvent: 'Beltane · Moon-Jupiter Trine · Saturn in Libra', celestialType: 'conjunction', symbol: '☌',
+    secondaryEvent: 'Uranus in Gemini (1774–1782)',
     worldEvent: 'Bavarian Illuminati Founded',
     category: 'geopolitical',
     image: './images/illuminati.jpg',
@@ -4681,6 +4712,7 @@ const EVENTS = [
   {
   id: 'black-death-celestial-cause', year: 1345, date: 'March 20, 1345',
   celestialEvent: 'Triple Conjunction of Saturn, Jupiter & Mars in Aquarius', celestialType: 'conjunction', symbol: '☌',
+  secondaryEvent: 'Saturn-Neptune Conjunction (1344)',
   worldEvent: 'Black Death Blamed on the Stars',
   category: 'pandemic',
   image: './images/black-death-celestial-cause.jpg',
@@ -4705,6 +4737,7 @@ const EVENTS = [
   {
   id: 'fall-of-inca-empire', year: 1533, date: 'July 26, 1533',
   celestialEvent: 'Comet of 1533 & Execution of Atahualpa', celestialType: 'conjunction', symbol: '☌',
+  secondaryEvent: 'Pluto in Aquarius (1532–1553)',
   worldEvent: 'Fall of the Inca Empire',
   category: 'geopolitical',
   image: './images/fall-of-inca-empire.jpg',
@@ -4717,6 +4750,7 @@ const EVENTS = [
   {
   id: 'magellan-circumnavigation', year: 1522, date: 'September 6, 1522',
   celestialEvent: 'Lunar-Planetary Conjunctions Used for Navigation', celestialType: 'conjunction', symbol: '☌',
+  secondaryEvent: 'Saturn-Neptune Conjunction (1523–1524)',
   worldEvent: 'First Circumnavigation of the Globe',
   category: 'scientific',
   image: './images/magellan-circumnavigation.jpg',
@@ -4777,6 +4811,7 @@ const EVENTS = [
   {
   id: 'irish-great-famine', year: 1845, date: '1845–1852',
   celestialEvent: 'Hybrid Solar Eclipse & Uranus in Taurus', celestialType: 'eclipse', symbol: '☉',
+  secondaryEvent: 'Saturn-Neptune Conjunction (1846)',
   worldEvent: 'The Irish Great Famine',
   category: 'pandemic',
   image: './images/irish-great-famine.jpg',
@@ -4813,6 +4848,7 @@ const EVENTS = [
   {
   id: 'armenian-genocide', year: 1915, date: 'April 24, 1915',
   celestialEvent: 'Annular Solar Eclipse — February 14, 1915', celestialType: 'eclipse', symbol: '☉',
+  secondaryEvent: 'Saturn-Pluto Conjunction (1914–1915)',
   worldEvent: 'Armenian Genocide Begins',
   category: 'deaths',
   image: './images/armenian-genocide.jpg',
@@ -4837,6 +4873,7 @@ const EVENTS = [
   {
   id: 'gandhi-assassination', year: 1948, date: 'January 30, 1948',
   celestialEvent: 'Saturn Transit Conjunctions', celestialType: 'conjunction', symbol: '☌',
+  secondaryEvent: 'Uranus in Gemini (1941–1949) · Saturn-Pluto Conjunction (1947)',
   worldEvent: 'Assassination of Mahatma Gandhi',
   category: 'deaths',
   image: './images/gandhi-assassination.jpg',
@@ -4909,6 +4946,7 @@ const EVENTS = [
   {
   id: 'iranian-revolution', year: 1979, date: 'February 11, 1979',
   celestialEvent: 'Total Solar Eclipse — February 26, 1979', celestialType: 'eclipse', symbol: '☉',
+  secondaryEvent: 'Jupiter-Saturn Great Conjunction (1980–1981)',
   worldEvent: 'Iranian Revolution',
   category: 'geopolitical',
   image: './images/iranian-revolution.jpg',
@@ -4970,6 +5008,7 @@ const EVENTS = [
   {
   id: 'hong-kong-protests', year: 2019, date: 'June 9 – November 2019',
   celestialEvent: 'Total Solar Eclipse in Cancer (Hong Kong\'s Sun Sign)', celestialType: 'eclipse', symbol: '☉',
+  secondaryEvent: 'Saturn-Pluto Conjunction (2020)',
   worldEvent: 'Hong Kong Pro-Democracy Protests',
   category: 'geopolitical',
   image: './images/hong-kong-protests.jpg',
@@ -5018,6 +5057,7 @@ const EVENTS = [
   {
   id: 'penicillin-mass-use', year: 1942, date: '1942–1943',
   celestialEvent: 'Solar Eclipse in Virgo — Sign of Health & Medicine', celestialType: 'eclipse', symbol: '☉',
+  secondaryEvent: 'Uranus in Gemini (1941–1949) · Jupiter-Saturn Great Conjunction (1940–1941)',
   worldEvent: 'Penicillin Mass Production Saves Millions',
   category: 'scientific',
   image: './images/penicillin-mass-use.jpg',
@@ -5042,6 +5082,7 @@ const EVENTS = [
   {
   id: 'trinity-nuclear-test', year: 1945, date: 'July 16, 1945',
   celestialEvent: 'Total Solar Eclipse (July 9) — 7 Days Before Detonation', celestialType: 'eclipse', symbol: '☉',
+  secondaryEvent: 'Uranus in Gemini (1941–1949)',
   worldEvent: 'Trinity Test — First Nuclear Detonation',
   category: 'scientific',
   image: './images/trinity-nuclear-test.jpg',
