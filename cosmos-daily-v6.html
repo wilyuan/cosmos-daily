@@ -6382,7 +6382,9 @@ document.addEventListener('keydown', e => {
   const transitSymbols = { 'saturn-neptune': '☌', 'pluto-aquarius': '♇', 'blood-moon': '◑', 'uranus-gemini': '♅' };
 
   function openTooltipModal(title, body, transitKey) {
-    tooltip.querySelector('.transit-tooltip-title').textContent = title;
+    const titleEl = tooltip.querySelector('.transit-tooltip-title');
+    titleEl.textContent = title;
+    titleEl.style.color = transitKey ? (transitColors[transitKey] || '#C9A96E') : '#C9A96E';
     tooltip.querySelector('.transit-tooltip-body').textContent = body;
 
     // Show related news if available
@@ -6425,7 +6427,7 @@ document.addEventListener('keydown', e => {
       const key = tag.dataset.transit;
       const t = TRANSITS[key];
       if (!t || !t.explain) return;
-      openTooltipModal(t.symbol + ' ' + t.name, t.explain, key);
+      openTooltipModal(t.symbol + ' ' + t.name, t.explain, null);
     });
   });
 
