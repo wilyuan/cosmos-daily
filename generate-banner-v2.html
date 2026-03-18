@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html><head><title>X Banner Generator v2</title></head>
+<body style="margin:0;background:#000;">
+<canvas id="c" width="1500" height="500"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 1500, H = 500;
+
+// Background
+ctx.fillStyle = '#07060D';
+ctx.fillRect(0, 0, W, H);
+
+// Subtle ambient orbs
+const orb1 = ctx.createRadialGradient(400, 250, 0, 400, 250, 400);
+orb1.addColorStop(0, 'rgba(139,126,199,0.04)');
+orb1.addColorStop(1, 'transparent');
+ctx.fillStyle = orb1;
+ctx.fillRect(0, 0, W, H);
+
+const orb2 = ctx.createRadialGradient(1200, 200, 0, 1200, 200, 350);
+orb2.addColorStop(0, 'rgba(232,69,69,0.03)');
+orb2.addColorStop(1, 'transparent');
+ctx.fillStyle = orb2;
+ctx.fillRect(0, 0, W, H);
+
+// Stars
+for (let i = 0; i < 200; i++) {
+  ctx.beginPath();
+  ctx.arc(Math.random() * W, Math.random() * H, Math.random() * 1 + 0.2, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(232,230,240,' + (Math.random() * 0.25 + 0.05) + ')';
+  ctx.fill();
+}
+
+// === LEFT SIDE: Brand + Tagline ===
+
+// Gold accent line
+ctx.fillStyle = '#C9A96E';
+ctx.fillRect(80, 140, 40, 2.5);
+
+// Brand
+ctx.font = '500 15px "Courier New", monospace';
+ctx.fillStyle = '#C9A96E';
+ctx.fillText('COSMOS DAILY', 80, 180);
+
+// Tagline
+ctx.font = 'italic 300 44px Georgia, serif';
+ctx.fillStyle = '#E8E6F0';
+ctx.fillText('When the sky moves,', 80, 250);
+ctx.font = 'italic 300 44px Georgia, serif';
+ctx.fillStyle = '#C9A96E';
+ctx.fillText('history follows.', 80, 305);
+
+// URL
+ctx.font = '400 11px "Courier New", monospace';
+ctx.fillStyle = 'rgba(201,169,110,0.4)';
+ctx.fillText('cosmosdaily.co', 80, 380);
+
+// === RIGHT SIDE: Celestial Type Glossary ===
+
+const types = [
+  { symbol: '☉', name: 'ECLIPSE', color: '#E84545', desc: 'Sun or Moon obscured -hidden truths exposed' },
+  { symbol: '☌', name: 'CONJUNCTION', color: '#C9A96E', desc: 'Two planets align -new cycles begin' },
+  { symbol: '☍', name: 'OPPOSITION', color: '#E07A2F', desc: 'Planets face off -tension culminates' },
+  { symbol: '□', name: 'SQUARE', color: '#8B7EC7', desc: 'Planets at 90° -crisis forces change' },
+  { symbol: '℞', name: 'RETROGRADE', color: '#4A90D9', desc: 'Apparent reversal -past resurfaces' },
+  { symbol: '♈', name: 'INGRESS', color: '#6B9E9E', desc: 'Planet enters new sign -era shifts' },
+];
+
+const glossaryX = 880;
+const startY = 108;
+const rowH = 58;
+
+// Faint vertical line separator
+ctx.strokeStyle = 'rgba(201,169,110,0.08)';
+ctx.lineWidth = 1;
+ctx.beginPath();
+ctx.moveTo(glossaryX - 40, 80);
+ctx.lineTo(glossaryX - 40, 420);
+ctx.stroke();
+
+types.forEach((t, i) => {
+  const y = startY + i * rowH;
+
+  // Symbol with glow
+  const glowR = 18;
+  const glow = ctx.createRadialGradient(glossaryX + 12, y + 6, 0, glossaryX + 12, y + 6, glowR);
+  glow.addColorStop(0, t.color + '25');
+  glow.addColorStop(1, t.color + '00');
+  ctx.beginPath();
+  ctx.arc(glossaryX + 12, y + 6, glowR, 0, Math.PI * 2);
+  ctx.fillStyle = glow;
+  ctx.fill();
+
+  // Symbol
+  ctx.font = '400 22px serif';
+  ctx.fillStyle = t.color;
+  ctx.textAlign = 'center';
+  ctx.fillText(t.symbol, glossaryX + 12, y + 14);
+  ctx.textAlign = 'left';
+
+  // Type name
+  ctx.font = '500 11px "Courier New", monospace';
+  ctx.fillStyle = t.color;
+  ctx.fillText(t.name, glossaryX + 42, y + 4);
+
+  // Description
+  ctx.font = '400 12px Georgia, serif';
+  ctx.fillStyle = 'rgba(232,228,220,0.45)';
+  ctx.fillText(t.desc, glossaryX + 42, y + 22);
+
+  // Subtle separator line
+  if (i < types.length - 1) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(glossaryX, y + rowH - 12);
+    ctx.lineTo(glossaryX + 520, y + rowH - 12);
+    ctx.stroke();
+  }
+});
+
+// === BOTTOM: Stats bar ===
+ctx.font = '400 10px "Courier New", monospace';
+ctx.fillStyle = 'rgba(201,169,110,0.3)';
+ctx.fillText('177 EVENTS', 80, 440);
+ctx.fillText('·', 195, 440);
+ctx.fillText('5,800+ YEARS', 215, 440);
+ctx.fillText('·', 355, 440);
+ctx.fillText('6 CELESTIAL TYPES', 375, 440);
+
+// Download
+setTimeout(() => {
+  canvas.toBlob(function(blob) {
+    const a = document.createElement('a');
+    a.download = 'cosmos-daily-banner-v2.png';
+    a.href = URL.createObjectURL(blob);
+    a.click();
+
+    // Show preview
+    canvas.style.width = '100%';
+    canvas.style.height = 'auto';
+    document.body.style.background = '#16181C';
+    document.body.style.padding = '40px';
+    const p = document.createElement('p');
+    p.style.cssText = 'color:#C9A96E;font-family:monospace;margin-top:20px;font-size:12px;text-align:center;';
+    p.textContent = 'Banner downloaded! (1500x500 -X header size)';
+    document.body.appendChild(p);
+  }, 'image/png');
+}, 500);
+</script>
+</body>
+</html>

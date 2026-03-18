@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html><head><title>Banner Generator</title></head>
+<body style="margin:0;background:#000;">
+<canvas id="c" width="1500" height="500"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 1500, H = 500;
+
+// Background
+ctx.fillStyle = '#07060D';
+ctx.fillRect(0, 0, W, H);
+
+// Subtle gradient orbs
+const grd1 = ctx.createRadialGradient(1100, 150, 0, 1100, 150, 350);
+grd1.addColorStop(0, 'rgba(232,69,69,0.06)');
+grd1.addColorStop(1, 'transparent');
+ctx.fillStyle = grd1;
+ctx.fillRect(0, 0, W, H);
+
+const grd2 = ctx.createRadialGradient(300, 400, 0, 300, 400, 300);
+grd2.addColorStop(0, 'rgba(139,126,199,0.05)');
+grd2.addColorStop(1, 'transparent');
+ctx.fillStyle = grd2;
+ctx.fillRect(0, 0, W, H);
+
+const grd3 = ctx.createRadialGradient(750, 250, 0, 750, 250, 400);
+grd3.addColorStop(0, 'rgba(201,169,110,0.04)');
+grd3.addColorStop(1, 'transparent');
+ctx.fillStyle = grd3;
+ctx.fillRect(0, 0, W, H);
+
+// Stars
+for (let i = 0; i < 300; i++) {
+  const x = Math.random() * W;
+  const y = Math.random() * H;
+  const r = Math.random() * 1.2 + 0.2;
+  const a = Math.random() * 0.35 + 0.05;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(232,230,240,' + a + ')';
+  ctx.fill();
+}
+
+// Concentric orbit rings (like the radial map, centered right of center)
+const cx = 1050, cy = 250;
+const rings = [60, 110, 165, 220];
+ctx.setLineDash([3, 6]);
+rings.forEach((r, i) => {
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(201,169,110,' + (0.06 + i * 0.02) + ')';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+});
+ctx.setLineDash([]);
+
+// Event dots on rings (color-coded)
+const dots = [
+  { angle: 0.3, ring: 0, color: '#E84545', size: 4 },
+  { angle: 1.8, ring: 0, color: '#C9A96E', size: 3.5 },
+  { angle: 0.8, ring: 1, color: '#E07A2F', size: 5 },
+  { angle: 2.5, ring: 1, color: '#8B7EC7', size: 3 },
+  { angle: 4.2, ring: 1, color: '#C9A96E', size: 4 },
+  { angle: 0.5, ring: 2, color: '#E84545', size: 5.5 },
+  { angle: 1.5, ring: 2, color: '#4A90D9', size: 3.5 },
+  { angle: 3.0, ring: 2, color: '#C9A96E', size: 4.5 },
+  { angle: 4.8, ring: 2, color: '#6B9E9E', size: 3 },
+  { angle: 0.2, ring: 3, color: '#E84545', size: 4 },
+  { angle: 1.2, ring: 3, color: '#E07A2F', size: 5 },
+  { angle: 2.2, ring: 3, color: '#8B7EC7', size: 3.5 },
+  { angle: 3.5, ring: 3, color: '#C9A96E', size: 4 },
+  { angle: 5.0, ring: 3, color: '#4A90D9', size: 3 },
+  { angle: 5.8, ring: 3, color: '#E84545', size: 4.5 },
+];
+
+dots.forEach(d => {
+  const r = rings[d.ring];
+  const x = cx + Math.cos(d.angle) * r;
+  const y = cy + Math.sin(d.angle) * r;
+  // Glow
+  const glow = ctx.createRadialGradient(x, y, 0, x, y, d.size * 4);
+  glow.addColorStop(0, d.color.replace(')', ',0.2)').replace('rgb', 'rgba').replace('#', ''));
+  // Simpler glow
+  ctx.beginPath();
+  ctx.arc(x, y, d.size * 3.5, 0, Math.PI * 2);
+  ctx.fillStyle = d.color + '18';
+  ctx.fill();
+  // Dot
+  ctx.beginPath();
+  ctx.arc(x, y, d.size, 0, Math.PI * 2);
+  ctx.fillStyle = d.color + 'DD';
+  ctx.fill();
+  // Bright center
+  ctx.beginPath();
+  ctx.arc(x, y, d.size * 0.4, 0, Math.PI * 2);
+  ctx.fillStyle = d.color;
+  ctx.fill();
+});
+
+// Center sun glow
+const sunGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 40);
+sunGlow.addColorStop(0, 'rgba(201,169,110,0.15)');
+sunGlow.addColorStop(1, 'rgba(201,169,110,0)');
+ctx.beginPath();
+ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+ctx.fillStyle = sunGlow;
+ctx.fill();
+
+// Center dot
+ctx.beginPath();
+ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+ctx.fillStyle = '#C9A96E';
+ctx.globalAlpha = 0.6;
+ctx.fill();
+ctx.globalAlpha = 1;
+
+// Constellation lines (faint)
+ctx.strokeStyle = 'rgba(201,169,110,0.04)';
+ctx.lineWidth = 0.5;
+for (let i = 0; i < dots.length - 1; i++) {
+  if (Math.random() > 0.5) continue;
+  const d1 = dots[i], d2 = dots[i + 1];
+  const x1 = cx + Math.cos(d1.angle) * rings[d1.ring];
+  const y1 = cy + Math.sin(d1.angle) * rings[d1.ring];
+  const x2 = cx + Math.cos(d2.angle) * rings[d2.ring];
+  const y2 = cy + Math.sin(d2.angle) * rings[d2.ring];
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+}
+
+// Left side: text content
+// Gold accent line
+ctx.fillStyle = '#C9A96E';
+ctx.fillRect(80, 120, 45, 2.5);
+
+// Brand name
+ctx.font = '500 14px "Courier New", monospace';
+ctx.fillStyle = '#C9A96E';
+ctx.letterSpacing = '4px';
+ctx.fillText('COSMOS DAILY', 80, 160);
+
+// Tagline
+ctx.font = 'italic 300 42px Georgia, serif';
+ctx.fillStyle = '#E8E6F0';
+ctx.fillText('When the sky moves,', 80, 230);
+ctx.font = 'italic 300 42px Georgia, serif';
+ctx.fillStyle = '#C9A96E';
+ctx.fillText('history follows.', 80, 285);
+
+// Stats
+ctx.font = '400 13px "Courier New", monospace';
+ctx.fillStyle = 'rgba(201,169,110,0.5)';
+ctx.fillText('177 EVENTS  ·  5,800+ YEARS  ·  6 CELESTIAL TYPES', 80, 340);
+
+// URL
+ctx.font = '400 12px "Courier New", monospace';
+ctx.fillStyle = 'rgba(201,169,110,0.35)';
+ctx.fillText('cosmosdaily.co', 80, 400);
+
+// Download
+setTimeout(() => {
+  canvas.toBlob(function(blob) {
+    const a = document.createElement('a');
+    a.download = 'cosmos-daily-banner.png';
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    document.body.innerHTML = '<p style="color:#C9A96E;font-family:monospace;padding:40px;">Banner downloaded! (1500x500 — X header size)</p>';
+  }, 'image/png');
+}, 500);
+</script>
+</body>
+</html>

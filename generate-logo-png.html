@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head><title>Logo PNG Generator</title></head>
+<body style="margin:0;background:#000;">
+<canvas id="c" width="512" height="512"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const img = new Image();
+img.onload = function() {
+  ctx.drawImage(img, 0, 0, 512, 512);
+  // Download
+  canvas.toBlob(function(blob) {
+    const a = document.createElement('a');
+    a.download = 'cosmos-daily-logo.png';
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    document.body.innerHTML = '<p style="color:#C9A96E;font-family:monospace;padding:40px;">PNG downloaded! Check your Downloads folder.</p>';
+  }, 'image/png');
+};
+img.src = '/logo-option-8.svg';
+</script>
+</body>
+</html>

@@ -99,7 +99,12 @@
       "Bash(ls \"/Users/william/Cosmos Daily/\"*.html)",
       "Bash(ls \"/Users/william/Cosmos Daily/\"*.svg \"/Users/william/Cosmos Daily/\"favicon*)",
       "Bash(sips -s format jpeg -s formatOptions 70 -Z 800 images/russia-ukraine.jpg --out images/russia-ukraine-compressed.jpg)",
-      "Bash(mv images/russia-ukraine-compressed.jpg images/russia-ukraine.jpg)"
+      "Bash(mv images/russia-ukraine-compressed.jpg images/russia-ukraine.jpg)",
+      "Bash(curl -s -X POST https://cosmosdaily.co/api/checkout -H \"Content-Type: application/json\" -d '{\"\"amount\"\": 5}')",
+      "Bash(vercel --prod --yes)",
+      "Bash(curl -s -o coastline.geojson \"https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_coastline.geojson\")",
+      "Bash(cp logo-option-8.svg favicon.svg)",
+      "Bash(cp logo-option-8.svg images/logo.svg)"
     ]
   }
 }

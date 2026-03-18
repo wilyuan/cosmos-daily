@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg7" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#151220"/>
+      <stop offset="100%" stop-color="#0A0912"/>
+    </radialGradient>
+    <linearGradient id="gold7" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0c48a"/>
+      <stop offset="50%" stop-color="#C9A96E"/>
+      <stop offset="100%" stop-color="#b0904a"/>
+    </linearGradient>
+    <radialGradient id="eclipseGlow7" cx="50%" cy="50%" r="40%">
+      <stop offset="0%" stop-color="#C9A96E" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#0A0912" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg7)"/>
+  <rect width="512" height="512" rx="96" fill="url(#eclipseGlow7)"/>
+  <!-- Bold eclipse ring -->
+  <circle cx="256" cy="256" r="100" fill="none" stroke="url(#gold7)" stroke-width="4"/>
+  <!-- Dark moon -->
+  <circle cx="256" cy="256" r="78" fill="#0A0912"/>
+  <!-- Crescent reveal (offset moon) -->
+  <circle cx="240" cy="248" r="74" fill="#0A0912"/>
+  <circle cx="256" cy="256" r="100" fill="none" stroke="url(#gold7)" stroke-width="4"/>
+  <!-- Bold corona rays (right side only, asymmetric) -->
+  <g stroke="url(#gold7)" stroke-linecap="round">
+    <line x1="330" y1="180" x2="360" y2="152" stroke-width="3" opacity="0.6"/>
+    <line x1="352" y1="220" x2="388" y2="208" stroke-width="2.5" opacity="0.5"/>
+    <line x1="358" y1="260" x2="396" y2="260" stroke-width="3" opacity="0.6"/>
+    <line x1="352" y1="300" x2="388" y2="312" stroke-width="2.5" opacity="0.5"/>
+    <line x1="330" y1="332" x2="360" y2="360" stroke-width="3" opacity="0.6"/>
+    <line x1="290" y1="350" x2="302" y2="384" stroke-width="2" opacity="0.4"/>
+  </g>
+  <!-- Single orbit ring -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#C9A96E" stroke-width="1.2" stroke-opacity="0.15"/>
+  <!-- Planet on orbit -->
+  <circle cx="446" cy="256" r="9" fill="url(#gold7)" opacity="0.8"/>
+</svg>

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg10" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#16132A"/>
+      <stop offset="100%" stop-color="#0A0912"/>
+    </radialGradient>
+    <linearGradient id="gold10" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8d09a"/>
+      <stop offset="50%" stop-color="#C9A96E"/>
+      <stop offset="100%" stop-color="#a08050"/>
+    </linearGradient>
+    <radialGradient id="glow10" cx="60%" cy="45%" r="40%">
+      <stop offset="0%" stop-color="#C9A96E" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0A0912" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur10">
+      <feGaussianBlur stdDeviation="2"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg10)"/>
+  <rect width="512" height="512" rx="96" fill="url(#glow10)"/>
+  <!-- Outer corona haze -->
+  <circle cx="256" cy="256" r="130" fill="none" stroke="#C9A96E" stroke-width="12" stroke-opacity="0.04" filter="url(#blur10)"/>
+  <!-- Corona ring -->
+  <circle cx="256" cy="256" r="108" fill="none" stroke="url(#gold10)" stroke-width="4.5"/>
+  <!-- Dark body with crescent -->
+  <circle cx="256" cy="256" r="88" fill="#0A0912"/>
+  <circle cx="242" cy="248" r="82" fill="#0A0912"/>
+  <!-- Re-draw visible crescent edge -->
+  <circle cx="256" cy="256" r="108" fill="none" stroke="url(#gold10)" stroke-width="4.5"/>
+  <circle cx="242" cy="248" r="82" fill="#0A0912"/>
+  <!-- Corona flare (asymmetric, right side) -->
+  <g stroke="url(#gold10)" stroke-linecap="round">
+    <line x1="338" y1="180" x2="368" y2="155" stroke-width="3.5" opacity="0.55"/>
+    <line x1="358" y1="230" x2="394" y2="222" stroke-width="3" opacity="0.45"/>
+    <line x1="364" y1="270" x2="400" y2="275" stroke-width="3.5" opacity="0.55"/>
+    <line x1="348" y1="316" x2="378" y2="338" stroke-width="3" opacity="0.45"/>
+  </g>
+  <!-- Orbit -->
+  <circle cx="256" cy="256" r="192" fill="none" stroke="#C9A96E" stroke-width="1.2" stroke-opacity="0.13"/>
+  <!-- Planet -->
+  <circle cx="448" cy="256" r="9" fill="url(#gold10)" opacity="0.8"/>
+  <!-- Tiny star -->
+  <circle cx="90" cy="140" r="3" fill="#C9A96E" opacity="0.25"/>
+</svg>

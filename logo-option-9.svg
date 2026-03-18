@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg9" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#16132A"/>
+      <stop offset="100%" stop-color="#0A0912"/>
+    </radialGradient>
+    <linearGradient id="gold9" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8d09a"/>
+      <stop offset="50%" stop-color="#C9A96E"/>
+      <stop offset="100%" stop-color="#a08050"/>
+    </linearGradient>
+    <radialGradient id="coronaGlow9" cx="50%" cy="50%" r="35%">
+      <stop offset="0%" stop-color="#C9A96E" stop-opacity="0.3"/>
+      <stop offset="40%" stop-color="#C9A96E" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#0A0912" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softGlow9">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg9)"/>
+  <rect width="512" height="512" rx="96" fill="url(#coronaGlow9)"/>
+  <!-- Eclipse corona (thick glowing ring) -->
+  <circle cx="256" cy="256" r="105" fill="none" stroke="url(#gold9)" stroke-width="6" filter="url(#softGlow9)"/>
+  <!-- Dark eclipsing body -->
+  <circle cx="256" cy="256" r="85" fill="#0A0912"/>
+  <!-- Thin inner accent ring -->
+  <circle cx="256" cy="256" r="85" fill="none" stroke="#C9A96E" stroke-width="1" stroke-opacity="0.2"/>
+  <!-- Minimal corona rays (just 4, clean) -->
+  <g stroke="url(#gold9)" stroke-linecap="round" filter="url(#softGlow9)">
+    <line x1="256" y1="142" x2="256" y2="112" stroke-width="2.5" opacity="0.6"/>
+    <line x1="256" y1="370" x2="256" y2="400" stroke-width="2.5" opacity="0.6"/>
+    <line x1="142" y1="256" x2="112" y2="256" stroke-width="2.5" opacity="0.6"/>
+    <line x1="370" y1="256" x2="400" y2="256" stroke-width="2.5" opacity="0.6"/>
+  </g>
+  <!-- Single elegant orbit -->
+  <ellipse cx="256" cy="256" rx="195" ry="65" fill="none" stroke="#C9A96E" stroke-width="1.2" stroke-opacity="0.12" transform="rotate(-15, 256, 256)"/>
+  <!-- Planet -->
+  <circle cx="440" cy="220" r="8" fill="url(#gold9)" opacity="0.75"/>
+</svg>

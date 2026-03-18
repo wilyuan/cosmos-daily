@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>X Banner v3</title></head>
+<body style="margin:0;background:#000;">
+<canvas id="c" width="1500" height="500"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 1500, H = 500;
+
+// Background
+ctx.fillStyle = '#07060D';
+ctx.fillRect(0, 0, W, H);
+
+// Ambient orbs
+const orb1 = ctx.createRadialGradient(750, 250, 0, 750, 250, 450);
+orb1.addColorStop(0, 'rgba(201,169,110,0.04)');
+orb1.addColorStop(1, 'transparent');
+ctx.fillStyle = orb1;
+ctx.fillRect(0, 0, W, H);
+
+const orb2 = ctx.createRadialGradient(400, 350, 0, 400, 350, 300);
+orb2.addColorStop(0, 'rgba(139,126,199,0.03)');
+orb2.addColorStop(1, 'transparent');
+ctx.fillStyle = orb2;
+ctx.fillRect(0, 0, W, H);
+
+const orb3 = ctx.createRadialGradient(1100, 150, 0, 1100, 150, 300);
+orb3.addColorStop(0, 'rgba(232,69,69,0.03)');
+orb3.addColorStop(1, 'transparent');
+ctx.fillStyle = orb3;
+ctx.fillRect(0, 0, W, H);
+
+// Stars
+for (let i = 0; i < 250; i++) {
+  ctx.beginPath();
+  ctx.arc(Math.random() * W, Math.random() * H, Math.random() * 1.1 + 0.2, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(232,230,240,' + (Math.random() * 0.3 + 0.05) + ')';
+  ctx.fill();
+}
+
+// === CELESTIAL MAP: Radial chart centered ===
+const cx = 750, cy = 250;
+const rings = [50, 90, 135, 180, 230];
+
+// Concentric rings
+ctx.setLineDash([3, 6]);
+rings.forEach((r, i) => {
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(201,169,110,' + (0.04 + i * 0.015) + ')';
+  ctx.lineWidth = 0.7;
+  ctx.stroke();
+});
+ctx.setLineDash([]);
+
+// Radial guide lines
+for (let a = 0; a < 12; a++) {
+  const angle = (a / 12) * Math.PI * 2;
+  ctx.beginPath();
+  ctx.moveTo(cx + Math.cos(angle) * 30, cy + Math.sin(angle) * 30);
+  ctx.lineTo(cx + Math.cos(angle) * 240, cy + Math.sin(angle) * 240);
+  ctx.strokeStyle = a % 3 === 0 ? 'rgba(232,228,220,0.04)' : 'rgba(232,228,220,0.02)';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+}
+
+// Center glow
+const sunGlow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 35);
+sunGlow.addColorStop(0, 'rgba(201,169,110,0.15)');
+sunGlow.addColorStop(1, 'rgba(201,169,110,0)');
+ctx.beginPath();
+ctx.arc(cx, cy, 35, 0, Math.PI * 2);
+ctx.fillStyle = sunGlow;
+ctx.fill();
+ctx.beginPath();
+ctx.arc(cx, cy, 3.5, 0, Math.PI * 2);
+ctx.fillStyle = 'rgba(201,169,110,0.6)';
+ctx.fill();
+
+// Event dots
+const colors = ['#E84545','#C9A96E','#E07A2F','#8B7EC7','#4A90D9','#6B9E9E'];
+const events = [];
+for (let i = 0; i < 120; i++) {
+  const ring = Math.floor(Math.random() * 5);
+  const angle = Math.random() * Math.PI * 2;
+  const r = rings[ring] + (Math.random() - 0.5) * 15;
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  const size = 1.5 + Math.random() * 4;
+  events.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r, color, size });
+}
+
+// Constellation lines first
+ctx.lineWidth = 0.4;
+for (let i = 0; i < events.length - 1; i++) {
+  if (Math.random() > 0.15) continue;
+  const e1 = events[i], e2 = events[i+1];
+  ctx.beginPath();
+  ctx.moveTo(e1.x, e1.y);
+  ctx.lineTo(e2.x, e2.y);
+  ctx.strokeStyle = 'rgba(201,169,110,0.03)';
+  ctx.stroke();
+}
+
+// Draw dots
+events.forEach(e => {
+  // Glow
+  const glow = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, e.size * 3.5);
+  glow.addColorStop(0, e.color + '20');
+  glow.addColorStop(1, e.color + '00');
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, e.size * 3.5, 0, Math.PI * 2);
+  ctx.fillStyle = glow;
+  ctx.fill();
+
+  // Dot
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+  ctx.fillStyle = e.color + 'DD';
+  ctx.fill();
+
+  // Bright center
+  ctx.beginPath();
+  ctx.arc(e.x, e.y, e.size * 0.35, 0, Math.PI * 2);
+  ctx.fillStyle = e.color;
+  ctx.fill();
+});
+
+// === BOTTOM RIGHT: Color code legend (compact, minimal) ===
+const types = [
+  { symbol: '\u2609', label: 'ECLIPSE', color: '#E84545' },
+  { symbol: '\u260C', label: 'CONJUNCTION', color: '#C9A96E' },
+  { symbol: '\u260D', label: 'OPPOSITION', color: '#E07A2F' },
+  { symbol: '\u25A1', label: 'SQUARE', color: '#8B7EC7' },
+  { symbol: '\u211E', label: 'RETROGRADE', color: '#4A90D9' },
+  { symbol: '\u2648', label: 'INGRESS', color: '#6B9E9E' },
+];
+
+const legendX = 1120;
+const legendY = 410;
+
+types.forEach((t, i) => {
+  const x = legendX + (i % 3) * 130;
+  const y = legendY + Math.floor(i / 3) * 22;
+
+  // Color dot
+  ctx.beginPath();
+  ctx.arc(x, y + 4, 3.5, 0, Math.PI * 2);
+  ctx.fillStyle = t.color;
+  ctx.fill();
+
+  // Label
+  ctx.font = '400 9px "Courier New", monospace';
+  ctx.fillStyle = t.color + 'AA';
+  ctx.textAlign = 'left';
+  ctx.fillText(t.label, x + 10, y + 7);
+});
+
+// Vignette edges
+const vigL = ctx.createLinearGradient(0, 0, 120, 0);
+vigL.addColorStop(0, 'rgba(7,6,13,0.6)');
+vigL.addColorStop(1, 'rgba(7,6,13,0)');
+ctx.fillStyle = vigL;
+ctx.fillRect(0, 0, 120, H);
+
+const vigR = ctx.createLinearGradient(W - 120, 0, W, 0);
+vigR.addColorStop(0, 'rgba(7,6,13,0)');
+vigR.addColorStop(1, 'rgba(7,6,13,0.6)');
+ctx.fillStyle = vigR;
+ctx.fillRect(W - 120, 0, 120, H);
+
+const vigT = ctx.createLinearGradient(0, 0, 0, 80);
+vigT.addColorStop(0, 'rgba(7,6,13,0.5)');
+vigT.addColorStop(1, 'rgba(7,6,13,0)');
+ctx.fillStyle = vigT;
+ctx.fillRect(0, 0, W, 80);
+
+const vigB = ctx.createLinearGradient(0, H - 80, 0, H);
+vigB.addColorStop(0, 'rgba(7,6,13,0)');
+vigB.addColorStop(1, 'rgba(7,6,13,0.5)');
+ctx.fillStyle = vigB;
+ctx.fillRect(0, H - 80, W, 80);
+
+// Download
+setTimeout(() => {
+  canvas.toBlob(function(blob) {
+    const a = document.createElement('a');
+    a.download = 'cosmos-daily-banner-v3.png';
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    canvas.style.width = '100%';
+    canvas.style.height = 'auto';
+    document.body.style.background = '#16181C';
+    document.body.style.padding = '40px';
+    const p = document.createElement('p');
+    p.style.cssText = 'color:#C9A96E;font-family:monospace;margin-top:20px;font-size:12px;text-align:center;';
+    p.textContent = 'Banner v3 downloaded! (1500x500)';
+    document.body.appendChild(p);
+  }, 'image/png');
+}, 500);
+</script>
+</body>
+</html>
