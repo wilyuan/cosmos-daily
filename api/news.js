@@ -219,9 +219,9 @@ export default async function handler(req, res) {
         } catch (e) { /* skip failed query */ }
       }
 
-      // Sort by score descending, take top 4
+      // Sort by score descending, take top 6 (more variety for per-tag matching)
       transitStories.sort((a, b) => b.score - a.score);
-      allStories[transit] = transitStories.slice(0, 4);
+      allStories[transit] = transitStories.slice(0, 6);
     }
 
     const stories = Object.values(allStories).flat();

@@ -6387,10 +6387,29 @@ document.addEventListener('keydown', e => {
     titleEl.style.color = transitKey ? (transitColors[transitKey] || '#C9A96E') : '#C9A96E';
     tooltip.querySelector('.transit-tooltip-body').textContent = body;
 
-    // Show related news if available
+    // Show related news — match by tag keywords, not just transit
     const newsEl = tooltip.querySelector('.transit-tooltip-news');
     if (liveNewsData && transitKey) {
-      const related = liveNewsData.stories.filter(s => s.transit === transitKey).slice(0, 4);
+      // Extract keywords from tag title for relevance matching
+      const tagWords = title.toLowerCase().replace(/[^a-z ]/g, '').split(/\s+/).filter(w => w.length > 3);
+
+      // Score each story by how well it matches THIS specific tag
+      const scored = liveNewsData.stories
+        .filter(s => s.transit === transitKey)
+        .map(s => {
+          const storyText = (s.text + ' ' + s.explain).toLowerCase();
+          let relevance = 0;
+          tagWords.forEach(w => { if (storyText.includes(w)) relevance++; });
+          return { ...s, relevance };
+        })
+        .filter(s => s.relevance > 0)
+        .sort((a, b) => b.relevance - a.relevance)
+        .slice(0, 3);
+
+      // Fallback: if no keyword matches, show top transit stories
+      const related = scored.length > 0 ? scored :
+        liveNewsData.stories.filter(s => s.transit === transitKey).slice(0, 3);
+
       if (related.length) {
         const c = transitColors[transitKey] || '#C9A96E';
         newsEl.innerHTML = `
