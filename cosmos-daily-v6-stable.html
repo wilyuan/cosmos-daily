@@ -978,11 +978,6 @@ body {
 .ati-reading {
   font-size: 13px; color: rgba(232,230,240,0.7); line-height: 1.7;
 }
-.ati-window {
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.5px;
-  color: rgba(232,228,220,0.3); margin-top: 10px;
-  padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.04);
-}
 .ati-echo-label {
   font-family: var(--mono); font-size: 8px; letter-spacing: 2px;
   text-transform: uppercase; color: rgba(232,228,220,0.25);
@@ -1280,45 +1275,6 @@ body {
 }
 .mobile-show-more:hover { background: rgba(201,169,110,0.12); }
 .ov-panel.current-panel.active.show-all .live-card:not(.featured) { display: flex !important; }
-
-/* Historical Echo panel */
-.ov-panel.echo-panel.active {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-}
-@media(max-width:900px){ .ov-panel.echo-panel.active { grid-template-columns: 1fr 1fr; } }
-@media(max-width:580px){ .ov-panel.echo-panel.active { grid-template-columns: 1fr; } }
-.echo-card {
-  background: rgba(255,255,255,0.015);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-left: 3px solid var(--gold);
-  border-radius: 14px;
-  padding: 24px;
-  transition: all 0.3s ease;
-  display: flex; flex-direction: column;
-}
-.echo-card:hover { border-color: rgba(201,169,110,0.2); background: rgba(255,255,255,0.025); }
-.echo-transit-tag {
-  font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px;
-  text-transform: uppercase; margin-bottom: 14px;
-  display: flex; align-items: center; gap: 6px;
-}
-.echo-transit-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-.echo-event-title {
-  font-family: var(--serif); font-size: 18px; font-weight: 600;
-  color: var(--text); line-height: 1.3; margin-bottom: 10px;
-}
-.echo-event-year {
-  font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 8px;
-}
-.echo-event-link {
-  font-family: var(--serif); font-size: 14px; color: rgba(232,230,240,0.45);
-  line-height: 1.7; flex: 1;
-}
-.echo-card .ati-echo-label { margin-top: auto; padding-top: 16px; }
-.echo-card .ati-links { margin-top: 6px; }
-.echo-card .ati-window { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.04); }
 
 /* Future events panel — mirrors .ov-card / echo design */
 .ov-panel.future-panel.active {
@@ -2418,29 +2374,50 @@ body {
         <div class="ati-sym" style="color:var(--gold)">☌</div>
         <div class="ati-tag tag-gold">Conjunction · Active</div>
         <div class="ati-name">Saturn-Neptune at 0° Aries</div>
-        <div class="ati-reading">Institutional dissolution cycle. Saturn (structures, authority) conjunct Neptune (dissolution, illusion) at the world axis — the first degree of the zodiac. The 37-year cycle returns.</div>
-        <div class="ati-timeline-mini"><div class="ati-tl-point ati-tl-past"><span>Feb 2026</span><span class="ati-tl-dot" style="background:var(--gold)"></span><span>Peak begins</span></div><div class="ati-tl-bar"><div class="ati-tl-progress" style="background:var(--gold);width:40%"></div></div><div class="ati-tl-point"><span>Nov 2026</span><span class="ati-tl-dot" style="background:rgba(201,169,110,0.3)"></span><span>Peak ends</span></div></div>
+        <div class="ati-reading">Institutional dissolution cycle. Saturn (structures, authority) conjunct Neptune (dissolution, illusion) at the world axis — the first degree of the zodiac. This alignment last occurred in 1989 — when the Berlin Wall fell, the Soviet Union collapsed, and an entire geopolitical order dissolved overnight. The 37-year cycle returns. Peak: Feb–Nov 2026.</div>
+        <div class="ati-echo-label">Historical echoes</div>
+        <div class="ati-links">
+          <button class="ati-link" data-id="berlin">1989 Berlin Wall</button>
+          <button class="ati-link" data-id="rome">476 Fall of Rome</button>
+          <button class="ati-link" data-id="french-rev">1789 French Revolution</button>
+          <button class="ati-link" data-id="russian-rev">1917 Russian Revolution</button>
+        </div>
       </div>
       <div class="ati" data-transit="pluto-aquarius" style="cursor:pointer">
         <div class="ati-sym" style="color:#6B9E9E">♇</div>
         <div class="ati-tag tag-teal">Ingress · Since Nov 2024</div>
         <div class="ati-name">Pluto in Aquarius</div>
-        <div class="ati-reading">Pluto entered Aquarius for a 20-year transit — the first since the American and French Revolutions. Power shifts from centralized institutions to decentralized networks.</div>
-        <div class="ati-timeline-mini"><div class="ati-tl-point ati-tl-past"><span>Nov 2024</span><span class="ati-tl-dot" style="background:#6B9E9E"></span><span>Ingress</span></div><div class="ati-tl-bar"><div class="ati-tl-progress" style="background:#6B9E9E;width:5%"></div></div><div class="ati-tl-point"><span>2044</span><span class="ati-tl-dot" style="background:rgba(107,158,158,0.3)"></span><span>Transit ends</span></div></div>
+        <div class="ati-reading">Pluto entered Aquarius in November 2024 for a 20-year transit — the first since the American and French Revolutions (1778–1798). Power shifts from centralized institutions to decentralized networks. Technology becomes the new seat of power. AI, crypto, and surveillance capitalism define this era.</div>
+        <div class="ati-echo-label">Historical echoes</div>
+        <div class="ati-links">
+          <button class="ati-link" data-id="french-rev">1789 French Revolution</button>
+          <button class="ati-link" data-id="magna-carta">1215 Magna Carta</button>
+        </div>
       </div>
       <div class="ati" data-transit="blood-moon" style="cursor:pointer">
         <div class="ati-sym" style="color:var(--red)">◑</div>
         <div class="ati-tag tag-red">Eclipse · Mar 3, 2026</div>
         <div class="ati-name">Blood Moon in Virgo</div>
-        <div class="ati-reading">Total lunar eclipse in Virgo — sign of systems, health, and hidden flaws. Institutional weaknesses are exposed. What was operating below the surface is suddenly visible.</div>
-        <div class="ati-timeline-mini"><div class="ati-tl-point ati-tl-past"><span>Mar 3</span><span class="ati-tl-dot" style="background:var(--red)"></span><span>Eclipse</span></div><div class="ati-tl-bar"><div class="ati-tl-progress" style="background:var(--red);width:15%"></div></div><div class="ati-tl-point"><span>Sep 2026</span><span class="ati-tl-dot" style="background:rgba(232,69,69,0.3)"></span><span>Window closes</span></div></div>
+        <div class="ati-reading">Total lunar eclipse in Virgo — sign of systems, health, and hidden flaws. Institutional weaknesses are exposed. What was operating below the surface is suddenly visible. Eclipse windows last 6 months. Virgo eclipses historically coincide with systemic health crises and intelligence failures.</div>
+        <div class="ati-echo-label">Historical echoes</div>
+        <div class="ati-links">
+          <button class="ati-link" data-id="fukushima">2011 Fukushima</button>
+          <button class="ati-link" data-id="covid">2020 COVID</button>
+          <button class="ati-link" data-id="plague">1347 Black Death</button>
+        </div>
       </div>
       <div class="ati" data-transit="uranus-gemini" style="cursor:pointer">
         <div class="ati-sym" style="color:var(--violet)">♅</div>
         <div class="ati-tag tag-violet">Ingress · Since Jul 2025</div>
         <div class="ati-name">Uranus in Gemini</div>
-        <div class="ati-reading">Uranus (revolution, disruption) enters Gemini (communication, technology, information) for the first time in 84 years. AI, quantum networks, and the infrastructure of reality itself are being radically transformed.</div>
-        <div class="ati-timeline-mini"><div class="ati-tl-point ati-tl-past"><span>Jul 2025</span><span class="ati-tl-dot" style="background:var(--violet)"></span><span>Ingress</span></div><div class="ati-tl-bar"><div class="ati-tl-progress" style="background:var(--violet);width:10%"></div></div><div class="ati-tl-point"><span>2033</span><span class="ati-tl-dot" style="background:rgba(139,126,199,0.3)"></span><span>Transit ends</span></div></div>
+        <div class="ati-reading">Uranus (revolution, disruption) enters Gemini (communication, technology, information) for the first time in 84 years. The last time: 1941–1942, when radio and telecommunications became weapons of total war. Now: AI, quantum networks, and the infrastructure of reality itself are being radically transformed.</div>
+        <div class="ati-echo-label">Historical echoes</div>
+        <div class="ati-links">
+          <button class="ati-link" data-id="sept11">2001 Sept 11</button>
+          <button class="ati-link" data-id="jfk">1963 JFK</button>
+          <button class="ati-link" data-id="wwii">1939 WWII Begins</button>
+          <button class="ati-link" data-id="hiroshima">1945 Hiroshima</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2455,8 +2432,6 @@ body {
         <span class="pulse-dot"></span>&nbsp; What's Happening Now
       </button>
       <div class="ov-tab-sep"></div>
-      <button class="ov-tab" data-panel="echo">Historical Echoes</button>
-      <div class="ov-tab-sep"></div>
       <button class="ov-tab" data-panel="future">Future Events</button>
     </div>
     <span class="ov-date" id="ovDate"></span>
@@ -2465,10 +2440,7 @@ body {
   <!-- TAB 1: CURRENT EVENTS (dynamic) -->
   <div class="ov-panel current-panel active" id="currentPanel"></div>
 
-  <!-- TAB 2: HISTORICAL ECHOES -->
-  <div class="ov-panel echo-panel" id="echoPanel"></div>
-
-  <!-- TAB 3: FUTURE EVENTS -->
+  <!-- TAB 2: FUTURE EVENTS -->
   <div class="ov-panel future-panel" id="futurePanel"></div>
 </div>
 <div style="max-width:1400px;margin:0 auto;padding:28px 24px 0"><div style="height:1px;background:var(--border);opacity:0.6"></div></div>
@@ -5299,7 +5271,7 @@ function buildCards() {
 }
 
 // ─── OVERVIEW TAB TOGGLE ───────────────────────────────────────────────────
-const panelMap = { current: 'currentPanel', echo: 'echoPanel', future: 'futurePanel' };
+const panelMap = { current: 'currentPanel', future: 'futurePanel' };
 document.querySelectorAll('.ov-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.ov-tab').forEach(t => t.classList.remove('active'));
@@ -6345,72 +6317,7 @@ document.addEventListener('keydown', e => {
   });
 })();
 
-// ─── HISTORICAL ECHO TAB ────────────────────────────────────────────────────
-(function buildEchoCards() {
-  const panel = document.getElementById('echoPanel');
-  if (!panel) return;
-
-  const ECHO_TRANSITS = [
-    { key: 'saturn-neptune', color: '#C9A96E', symbol: '☌', tag: 'Conjunction · Active',
-      name: 'Saturn-Neptune at 0° Aries',
-      summary: 'Every 37 years, Saturn meets Neptune and the structures of the old world dissolve. Each conjunction has coincided with the collapse of a major power structure.',
-      window: 'Feb–Nov 2026 · 37-year cycle',
-      echoes: [
-        { id: 'berlin', label: '1989 Berlin Wall Falls' },
-        { id: 'fall-of-soviet-union', label: '1989 Soviet Collapse' },
-        { id: 'russian-rev', label: '1917 Russian Revolution' },
-        { id: 'discovery-of-neptune', label: '1846 Neptune Discovered' },
-      ]
-    },
-    { key: 'pluto-aquarius', color: '#6B9E9E', symbol: '♇', tag: 'Ingress · Since Nov 2024',
-      name: 'Pluto in Aquarius',
-      summary: 'Pluto enters Aquarius once every 248 years. Each time, centralized power collapses and revolutionary movements reshape who governs and how.',
-      window: 'Nov 2024–2044 · 248-year cycle',
-      echoes: [
-        { id: 'french-rev', label: '1789 French Revolution' },
-        { id: 'american-independence', label: '1776 American Independence' },
-        { id: 'reformation', label: '1534 Henry VIII Breaks Rome' },
-      ]
-    },
-    { key: 'blood-moon', color: '#E84545', symbol: '◑', tag: 'Eclipse · Mar 3, 2026',
-      name: 'Blood Moon in Virgo',
-      summary: 'Total lunar eclipses in Virgo expose systemic flaws — in health, infrastructure, and institutional competence. What was assumed to work is revealed as broken.',
-      window: 'Mar–Sep 2026 · 6-month eclipse window',
-      echoes: [
-        { id: 'financial-crisis', label: '2008 Financial Crisis' },
-        { id: 'wwii', label: '1942 WWII Pacific Front' },
-        { id: 'berlin', label: '1989 Eastern Europe Falls' },
-      ]
-    },
-    { key: 'uranus-gemini', color: '#8B7EC7', symbol: '♅', tag: 'Ingress · Since Jul 2025',
-      name: 'Uranus in Gemini',
-      summary: 'Uranus in Gemini rewrites the rules of communication every 84 years. The last transit gave us radar, the atomic bomb, and the transistor. This one brings AI.',
-      window: 'Jul 2025–2033 · 84-year cycle',
-      echoes: [
-        { id: 'hiroshima', label: '1945 Hiroshima' },
-        { id: 'transistor', label: '1947 Transistor Invented' },
-        { id: 'civil-war-us', label: '1861 US Civil War' },
-        { id: 'american-independence', label: '1776 American Revolution' },
-      ]
-    },
-  ];
-
-  panel.innerHTML = ECHO_TRANSITS.map(t => `
-    <div class="echo-card" style="border-left-color:${t.color}">
-      <div class="echo-transit-tag" style="color:${t.color}">
-        <span class="echo-transit-dot" style="background:${t.color}"></span>
-        ${t.tag}
-      </div>
-      <div class="echo-event-title">${t.symbol} ${t.name}</div>
-      <div class="echo-event-link">${t.summary}</div>
-      <div class="ati-echo-label" style="margin-top:14px">Historical echoes</div>
-      <div class="ati-links" style="margin-top:4px">
-        ${t.echoes.map(e => `<button class="ati-link" data-id="${e.id}" onclick="event.stopPropagation();const ev=EVENTS.find(x=>x.id==='${e.id}');if(ev)openModal(ev);">${e.label}</button>`).join('')}
-      </div>
-      <div class="ati-window" style="margin-top:14px">${t.window}</div>
-    </div>
-  `).join('');
-})();
+// ─── HISTORICAL ECHO — merged into Active Sky Panel ───────────────────────
 
 // ─── FUTURE EVENTS ──────────────────────────────────────────────────────────
 (function buildFutureEvents() {

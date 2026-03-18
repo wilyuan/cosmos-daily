@@ -107,7 +107,13 @@
       "Bash(cp logo-option-8.svg images/logo.svg)",
       "Bash(cp cosmos-daily-v6-backup.html cosmos-daily-v6.html)",
       "Bash(cp cosmos-daily-v6.html index.html)",
-      "WebFetch(domain:cosmosdaily.co)"
+      "WebFetch(domain:cosmosdaily.co)",
+      "Bash(cp cosmos-daily-v6.html cosmos-daily-v6-stable.html)",
+      "Bash(cp celestial-map.html celestial-map-stable.html)",
+      "WebFetch(domain:astropro.com)",
+      "WebFetch(domain:cafeastrology.com)",
+      "WebFetch(domain:www.astrologyzone.com)",
+      "WebFetch(domain:mooncalendar.astro-seek.com)"
     ]
   }
 }
