@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200;0,8..60,400;0,8..60,600;1,8..60,300&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 1200px;
+  height: 675px;
+  background: #07060D;
+  color: #E8E6F0;
+  font-family: 'Source Serif 4', Georgia, serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Match site's warm glow at top */
+body::after {
+  content: '';
+  position: absolute;
+  top: -200px;
+  right: -100px;
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(180,100,40,0.08) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Subtle bottom left glow */
+body::before {
+  content: '';
+  position: absolute;
+  bottom: -200px;
+  left: -150px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(155,143,212,0.05) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  padding: 40px 56px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── BRAND (matches site header exactly) ─── */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+/* Eclipse/crescent logo SVG */
+.brand-logo {
+  width: 22px;
+  height: 22px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.brand-logo::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid rgba(201,169,110,0.6);
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+}
+
+.brand-logo::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #07060D;
+  border-radius: 50%;
+  top: 3px;
+  left: 8px;
+}
+
+.brand-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  color: #C9A96E;
+  text-transform: uppercase;
+}
+
+/* ─── HEADLINE (matches site hero) ─── */
+.headline {
+  font-size: 40px;
+  font-weight: 200;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  color: #E8E6F0;
+  margin-bottom: 6px;
+}
+
+.headline em {
+  font-style: italic;
+  color: #C9A96E;
+  font-weight: 300;
+}
+
+.subline {
+  font-size: 14px;
+  font-style: italic;
+  color: #6E6B80;
+  margin-bottom: 36px;
+  font-weight: 300;
+}
+
+/* ─── TIMELINE (clean, minimal) ─── */
+.timeline {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.event-row {
+  display: grid;
+  grid-template-columns: 70px 220px 20px 1fr;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.event-row:last-child {
+  border-bottom: none;
+}
+
+.event-year {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 24px;
+  font-weight: 500;
+  color: #C9A96E;
+  letter-spacing: -1px;
+}
+
+.event-transit {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: #6E6B80;
+  letter-spacing: 0.3px;
+}
+
+.event-arrow {
+  font-size: 13px;
+  color: rgba(201,169,110,0.3);
+  text-align: center;
+}
+
+.event-name {
+  font-size: 18px;
+  font-weight: 400;
+  color: #E8E6F0;
+  letter-spacing: -0.2px;
+}
+
+/* Dot indicators matching event severity */
+.event-row .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.dot-conjunction { background: #C9A96E; box-shadow: 0 0 8px rgba(201,169,110,0.4); }
+.dot-opposition { background: #E8A545; box-shadow: 0 0 8px rgba(232,165,69,0.4); }
+
+/* ─── FOOTER (matches site's stats bar style) ─── */
+.footer {
+  margin-top: auto;
+  padding-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footer-url {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  color: #C9A96E;
+  letter-spacing: 1px;
+  font-weight: 500;
+}
+
+.footer-desc {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #6E6B80;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* Stats pills (matching site's stats bar) */
+.footer-stats {
+  display: flex;
+  gap: 0;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.02);
+}
+
+.stat-cell {
+  padding: 12px 24px;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  text-align: center;
+}
+
+.stat-cell:last-child {
+  border-right: none;
+}
+
+.stat-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px;
+  font-weight: 500;
+  color: #C9A96E;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.stat-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #6E6B80;
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand-logo"></div>
+      <div class="brand-name">Cosmos Daily</div>
+    </div>
+
+    <!-- Headline -->
+    <div class="headline">Every Saturn–Pluto conjunction since 1914<br>coincided with a <em>global crisis.</em></div>
+    <div class="subline">Coincidence gets harder to argue after 5,800 years of data.</div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+      <div class="event-row">
+        <div class="event-year">1914</div>
+        <div class="event-transit"><span class="dot dot-conjunction"></span>Saturn ☌ Pluto · Cancer</div>
+        <div class="event-arrow">→</div>
+        <div class="event-name">World War I begins</div>
+      </div>
+      <div class="event-row">
+        <div class="event-year">1947</div>
+        <div class="event-transit"><span class="dot dot-conjunction"></span>Saturn ☌ Pluto · Leo</div>
+        <div class="event-arrow">→</div>
+        <div class="event-name">Cold War begins</div>
+      </div>
+      <div class="event-row">
+        <div class="event-year">1982</div>
+        <div class="event-transit"><span class="dot dot-conjunction"></span>Saturn ☌ Pluto · Libra</div>
+        <div class="event-arrow">→</div>
+        <div class="event-name">AIDS epidemic identified</div>
+      </div>
+      <div class="event-row">
+        <div class="event-year">2001</div>
+        <div class="event-transit"><span class="dot dot-opposition"></span>Saturn ☍ Pluto · Gemini</div>
+        <div class="event-arrow">→</div>
+        <div class="event-name">September 11 attacks</div>
+      </div>
+      <div class="event-row">
+        <div class="event-year">2020</div>
+        <div class="event-transit"><span class="dot dot-conjunction"></span>Saturn ☌ Pluto · Capricorn</div>
+        <div class="event-arrow">→</div>
+        <div class="event-name">COVID-19 pandemic</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-left">
+        <div class="footer-url">cosmosdaily.co</div>
+        <div class="footer-desc">When the sky moves, history follows</div>
+      </div>
+      <div class="footer-stats">
+        <div class="stat-cell">
+          <div class="stat-num">177</div>
+          <div class="stat-label">Events Mapped</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num">5,837</div>
+          <div class="stat-label">Years Spanned</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-num">6</div>
+          <div class="stat-label">Celestial Types</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
