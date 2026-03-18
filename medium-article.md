@@ -1,6 +1,6 @@
-# I Mapped 177 Astronomical Events to World History Across 5,800 Years. The Patterns Are Hard to Ignore.
+# 177 Astronomical Events. 5,800 Years. The Patterns Are Hard to Ignore.
 
-*How I built an interactive database connecting eclipses, planetary conjunctions, and oppositions to wars, pandemics, and financial crashes.*
+*We mapped eclipses, conjunctions, and oppositions to wars, pandemics, and financial crashes. Here's what the data shows.*
 
 ---
 
@@ -14,11 +14,11 @@ That alignment, a Saturn-Pluto conjunction, has occurred five times since 1914. 
 2001: September 11.
 2020: COVID-19.
 
-You can call that coincidence. Most people do, at first. But after spending months cross-referencing NASA ephemeris data with verified historical records across 5,800 years of human history, I stopped being so sure.
+You can call that coincidence. Most people do, at first.
 
-The result is Cosmos Daily, a free interactive database that maps 177 major celestial events to the world events they coincided with, from the first recorded eclipse in 3800 BC to the current war with Iran.
+We did too. Then we started pulling the thread. We cross-referenced NASA ephemeris data against verified historical records going back 5,800 years. What started as a weekend curiosity turned into months of work and a database we couldn't stop adding to.
 
-This is the story of how it was built, what the data shows, and why it matters.
+The result is [Cosmos Daily](https://cosmosdaily.co), a free interactive archive that maps 177 major celestial events to the world events they coincided with, from the first recorded eclipse in 3800 BC to the current war with Iran.
 
 ---
 
@@ -34,19 +34,17 @@ That question never stopped being relevant. It just stopped being asked by serio
 
 The branch of astrology that asks it is called mundane astrology, from the Latin *mundus*, meaning "world." It has nothing to do with your birth chart or daily horoscope. It tracks the movements of slow outer planets (Jupiter, Saturn, Uranus, Neptune, Pluto) and their geometric relationships to each other, then maps those configurations against collective human experience: wars, revolutions, economic cycles, pandemics.
 
-I wanted to see if the patterns held up across thousands of years of data.
+We wanted to see if the patterns held up across thousands of years of data.
 
 ---
 
-## The Methodology
+## How the Database Works
 
-Rigor matters. If the correlations are not built on solid data, they are just stories. Here is how the database works.
+We knew from the start that if we were going to make any of this credible, the data had to be airtight. No cherry-picking. No retrofitting events to fit a narrative.
 
-**Celestial data** comes from NASA JPL ephemeris tables and the Swiss Ephemeris, verified to arc-minute precision. Every planetary position, every eclipse date, every conjunction degree is independently verifiable.
+Celestial positions come from NASA JPL ephemeris tables and the Swiss Ephemeris, verified to arc-minute precision. Historical events are sourced from primary records and established reference works. Both sides are independently verifiable.
 
-**Historical data** comes from primary sources, academic records, and established reference works. Every world event in the database is documented and sourced.
-
-**The cross-reference** is straightforward: for each major celestial alignment (eclipse, conjunction, opposition, square, retrograde, ingress), I identified whether a significant world event occurred within its activation window. Eclipse windows last approximately six months. Conjunction windows vary by the speed of the planets involved.
+The process was simple but tedious: take each major celestial alignment (eclipse, conjunction, opposition, square, retrograde, ingress) and check whether a significant world event fell within its activation window. Eclipse windows last about six months. Conjunction windows depend on how fast the planets involved are moving.
 
 There are 177 events in the current database spanning from approximately 3800 BC to 2026. They fall into six celestial categories:
 
@@ -66,43 +64,43 @@ Each event is rated 1 to 5 for significance, weighted toward outer planet involv
 
 ---
 
-## Five Patterns That Stand Out
+## The Patterns We Can't Unsee
 
-After building the full database, certain cycles became impossible to unsee.
+Once the database hit about 80 events, certain things started jumping out.
 
-### 1. The Saturn-Pluto Cycle: Crisis Clock
+### 1. The Saturn-Pluto Cycle
 
-Saturn-Pluto alignments (conjunctions, oppositions, and squares) form a roughly 33 to 38 year cycle. Every major phase of this cycle since 1914 has coincided with a global crisis.
+This is the one that got us. Saturn and Pluto align in some form (conjunction, opposition, or square) roughly every 33 to 38 years. And every single time since 1914, something catastrophic happened.
 
-The conjunctions mark beginnings of new power structures. The oppositions mark their peak confrontation. The squares mark their crisis points. This cycle has coincided with both World Wars, the Cold War, the AIDS epidemic, September 11, and COVID-19.
+Conjunctions start new power structures. Oppositions blow them up. Squares crack the foundations. Both World Wars, the Cold War, AIDS, 9/11, COVID. All of them fall on this cycle.
 
 The next Saturn-Pluto square arrives around 2028 to 2030. Every previous square has coincided with the escalation of existing conflicts.
 
-### 2. The Saturn-Neptune Cycle: Dissolution
+### 2. The Saturn-Neptune Cycle
 
-Saturn builds structures. Neptune dissolves them. Their conjunction, occurring every 36 years, correlates with moments when institutions and borders evaporate.
+Saturn is the planet of structure, authority, walls. Neptune is the opposite: dissolution, fog, the erasure of boundaries. When they meet every 36 years, things that seemed permanent tend to evaporate.
 
 1989: Saturn conjunct Neptune in Capricorn. The Berlin Wall falls. The Soviet Union collapses. Communism dissolves across Eastern Europe in months.
 
 2026: Saturn conjunct Neptune at 0 degrees Aries, the first degree of the zodiac. This is happening right now. It is the defining transit of the decade, and astrologers consider it one of the most significant alignments in modern history.
 
-### 3. Eclipse Corridors: Exposure Windows
+### 3. Eclipse Corridors
 
-Eclipses operate as cosmic spotlights, exposing what was hidden. The data shows a pattern: events that occur between two eclipses (in the corridor) tend to involve revelation, exposure, or sudden visibility of hidden dynamics.
+This one surprised us. When two eclipses happen close together, the window between them acts like a pressure zone. Events that fall inside that corridor tend to involve exposure, secrets coming to light, things becoming suddenly visible.
 
 The Oklahoma City bombing (1995) occurred exactly between a lunar eclipse on April 15 and a solar eclipse on April 29. The Ghislaine Maxwell trial (2021) unfolded between the November 19 lunar eclipse and the December 4 solar eclipse.
 
-### 4. Jupiter-Pluto: Pandemics
+### 4. Jupiter-Pluto and Disease
 
-Jupiter amplifies whatever it touches. Pluto governs mass transformation and death. Their conjunctions, occurring every 12 to 13 years, show a striking correlation with disease outbreaks at civilizational scale.
+Jupiter amplifies. Pluto destroys. When they meet every 12 to 13 years, the combination has an uncomfortable track record with pandemics.
 
 1345: Triple conjunction of Saturn, Jupiter, and Mars in Aquarius. The medical faculty at the University of Paris formally blames this conjunction for the Black Death.
 
 2020: Jupiter conjunct Pluto in Capricorn. COVID-19.
 
-The University of Paris attribution is particularly notable because it represents institutional recognition of the celestial correlation in real time.
+That University of Paris detail is worth sitting with. In 1345, the most prestigious medical institution in Europe looked at the sky and said: that conjunction is why people are dying. We are not making that claim. But they did.
 
-### 5. Uranus Ingresses: Technological Revolution
+### 5. Uranus and Technology
 
 When Uranus enters a new sign (every 7 years), the technological and cultural landscape shifts. Uranus entered Gemini (communication, information, technology) in 2025 for the first time in 84 years. The last time it was in Gemini: 1941 to 1942, when radio became a weapon of total war.
 
@@ -112,25 +110,23 @@ Now AI, quantum computing, and digital infrastructure are being radically transf
 
 ## Building the Visualization
 
-The data alone is compelling, but I wanted people to see the patterns, not just read about them. So I built two visualization layers.
+Numbers on a spreadsheet are one thing. We wanted people to actually see this. So we built two ways to explore the data.
 
 **The Chronicle** is the main interface. A vertical timeline of 177 events in reverse chronological order, each card showing the year, the celestial event (with its degree and sign), the world event, and a significance rating. Cards expand to reveal a full analysis: the cosmic interpretation, the historical context, and parallel events from other centuries that shared similar configurations. The event cards are color-coded by celestial type: gold for conjunctions, red for eclipses, orange for oppositions, violet for squares, blue for retrogrades, green for ingresses.
 
 **The Celestial Map** is a radial spiral visualization where all 177 events orbit outward from the center of recorded history. Ancient events sit near the core. Modern events populate the outer rings. Each dot is color-coded by celestial type, sized by significance, and connected by faint lines showing cyclical relationships between events sharing the same planetary configuration.
 
-The effect is immediate. You can see that certain regions of the spiral are dense with red (eclipses) and gold (conjunctions), and those dense clusters correspond to the most turbulent periods in human history. The 20th century outer ring is by far the densest, partly because we have better records, but also because the 1914 to 2020 period contained an unusual concentration of slow-planet alignments.
+When you zoom out and look at the whole spiral, you notice something: certain regions are packed with red and gold dots, and those clusters line up with the most violent stretches of human history. The 20th century ring is by far the densest. Part of that is better recordkeeping. Part of it is that 1914 to 2020 saw an unusual pileup of slow-planet alignments.
 
-The entire thing is built as a single-page web application. HTML, CSS, and vanilla JavaScript. No frameworks, no backend, no database server. The event data lives as a JSON array in the page itself. The celestial map uses SVG with custom positioning algorithms to distribute events along the spiral.
+The celestial map renders each event as a node on a spiral timeline, with SVG-based positioning algorithms distributing 177 data points across the radial chart. Events are sized by significance and color-coded by type, making it possible to spot pattern clusters at a glance.
 
-Design choices were deliberate. Dark background (#07060D) to evoke the night sky. Source Serif 4 for editorial body text. IBM Plex Mono for data labels and dates. The color palette draws from the visual tradition of astronomical charts: golds, deep reds, muted violets.
-
-The site loads in under two seconds and works on mobile. There is no signup. There are no ads. There is no paywall. The archive is free and open.
+The whole thing is free. No signup, no ads, no paywall.
 
 ---
 
-## What Is Happening Right Now
+## Why Now
 
-The reason this project exists now, and not five years ago, is that 2025 to 2026 contains an unusual concentration of significant transits occurring simultaneously.
+We did not build this five years ago because five years ago the sky was relatively quiet. 2025 and 2026 are different. Multiple significant transits are stacking on top of each other in a way that does not happen often.
 
 **Saturn-Neptune conjunction at 0 degrees Aries** is the headline. This is the first Saturn-Neptune conjunction at the "world axis" (the first degree of the zodiac) in modern history. The last Saturn-Neptune conjunction (1989) coincided with the fall of the Berlin Wall and the dissolution of the Soviet Union. Astrologers expect institutional dissolution on a similar or greater scale.
 
@@ -140,21 +136,19 @@ The reason this project exists now, and not five years ago, is that 2025 to 2026
 
 **A Blood Moon total lunar eclipse in Virgo** occurred in March 2026, activating themes of systemic exposure and institutional health failures.
 
-These are not happening sequentially. They are happening simultaneously. The database gives historical context for each transit individually. The reader can draw their own conclusions about what happens when they converge.
+None of these are happening in sequence. They are all active at the same time. We built the database so you can look up each transit individually and see what happened the last time it fired. What happens when all four fire at once is something nobody alive has seen before.
 
 ---
 
-## The Honest Disclaimer
+## A Note on What This Is (and Isn't)
 
-I am not predicting the future. I am not claiming that planets cause events. Causation is a strong word, and I am not using it.
+We are not predicting the future. We are not saying planets cause wars or pandemics. That would be a much bolder claim than anything the data supports.
 
-What I am doing is presenting documented correlations between verified celestial data and verified historical data, and letting the patterns speak for themselves. The database includes instances where major alignments corresponded with quiet periods, and instances where significant world events occurred during unremarkable skies. Intellectual honesty requires the full picture, not just the hits.
+What the data does show is a set of recurring correlations between specific planetary configurations and specific categories of world events. Some of those correlations are tight enough to raise an eyebrow. Others are loose. The database includes both, and it includes periods where major alignments happened and the world was quiet. We are not interested in a highlight reel. We are interested in the full picture.
 
-Whether you interpret these patterns as causation, correlation, synchronicity, or pure coincidence is entirely your call. The data is the same either way.
+Make of it what you will.
 
-But after mapping 177 events across 5,800 years, I will say this: the patterns are harder to dismiss than I expected when I started. And the sky right now looks like 1989.
-
-Maybe it is time to look up again.
+But after mapping 177 events across 5,800 years, we will say this much: the patterns held up better than we expected going in. And the sky right now looks a lot like 1989.
 
 ---
 
