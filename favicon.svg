@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1a1412"/>
+      <stop offset="100%" stop-color="#0d0a08"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="45%">
+      <stop offset="0%" stop-color="#c4956a" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#0d0a08" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4a574"/>
+      <stop offset="50%" stop-color="#c4956a"/>
+      <stop offset="100%" stop-color="#a07850"/>
+    </linearGradient>
+    <linearGradient id="goldFaint" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c4956a" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#a07850" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="96" fill="url(#glow)"/>
+
+  <!-- Outer orbital ring -->
+  <circle cx="256" cy="256" r="190" fill="none" stroke="url(#goldFaint)" stroke-width="1.5"/>
+
+  <!-- Inner orbital ring tilted (ellipse) -->
+  <ellipse cx="256" cy="256" rx="140" ry="60" fill="none" stroke="url(#goldFaint)" stroke-width="1" transform="rotate(-25, 256, 256)"/>
+
+  <!-- Central eclipse/sun -->
+  <circle cx="256" cy="256" r="72" fill="none" stroke="url(#gold)" stroke-width="2.5"/>
+  <circle cx="256" cy="256" r="58" fill="#0d0a08"/>
+  <circle cx="256" cy="256" r="58" fill="none" stroke="url(#gold)" stroke-width="1.5" stroke-opacity="0.5"/>
+
+  <!-- Corona rays (subtle) -->
+  <g opacity="0.4">
+    <line x1="256" y1="176" x2="256" y2="155" stroke="url(#gold)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="256" y1="336" x2="256" y2="357" stroke="url(#gold)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="176" y1="256" x2="155" y2="256" stroke="url(#gold)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="336" y1="256" x2="357" y2="256" stroke="url(#gold)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="199" y1="199" x2="184" y2="184" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+    <line x1="313" y1="199" x2="328" y2="184" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+    <line x1="199" y1="313" x2="184" y2="328" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+    <line x1="313" y1="313" x2="328" y2="328" stroke="url(#gold)" stroke-width="1" stroke-linecap="round"/>
+  </g>
+
+  <!-- Small planet/dot on orbital ring -->
+  <circle cx="446" cy="256" r="7" fill="url(#gold)"/>
+  <circle cx="66" cy="256" r="4" fill="#c4956a" opacity="0.5"/>
+
+  <!-- CD monogram in center -->
+  <text x="256" y="270" font-family="Georgia, 'Times New Roman', serif" font-size="52" fill="url(#gold)" text-anchor="middle" letter-spacing="6" font-weight="normal">CD</text>
+</svg>

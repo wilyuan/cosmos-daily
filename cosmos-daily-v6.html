@@ -28,11 +28,7 @@
       "url": "https://cosmosdaily.co/images/og-image.jpg"
     }
   },
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://cosmosdaily.co?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-  }
+  "sameAs": []
 }
 </script>
 <script type="application/ld+json">
@@ -40,7 +36,7 @@
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   "name": "Celestial History Archive",
-  "description": "A chronicle mapping 175 celestial events to pivotal moments in world history, spanning 5,800+ years from 3811 BC to 2026.",
+  "description": "A chronicle mapping 177 celestial events to pivotal moments in world history, spanning 5,800+ years from 3811 BC to 2026.",
   "url": "https://cosmosdaily.co",
   "mainEntity": {
     "@type": "ItemList",
@@ -127,6 +123,8 @@
 <meta name="theme-color" content="#07060D">
 <meta name="msapplication-TileColor" content="#07060D">
 
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200;0,8..60,400;0,8..60,600;1,8..60,300&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -2332,21 +2330,22 @@ body {
       </svg>
       <input type="text" id="searchInput" placeholder="Search events, celestial bodies, years…" autocomplete="off">
     </div>
-    <div class="header-actions">
+    <nav class="header-actions" aria-label="Main navigation">
       <a href="about.html" class="header-btn about-btn">About</a>
       <button class="header-btn share-hdr-btn" id="headerShareBtn">↗ Share</button>
       <button class="header-btn donate-hdr-btn" id="headerDonateBtn">♡ Donate</button>
       <button class="header-btn glossary-btn" id="glossaryBtn">⊕ Glossary</button>
-    </div>
+    </nav>
   </div>
 </header>
 
+<main>
 <!-- HERO -->
 <section class="hero">
   <div class="hero-headline">
     <span class="hero-overline">Celestial History · Historical Record</span>
     <h1 class="hero-title">When the sky moves,<br><em>history follows.</em></h1>
-    <p class="hero-desc">177 pivotal celestial alignments mapped to the moments they shaped — from the Rigveda to the war with Iran.</p>
+    <p class="hero-desc">177 pivotal celestial alignments mapped to the moments they shaped — from the first recorded eclipse in 3800 BC to the war with Iran.</p>
   </div>
   <div class="stats-wrapper">
   <div class="stats-row">
@@ -2569,6 +2568,7 @@ body {
 </section>
 
 <!-- FOOTER -->
+</main>
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-top">
@@ -2579,18 +2579,18 @@ body {
       <div class="footer-col">
         <h4>Browse</h4>
         <ul>
-          <li><a href="#" onclick="document.querySelector('[data-era=\'all\']').click(); return false;">All Events</a></li>
-          <li><a href="#" onclick="document.querySelector('[data-era=\'ancient\']').click(); return false;">Ancient Era</a></li>
-          <li><a href="#" onclick="document.querySelector('[data-era=\'medieval\']').click(); return false;">Medieval Era</a></li>
-          <li><a href="#" onclick="document.querySelector('[data-era=\'modern\']').click(); return false;">Modern Era</a></li>
-          <li><a href="#" onclick="document.querySelector('[data-era=\'contemporary\']').click(); return false;">21st Century</a></li>
+          <li><a href="/?era=all" onclick="document.querySelector('[data-era=\'all\']').click(); return false;">All Events</a></li>
+          <li><a href="/?era=ancient" onclick="document.querySelector('[data-era=\'ancient\']').click(); return false;">Ancient Era</a></li>
+          <li><a href="/?era=medieval" onclick="document.querySelector('[data-era=\'medieval\']').click(); return false;">Medieval Era</a></li>
+          <li><a href="/?era=modern" onclick="document.querySelector('[data-era=\'modern\']').click(); return false;">Modern Era</a></li>
+          <li><a href="/?era=contemporary" onclick="document.querySelector('[data-era=\'contemporary\']').click(); return false;">21st Century</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h4>Resources</h4>
         <ul>
-          <li><a href="#" onclick="document.getElementById('glossaryBtn').click(); return false;">Celestial Glossary</a></li>
-          <li><a href="#" onclick="document.getElementById('activeSkyToggle').click(); return false;">Active Transits</a></li>
+          <li><a href="/?glossary=open" onclick="document.getElementById('glossaryBtn').click(); return false;">Celestial Glossary</a></li>
+          <li><a href="/?transits=open" onclick="document.getElementById('activeSkyToggle').click(); return false;">Active Transits</a></li>
           <li><a href="methodology.html">Methodology</a></li>
           <li><a href="sources.html">Sources & Data</a></li>
           <li><a href="editorial.html">Editorial Standards</a></li>
@@ -5220,7 +5220,8 @@ function buildCards() {
     if (hasImage) {
       const img = document.createElement('img');
       img.className = 'card-bg-img';
-      img.alt = '';
+      img.alt = ev.worldEvent + ' — ' + (ev.year < 0 ? Math.abs(ev.year) + ' BC' : ev.year);
+      img.loading = 'lazy';
       img.src = ev.image;
       img.onerror = function() { this.style.display = 'none'; };
       card.querySelector('.card-img-fallback').prepend(img);
@@ -5396,6 +5397,7 @@ function openModal(ev) {
     modalImg.style.display = 'block';
     modalImgSide.style.display = '';
     modalImg.src = ev.image;
+    modalImg.alt = ev.worldEvent + ' — ' + (ev.year < 0 ? Math.abs(ev.year) + ' BC' : ev.year);
     modalImg.onerror = function() {
       this.style.display = 'none';
       modalImgSide.style.display = 'none';
