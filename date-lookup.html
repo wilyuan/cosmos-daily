@@ -1,0 +1,3162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Sky — Predictive History Date Lookup | Cosmos Daily</title>
+<meta name="description" content="Enter any date and see the planetary positions, aspects, and celestial weather. Predictive history through celestial mechanics — the same historical cycles behind Professor Jiang's forecasts. See how Saturn-Neptune, Uranus-Pluto, and other planetary patterns shaped any moment in history.">
+<meta name="keywords" content="predictive history, date lookup, planetary positions, celestial chart, birth chart, mundane astrology, Professor Jiang, historical cycles, Saturn Neptune conjunction, Jiang Xueqin, psychohistory">
+<meta property="og:title" content="Your Sky — Predictive History Date Lookup | Cosmos Daily">
+<meta property="og:description" content="Enter any date and see the planetary positions that shaped that moment. Predictive history through celestial mechanics — the same historical cycles Professor Jiang analyzes.">
+<meta property="og:url" content="https://cosmosdaily.co/date-lookup.html">
+<meta property="og:image" content="https://cosmosdaily.co/images/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200;0,8..60,400;0,8..60,600;1,8..60,300&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & TOKENS ────────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:        #07060D;
+  --bg2:       #0D0B1A;
+  --surface:   rgba(255,255,255,0.04);
+  --border:    rgba(255,255,255,0.08);
+  --text:      #E8E6F0;
+  --muted:     #6E6B80;
+  --gold:      #C9A96E;
+  --gold-dim:  rgba(201,169,110,0.15);
+  --red:       #E84545;
+  --violet:    #9B8FD4;
+  --serif:     'Source Serif 4', Georgia, serif;
+  --mono:      'IBM Plex Mono', monospace;
+  --radius:    12px;
+  --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ─── STARFIELD ─────────────────────────────────────────────────── */
+#starfield {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+}
+
+.orb {
+  position: fixed; border-radius: 50%;
+  pointer-events: none; z-index: 0; filter: blur(80px);
+}
+.orb-1 {
+  width: 600px; height: 600px;
+  top: -200px; right: -150px;
+  background: radial-gradient(circle, rgba(232,69,69,0.08) 0%, transparent 70%);
+  animation: drift 14s ease-in-out infinite;
+}
+.orb-2 {
+  width: 700px; height: 700px;
+  bottom: -200px; left: -200px;
+  background: radial-gradient(circle, rgba(139,126,199,0.10) 0%, transparent 70%);
+  animation: drift 18s ease-in-out infinite reverse;
+}
+.orb-3 {
+  width: 500px; height: 500px;
+  top: 50%; left: 60%;
+  background: radial-gradient(circle, rgba(201,169,110,0.06) 0%, transparent 70%);
+  animation: drift 22s ease-in-out infinite;
+}
+@keyframes drift {
+  0%,100% { transform: translate(0,0); }
+  50%      { transform: translate(30px,-40px); }
+}
+
+/* ─── HEADER ────────────────────────────────────────────────────── */
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,6,13,0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1400px; margin: 0 auto;
+  padding: 0 24px;
+  height: 60px;
+  display: flex; align-items: center; gap: 24px;
+}
+.brand {
+  display: flex; flex-direction: column;
+  flex-shrink: 0; text-decoration: none;
+}
+.brand-name {
+  font-family: var(--mono); font-size: 13px; font-weight: 500;
+  letter-spacing: 3px; color: var(--gold);
+  text-transform: uppercase;
+}
+.brand-sub {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 1.5px; color: var(--muted);
+  text-transform: uppercase; line-height: 1;
+}
+.header-nav {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 16px;
+}
+.back-link {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--gold);
+  background: var(--gold-dim); border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 6px; padding: 6px 14px; cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition);
+}
+.back-link:hover { background: rgba(201,169,110,0.25); }
+
+/* ─── MAIN LAYOUT ──────────────────────────────────────────────── */
+.main-content {
+  position: relative; z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px 120px;
+}
+
+/* ─── HERO ──────────────────────────────────────────────────────── */
+.hero {
+  padding: 80px 0 56px;
+  text-align: center;
+}
+.hero-overline {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 24px; display: block;
+}
+.hero-title {
+  font-size: clamp(32px, 5vw, 56px); font-weight: 200;
+  line-height: 1.15; letter-spacing: -1px;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+.hero-title em {
+  font-style: italic; color: var(--gold); font-weight: 300;
+}
+.hero-subtitle {
+  font-size: 17px; font-weight: 400;
+  color: var(--muted); line-height: 1.7;
+  font-style: italic;
+  max-width: 540px; margin: 0 auto;
+}
+
+/* ─── DATE INPUT PANEL ─────────────────────────────────────────── */
+.input-panel {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 48px;
+}
+.input-row {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+.input-group {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.input-group label {
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted);
+}
+.input-group input,
+.input-group select {
+  height: 44px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--mono); font-size: 14px;
+  padding: 0 14px;
+  transition: border-color var(--transition), background var(--transition);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.input-group select {
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236E6B80' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+.input-group input:focus,
+.input-group select:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: rgba(201,169,110,0.06);
+}
+.input-group input[type="number"] { width: 100px; }
+.input-group select.month-select { width: 140px; }
+.input-group select.day-select { width: 80px; }
+
+.era-toggle {
+  height: 44px;
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 1px;
+  color: var(--text);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.era-toggle:hover { border-color: var(--gold); }
+.era-toggle.bc { color: var(--gold); border-color: rgba(201,169,110,0.4); background: var(--gold-dim); }
+
+.btn-row {
+  display: flex; flex-wrap: wrap; gap: 10px;
+}
+.btn-lookup {
+  height: 44px;
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--bg); background: var(--gold);
+  border: none; border-radius: 8px;
+  padding: 0 28px; cursor: pointer;
+  transition: all var(--transition);
+}
+.btn-lookup:hover {
+  background: #d4b67a;
+  box-shadow: 0 0 24px rgba(201,169,110,0.3);
+}
+.btn-today {
+  height: 44px;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--gold); background: var(--gold-dim);
+  border: 1px solid rgba(201,169,110,0.3);
+  border-radius: 8px; padding: 0 18px;
+  cursor: pointer; transition: all var(--transition);
+  white-space: nowrap;
+}
+.btn-today:hover { background: rgba(201,169,110,0.25); }
+.btn-random {
+  height: 44px;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--muted); background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 0 18px;
+  cursor: pointer; transition: all var(--transition);
+}
+.btn-random:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+/* ─── RESULTS ──────────────────────────────────────────────────── */
+#results {
+  display: none;
+}
+#results.visible { display: block; }
+
+.result-date-banner {
+  text-align: center;
+  margin-bottom: 16px;
+  padding-bottom: 0;
+}
+.result-date-banner .date-label {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 8px; display: block;
+}
+.result-date-banner .date-value {
+  font-size: clamp(28px, 4vw, 42px); font-weight: 200;
+  letter-spacing: -0.5px; color: var(--text);
+}
+.result-date-banner .date-dayofweek {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px;
+  color: var(--muted); margin-top: 6px; display: block;
+}
+
+.result-section {
+  margin-bottom: 48px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.result-section.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.result-section-title {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.result-section-title::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(201,169,110,0.3), transparent);
+}
+
+/* ─── CELESTIAL DAY MAP ────────────────────────────────────────── */
+#section-map {
+  margin: 0 -24px 48px;
+  padding: 0;
+}
+#dayMapCanvas {
+  display: block;
+  width: 100%;
+  height: 700px;
+  border-radius: var(--radius);
+  cursor: default;
+}
+.day-map-panel {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 340px;
+  max-height: calc(100% - 40px);
+  background: rgba(10,9,18,0.95);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 28px;
+  overflow-y: auto;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 10;
+  transform: translateX(10px);
+  opacity: 0;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.day-map-panel.open {
+  display: block !important;
+  transform: translateX(0);
+  opacity: 1;
+}
+.day-map-panel::-webkit-scrollbar { width: 4px; }
+.day-map-panel::-webkit-scrollbar-track { background: transparent; }
+.day-map-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.day-map-panel-close {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+  z-index: 2;
+}
+.day-map-panel-close:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* Panel content styles */
+.dmp-planet-name {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.dmp-planet-sign {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.dmp-section {
+  margin-bottom: 18px;
+}
+.dmp-section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.dmp-section-text {
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(232,230,240,0.85);
+}
+.dmp-accent-bar {
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  margin-bottom: 20px;
+}
+.dmp-aspect-item {
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  border-left: 3px solid var(--gold);
+}
+.dmp-aspect-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.dmp-aspect-desc {
+  font-family: var(--serif);
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(232,230,240,0.65);
+  font-style: italic;
+}
+.dmp-sign-interp {
+  background: rgba(201,169,110,0.07);
+  border-left: 3px solid var(--gold);
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+}
+.dmp-sign-interp .dmp-section-text {
+  color: rgba(201,169,110,0.9);
+  font-style: italic;
+}
+
+/* Hover tooltip */
+.day-map-tooltip {
+  position: absolute;
+  z-index: 20;
+  pointer-events: none;
+  background: rgba(7,6,13,0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.18s, transform 0.18s;
+  white-space: nowrap;
+}
+.day-map-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── HEADLINE ─────────────────────────────────────────────────── */
+.day-headline {
+  text-align: center;
+  padding: 8px 24px 40px;
+}
+.day-headline-text {
+  font-family: var(--serif);
+  font-size: clamp(20px, 3vw, 26px);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--gold);
+  max-width: 600px;
+  margin: 0 auto;
+  letter-spacing: 0.2px;
+}
+
+/* ─── MOON COMPACT ─────────────────────────────────────────────── */
+.moon-compact {
+  display: flex; align-items: center; gap: 20px;
+  padding: 20px 28px;
+  background: rgba(10,9,18,0.6);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+}
+.moon-compact-circle {
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  background: #E8E6F0;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(232,230,240,0.15), 0 0 40px rgba(232,230,240,0.05);
+  flex-shrink: 0;
+}
+.moon-compact-shadow {
+  position: absolute;
+  top: 0; width: 100%; height: 100%;
+  border-radius: 50%;
+  background: var(--bg);
+  transition: all 0.4s ease;
+}
+.moon-compact-info {
+  flex: 1; min-width: 0;
+}
+.moon-compact-top {
+  display: flex; align-items: baseline; gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.moon-compact-name {
+  font-family: var(--serif); font-size: 19px; font-weight: 400;
+  color: var(--text);
+}
+.moon-compact-illum {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--muted); letter-spacing: 1px;
+}
+.moon-compact-vibe {
+  font-family: var(--serif); font-size: 14px;
+  font-style: italic; font-weight: 300;
+  color: rgba(232,230,240,0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.moon-compact-pills {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 10px;
+}
+.moon-compact-pill {
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(201,169,110,0.08);
+  border: 1px solid rgba(201,169,110,0.2);
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+
+/* ─── TRANSIT CARDS ────────────────────────────────────────────── */
+.transit-cards { display: flex; flex-direction: column; gap: 12px; }
+.transit-card {
+  padding: 20px 24px;
+  background: rgba(10,9,18,0.6);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.transit-card-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 6px;
+}
+.transit-card-symbol { font-size: 18px; }
+.transit-card-type {
+  font-family: var(--mono); font-size: 9px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.transit-card-name {
+  font-family: var(--serif); font-size: 17px; font-weight: 600;
+  color: var(--text); line-height: 1.3; margin-bottom: 6px;
+}
+.transit-card-desc {
+  font-family: var(--serif); font-size: 14px; line-height: 1.7;
+  color: rgba(232,230,240,0.55);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ─── ARCHIVE CARDS (That Same Day...) ─────────────────────────── */
+.archive-cards {
+  display: flex; flex-direction: column; gap: 14px;
+}
+.archive-card {
+  display: flex; align-items: flex-start; gap: 18px;
+  padding: 22px 24px;
+  background: rgba(10,9,18,0.6);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left: 4px solid var(--gold);
+  border-radius: 14px;
+  transition: border-color var(--transition), background var(--transition);
+}
+.archive-card:hover {
+  background: rgba(255,255,255,0.04);
+}
+.archive-card-thumb {
+  width: 60px; height: 60px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 24px;
+  color: var(--muted);
+}
+.archive-card-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 7px;
+}
+.archive-card-body { flex: 1; min-width: 0; }
+.archive-card-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 6px;
+}
+.archive-card-year {
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  color: var(--gold); letter-spacing: 1px;
+}
+.archive-card-category {
+  font-family: var(--mono); font-size: 9px; font-weight: 500;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--muted);
+}
+.archive-card-title {
+  font-family: var(--serif);
+  font-size: 18px; font-weight: 600;
+  color: var(--text); line-height: 1.3;
+  margin-bottom: 4px;
+}
+.archive-card-desc {
+  font-family: var(--serif);
+  font-size: 14px; line-height: 1.65;
+  color: rgba(232,230,240,0.5);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.archive-discovery {
+  font-family: var(--serif); font-size: 15px;
+  font-style: italic; font-weight: 300;
+  color: rgba(232,230,240,0.5);
+  margin-bottom: 20px;
+}
+
+.match-label {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+  padding: 5px 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* ─── SHARE BUTTON ─────────────────────────────────────────────── */
+.share-bar {
+  display: flex; justify-content: center;
+  padding: 16px 0 48px;
+}
+.share-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--bg); background: var(--gold);
+  border: none; border-radius: 10px;
+  padding: 16px 36px; cursor: pointer;
+  transition: all var(--transition);
+}
+.share-btn:hover {
+  background: #d4b67a;
+  box-shadow: 0 0 28px rgba(201,169,110,0.3);
+}
+.share-btn svg { flex-shrink: 0; }
+
+/* ─── FOOTER ────────────────────────────────────────────────────── */
+.site-footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 32px 24px;
+  text-align: center;
+}
+.footer-inner {
+  max-width: 760px; margin: 0 auto;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px;
+}
+.footer-brand {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); opacity: 0.5;
+}
+.footer-note {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 1px; color: var(--muted);
+  line-height: 1.6;
+}
+.footer-note a {
+  color: var(--gold); text-decoration: none;
+}
+.footer-note a:hover { text-decoration: underline; }
+
+/* ─── RESPONSIVE ────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero { padding: 48px 0 40px; }
+  .hero-title { letter-spacing: -0.5px; }
+  .hero-subtitle { font-size: 15px; }
+  .input-panel { padding: 20px; }
+  .input-row { gap: 10px; }
+  .input-group input[type="number"] { width: 80px; }
+  .input-group select.month-select { width: 120px; }
+  #section-map { margin: 0 -16px 48px; }
+  #dayMapCanvas { height: 520px; }
+  .day-map-panel { width: 280px; right: 12px; top: 12px; padding: 20px; }
+  .day-headline { padding: 4px 16px 32px; }
+  .day-headline-text { font-size: 20px; }
+  .moon-compact { padding: 16px 20px; gap: 16px; }
+  .moon-compact-circle { width: 44px; height: 44px; }
+  .moon-compact-name { font-size: 17px; }
+  .archive-card { padding: 18px 20px; }
+  .archive-card-title { font-size: 16px; }
+  .archive-card-thumb { width: 48px; height: 48px; }
+}
+@media (max-width: 480px) {
+  .input-group input[type="number"] { width: 70px; }
+  .input-group select.month-select { width: 100px; }
+  .btn-row { width: 100%; }
+  .btn-lookup { flex: 1; }
+  #dayMapCanvas { height: 400px; }
+  .day-map-panel { position: relative; right: auto; top: auto; width: 100%; max-height: none; margin-top: 12px; }
+  .moon-compact { flex-wrap: wrap; }
+  .moon-compact-vibe { white-space: normal; }
+  .archive-card { flex-direction: column; gap: 12px; }
+  .archive-card-thumb { width: 100%; height: 120px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- ─── HEADER ─────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand">
+      <span class="brand-name">Cosmos Daily</span>
+      <span class="brand-sub">Celestial Chronicle</span>
+    </a>
+    <nav class="header-nav">
+      <a href="index.html" class="back-link">&larr; Back to Chronicle</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ─── MAIN ──────────────────────────────────────────────────── -->
+<main class="main-content">
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="hero-overline">Your Sky</span>
+    <h1 class="hero-title">What was the sky doing <em>when you arrived?</em></h1>
+    <p class="hero-subtitle">Enter your birthday, a wedding date, the day you moved across the world, or the moment everything changed. See the moon phase, the planetary positions, and the cosmic weather that was in the air.</p>
+  </div>
+
+  <!-- DATE INPUT PANEL -->
+  <div class="input-panel">
+    <div class="input-row">
+      <div class="input-group">
+        <label for="year-input">Year</label>
+        <input type="number" id="year-input" min="1" max="9999" value="2026" placeholder="Year">
+      </div>
+      <div class="input-group">
+        <label for="month-select">Month</label>
+        <select id="month-select" class="month-select">
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3" selected>March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="day-select">Day</label>
+        <select id="day-select" class="day-select"></select>
+      </div>
+      <button class="era-toggle" id="era-toggle" title="Toggle BC/AD">AD</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn-lookup" id="btn-lookup">Look Up</button>
+      <button class="btn-today" id="btn-today">Today</button>
+      <button class="btn-random" id="btn-random">Surprise Me</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <!-- Date Banner -->
+    <div class="result-date-banner" id="result-banner">
+      <span class="date-label">Your Sky On</span>
+      <div class="date-value" id="result-date-text"></div>
+      <span class="date-dayofweek" id="result-dayofweek"></span>
+    </div>
+
+    <!-- 1. CELESTIAL DAY MAP (interactive radial chart) -->
+    <div class="result-section" id="section-map" style="position:relative;">
+      <canvas id="dayMapCanvas"></canvas>
+      <div class="day-map-tooltip" id="dayMapTooltip"></div>
+      <div class="day-map-panel" id="dayMapPanel" style="display:none;">
+        <button class="day-map-panel-close" id="dayMapPanelClose">&times;</button>
+        <div class="day-map-panel-inner" id="dayMapPanelInner"></div>
+      </div>
+    </div>
+
+    <!-- 2. THE DAY IN ONE LINE -->
+    <div class="result-section" id="section-headline">
+      <div class="day-headline">
+        <div class="day-headline-text" id="day-headline-text"></div>
+      </div>
+    </div>
+
+    <!-- 3. MOON PHASE (compact) -->
+    <div class="result-section" id="section-moon">
+      <div id="moon-compact"></div>
+    </div>
+
+    <!-- 4. ACTIVE TRANSITS -->
+    <div class="result-section" id="section-transits" style="display:none;">
+      <div class="result-section-title">Active Transits</div>
+      <div id="transit-results"></div>
+    </div>
+
+    <!-- 5. THAT SAME DAY... -->
+    <div class="result-section" id="section-archive" style="display:none;">
+      <div class="result-section-title">That Same Day...</div>
+      <div id="archive-results"></div>
+    </div>
+
+    <!-- 6. SHARE -->
+    <div class="result-section" id="section-share">
+      <div class="share-bar">
+        <button class="share-btn" id="shareReadingBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+          Share Your Sky
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ─── FOOTER ──────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <span class="footer-brand">Cosmos Daily</span>
+    <span class="footer-note">
+      Celestial data via NASA JPL Ephemeris &middot; Historical events independently verified<br>
+      <a href="index.html">Back to Chronicle</a> &middot; <a href="about.html">About</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// EVENTS DATA
+// ═══════════════════════════════════════════════════════════════════════════
+const EVENTS = [
+  {
+    id: 'sept11', year: 2001, date: 'September 11, 2001',
+    celestialEvent: 'Saturn Opposite Pluto', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'September 11 Attacks',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'On a clear Tuesday morning in New York, hijacked airplanes struck the Twin Towers and the Pentagon. Nearly 3,000 people were killed in the deadliest attack on American soil.'
+  },
+  {
+    id: 'moon', year: 1969, date: 'July 20, 1969',
+    celestialEvent: 'Jupiter-Uranus Conjunction', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Moon Landing \u2014 Apollo 11',
+    category: 'scientific',
+    significance: 3,
+    description: 'Neil Armstrong and Buzz Aldrin walked on the lunar surface while a Jupiter-Uranus conjunction lit the sky with the energy of breakthrough.'
+  },
+  {
+    id: 'caesar', year: -44, date: 'March 15, 44 BC',
+    celestialEvent: 'Great Comet of 44 BC (Sidus Iulium)', celestialType: 'eclipse', symbol: '\u2604',
+    worldEvent: 'Assassination of Julius Caesar',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Caesar was stabbed 23 times on the Senate floor on the Ides of March. A comet visible for seven days afterward was interpreted as his soul ascending to heaven.'
+  },
+  {
+    id: 'black-death', year: 1347, date: 'October 1347',
+    celestialEvent: 'Saturn-Jupiter-Mars Triple Conjunction', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Black Death Arrives in Europe',
+    category: 'pandemic',
+    significance: 5,
+    description: 'Genoese trading ships arrived in Sicily carrying rats infested with plague. Within five years, the Black Death killed between 75 and 200 million people.'
+  },
+  {
+    id: 'fall-rome', year: 476, date: '476 AD',
+    celestialEvent: 'Saturn-Jupiter Great Conjunction in Scorpio', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Fall of the Western Roman Empire',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Romulus Augustulus, the last Western Roman Emperor, was deposed by the Germanic chieftain Odoacer.'
+  },
+  {
+    id: 'printing-press', year: 1440, date: 'c. 1440',
+    celestialEvent: 'Saturn-Neptune Conjunction', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Gutenberg Invents the Printing Press',
+    category: 'scientific',
+    significance: 5,
+    description: 'Johannes Gutenberg developed movable type printing, making books accessible beyond the clergy and launching the information revolution.'
+  },
+  {
+    id: 'columbus', year: 1492, date: 'October 12, 1492',
+    celestialEvent: 'Jupiter-Saturn Conjunction in Libra', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Columbus Reaches the Americas',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Columbus landed in the Bahamas, initiating permanent European contact with the Western Hemisphere and setting in motion the Columbian Exchange.'
+  },
+  {
+    id: 'reformation', year: 1517, date: 'October 31, 1517',
+    celestialEvent: 'Saturn-Pluto Square + Jupiter-Uranus Opposition', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Martin Luther\'s 95 Theses',
+    category: 'religious',
+    significance: 5,
+    description: 'Martin Luther nailed his 95 Theses to the church door in Wittenberg, challenging papal authority and igniting the Protestant Reformation.'
+  },
+  {
+    id: 'french-revolution', year: 1789, date: 'July 14, 1789',
+    celestialEvent: 'Uranus-Pluto Conjunction Approaching', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'French Revolution \u2014 Storming of the Bastille',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'A Parisian mob stormed the Bastille fortress-prison, igniting the French Revolution and ending the Ancien R\u00E9gime.'
+  },
+  {
+    id: 'wwi', year: 1914, date: 'July 28, 1914',
+    celestialEvent: 'Saturn-Pluto Conjunction in Cancer', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'World War I Begins',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Austria-Hungary declared war on Serbia, triggering a chain of alliances that plunged the world into the first global industrial war.'
+  },
+  {
+    id: 'wwii', year: 1939, date: 'September 1, 1939',
+    celestialEvent: 'Saturn-Pluto Square (exact April 1940)', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'World War II Begins',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Nazi Germany invaded Poland, beginning the deadliest conflict in human history that would claim over 70 million lives.'
+  },
+  {
+    id: 'hiroshima', year: 1945, date: 'August 6, 1945',
+    celestialEvent: 'Total Solar Eclipse (July 9, 1945)', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Atomic Bombing of Hiroshima',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'The United States dropped an atomic bomb on Hiroshima, killing approximately 140,000 people and ushering in the nuclear age.'
+  },
+  {
+    id: 'great-depression', year: 1929, date: 'October 29, 1929',
+    celestialEvent: 'Saturn-Neptune Opposition + Uranus-Pluto Square', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'Black Tuesday \u2014 Wall Street Crash',
+    category: 'financial',
+    significance: 5,
+    description: 'The stock market crashed on Black Tuesday, wiping out millions of investors and triggering the Great Depression.'
+  },
+  {
+    id: 'covid', year: 2020, date: 'March 11, 2020',
+    celestialEvent: 'Saturn-Pluto Conjunction in Capricorn (Jan 12, 2020)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'COVID-19 Declared Global Pandemic',
+    category: 'pandemic',
+    significance: 5,
+    description: 'The WHO declared COVID-19 a global pandemic. Saturn-Pluto conjunctions have historically coincided with structural collapse and transformation.'
+  },
+  {
+    id: 'jfk', year: 1963, date: 'November 22, 1963',
+    celestialEvent: 'Total Solar Eclipse (July 20, 1963)', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Assassination of JFK',
+    category: 'deaths',
+    significance: 5,
+    description: 'President John F. Kennedy was assassinated in Dallas, Texas. A total solar eclipse four months earlier had marked the year.'
+  },
+  {
+    id: 'berlin-wall', year: 1989, date: 'November 9, 1989',
+    celestialEvent: 'Saturn-Neptune Conjunction in Capricorn', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Fall of the Berlin Wall',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'The Berlin Wall fell as the Saturn-Neptune conjunction dissolved the ideological boundary that had divided Europe for 28 years.'
+  },
+  {
+    id: 'bitcoin', year: 2009, date: 'January 3, 2009',
+    celestialEvent: 'Jupiter-Neptune Conjunction in Aquarius (2009)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Bitcoin Genesis Block Mined',
+    category: 'financial',
+    significance: 4,
+    description: 'Satoshi Nakamoto mined the first Bitcoin block, embedding a headline about bank bailouts. A new form of money was born.'
+  },
+  {
+    id: 'gfc', year: 2008, date: 'September 15, 2008',
+    celestialEvent: 'Saturn-Uranus Opposition (exact November 2008)', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: '2008 Financial Crisis \u2014 Lehman Brothers Collapse',
+    category: 'financial',
+    significance: 5,
+    description: 'Lehman Brothers filed the largest bankruptcy in US history, triggering a global financial meltdown.'
+  },
+  {
+    id: 'internet', year: 1991, date: 'August 6, 1991',
+    celestialEvent: 'Total Solar Eclipse (July 11, 1991) \u2014 Longest of the Century', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'World Wide Web Goes Public',
+    category: 'scientific',
+    significance: 5,
+    description: 'Tim Berners-Lee published the first website, opening the World Wide Web to the public and launching the information age.'
+  },
+  {
+    id: 'chernobyl', year: 1986, date: 'April 26, 1986',
+    celestialEvent: 'Saturn-Uranus Conjunction in Sagittarius (approaching)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Chernobyl Nuclear Disaster',
+    category: 'scientific',
+    significance: 5,
+    description: 'Reactor No. 4 at the Chernobyl Nuclear Power Plant exploded during a safety test, releasing 400 times more radiation than the Hiroshima bomb.'
+  },
+  {
+    id: 'spanish-flu', year: 1918, date: 'March 1918',
+    celestialEvent: 'Neptune in Leo \u2014 Pluto in Cancer (Approaching Conjunction)', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Spanish Flu Pandemic Begins',
+    category: 'pandemic',
+    significance: 5,
+    description: 'The deadliest pandemic in modern history infected a third of the world\'s population and killed between 50 and 100 million people.'
+  },
+  {
+    id: 'magna-carta', year: 1215, date: 'June 15, 1215',
+    celestialEvent: 'Total Solar Eclipse of 1215', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Magna Carta Sealed',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'English barons forced King John to seal the Magna Carta at Runnymede, establishing the principle that even a king is subject to law.'
+  },
+  {
+    id: 'galileo', year: 1610, date: 'January 7, 1610',
+    celestialEvent: 'Jupiter-Saturn Great Conjunction (1603)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Galileo Discovers Jupiter\'s Moons',
+    category: 'scientific',
+    significance: 5,
+    description: 'Galileo turned his telescope toward Jupiter and observed four moons orbiting it, providing proof that not everything revolves around the Earth.'
+  },
+  {
+    id: 'american-revolution', year: 1776, date: 'July 4, 1776',
+    celestialEvent: 'Pluto Return to Capricorn (US natal Pluto position)', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'American Declaration of Independence',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'The Continental Congress formally adopted the Declaration of Independence, severing ties with the British Empire.'
+  },
+  {
+    id: 'napoleon', year: 1804, date: 'December 2, 1804',
+    celestialEvent: 'Uranus in Libra \u2014 Neptune in Scorpio', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Napoleon Crowns Himself Emperor',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Napoleon Bonaparte crowned himself Emperor of France at Notre-Dame Cathedral in Paris, seizing the crown from the Pope\'s hands.'
+  },
+  {
+    id: 'darwin', year: 1859, date: 'November 24, 1859',
+    celestialEvent: 'Uranus-Pluto Square', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Darwin Publishes Origin of Species',
+    category: 'scientific',
+    significance: 5,
+    description: 'Charles Darwin published On the Origin of Species, introducing the theory of evolution by natural selection.'
+  },
+  {
+    id: 'civil-war', year: 1861, date: 'April 12, 1861',
+    celestialEvent: 'Saturn-Jupiter Great Conjunction in Virgo (1861)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'American Civil War Begins',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Confederate forces fired on Fort Sumter, beginning the American Civil War that would kill over 620,000 Americans.'
+  },
+  {
+    id: 'slavery-abolition', year: 1865, date: 'December 6, 1865',
+    celestialEvent: 'Uranus-Pluto Square in Aries-Cancer', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: '13th Amendment Ratified \u2014 Slavery Abolished',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'The 13th Amendment to the United States Constitution was ratified, formally abolishing slavery.'
+  },
+  {
+    id: 'einstein', year: 1905, date: '1905',
+    celestialEvent: 'Uranus Opposite Neptune', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'Einstein\'s Miracle Year \u2014 E=mc\u00B2',
+    category: 'scientific',
+    significance: 5,
+    description: 'Albert Einstein published four papers that revolutionized physics, including special relativity and the famous equation E=mc\u00B2.'
+  },
+  {
+    id: 'russian-revolution', year: 1917, date: 'November 7, 1917',
+    celestialEvent: 'Saturn in Cancer \u2014 Opposite Natal US Sun', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'Russian Revolution \u2014 Bolsheviks Seize Power',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'The Bolsheviks, led by Vladimir Lenin, overthrew the Provisional Government in Petrograd, establishing the world\'s first communist state.'
+  },
+  {
+    id: 'holocaust', year: 1941, date: 'January 20, 1942',
+    celestialEvent: 'Saturn-Uranus Square (1941\u20131942)', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'The Holocaust \u2014 Wannsee Conference',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Nazi officials formalized the "Final Solution" at the Wannsee Conference, systematizing the genocide that would murder six million Jews.'
+  },
+  {
+    id: 'cuban-missile', year: 1962, date: 'October 16\u201328, 1962',
+    celestialEvent: 'Saturn-Neptune Square + Mars in Leo', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Cuban Missile Crisis',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'For thirteen days, the world stood on the brink of nuclear war as the US confronted the Soviet Union over missiles in Cuba.'
+  },
+  {
+    id: 'dna', year: 1953, date: 'April 25, 1953',
+    celestialEvent: 'Neptune in Libra \u2014 Saturn in Libra', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Discovery of DNA Structure',
+    category: 'scientific',
+    significance: 5,
+    description: 'Watson and Crick published the double helix structure of DNA, unlocking the code of life itself.'
+  },
+  {
+    id: 'womens-suffrage', year: 1920, date: 'August 18, 1920',
+    celestialEvent: 'Saturn in Virgo \u2014 Neptune in Leo', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: '19th Amendment \u2014 Women Win the Vote',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'The 19th Amendment was ratified, granting American women the right to vote after decades of struggle.'
+  },
+  {
+    id: 'watergate', year: 1974, date: 'August 9, 1974',
+    celestialEvent: 'Pluto in Libra (1971\u20131984)', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Nixon Resigns \u2014 Watergate',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Richard Nixon became the first US president to resign, ending the Watergate scandal that had consumed the nation.'
+  },
+  {
+    id: 'arab-spring', year: 2011, date: 'January 2011',
+    celestialEvent: 'Uranus enters Aries + Jupiter-Uranus Conjunction (Jan 2011)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Arab Spring Begins',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Revolution swept across the Middle East and North Africa as citizens rose against authoritarian governments.'
+  },
+  {
+    id: 'fukushima', year: 2011, date: 'March 11, 2011',
+    celestialEvent: 'Uranus at 29\u00B0 Pisces (anaretic degree)', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Fukushima Nuclear Disaster',
+    category: 'scientific',
+    significance: 4,
+    description: 'A massive earthquake and tsunami struck Japan, triggering triple nuclear meltdowns at the Fukushima Daiichi power plant.'
+  },
+  {
+    id: 'brexit', year: 2016, date: 'June 23, 2016',
+    celestialEvent: 'Saturn-Neptune Square', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Brexit Vote \u2014 UK Leaves the EU',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'The United Kingdom voted to leave the European Union in a referendum that stunned the world.'
+  },
+  {
+    id: 'trump-2016', year: 2016, date: 'November 8, 2016',
+    celestialEvent: 'Saturn-Neptune Square (exact 2015\u20132016)', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Trump Wins US Presidency',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Donald Trump defeated Hillary Clinton in the 2016 presidential election, overturning political expectations worldwide.'
+  },
+  {
+    id: 'telescope', year: 1608, date: '1608',
+    celestialEvent: 'Saturn-Neptune Opposition', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'First Telescope Invented',
+    category: 'scientific',
+    significance: 4,
+    description: 'Hans Lippershey applied for a patent on the first practical telescope, an invention that would revolutionize astronomy.'
+  },
+  {
+    id: 'plague-justinian', year: 541, date: '541 AD',
+    celestialEvent: 'Saturn-Pluto Conjunction', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Plague of Justinian',
+    category: 'pandemic',
+    significance: 5,
+    description: 'The first recorded pandemic of bubonic plague struck the Byzantine Empire, killing an estimated 25\u201350 million people.'
+  },
+  {
+    id: 'genghis-khan', year: 1206, date: '1206',
+    celestialEvent: 'Jupiter-Saturn Great Conjunction in Aries', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Genghis Khan Unites Mongolia',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Temujin was proclaimed Genghis Khan, beginning the conquest that would create the largest contiguous land empire in history.'
+  },
+  {
+    id: 'constantinople', year: 1453, date: 'May 29, 1453',
+    celestialEvent: 'Saturn-Pluto Opposition', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'Fall of Constantinople',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Ottoman forces captured Constantinople, ending the Byzantine Empire after over a thousand years.'
+  },
+  {
+    id: 'haitian-revolution', year: 1791, date: 'August 22, 1791',
+    celestialEvent: 'Uranus in Leo \u2014 Pluto in Aquarius', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'Haitian Revolution Begins',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Enslaved people in Saint-Domingue rose in revolt, beginning the only successful large-scale slave uprising in history.'
+  },
+  {
+    id: 'crucifixion', year: 33, date: 'April 3, 33 AD',
+    celestialEvent: 'Lunar Eclipse Visible from Jerusalem', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Crucifixion of Jesus',
+    category: 'religious',
+    significance: 5,
+    description: 'Jesus of Nazareth is crucified by Roman authorities in Jerusalem under Pontius Pilate.'
+  },
+  {
+    id: 'great-fire-rome', year: 64, date: 'July 18, 64 AD',
+    celestialEvent: 'Saturn-Mars Conjunction in Cancer', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Great Fire of Rome Under Nero',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'A devastating fire swept through Rome for nine days, destroying ten of the city\'s fourteen districts while Emperor Nero allegedly watched.'
+  },
+  {
+    id: 'vesuvius', year: 79, date: 'August 24, 79 AD',
+    celestialEvent: 'Mars-Saturn Square \u2014 Pluto in Pisces', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Eruption of Mount Vesuvius \u2014 Pompeii Destroyed',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Mount Vesuvius erupted catastrophically, burying the Roman cities of Pompeii and Herculaneum under volcanic ash and pumice.'
+  },
+  {
+    id: 'islam-founding', year: 622, date: 'September 24, 622 AD',
+    celestialEvent: 'Saturn-Jupiter Conjunction in Scorpio', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'The Hijra \u2014 Birth of Islamic Civilization',
+    category: 'religious',
+    significance: 5,
+    description: 'Prophet Muhammad\'s migration from Mecca to Medina marks Year One of the Islamic calendar and the founding of the first Islamic community.'
+  },
+  {
+    id: 'crusades', year: 1095, date: 'November 27, 1095',
+    celestialEvent: 'Jupiter-Saturn Great Conjunction', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Pope Urban II Launches the First Crusade',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Pope Urban II called for a crusade to reclaim the Holy Land, launching two centuries of religious warfare.'
+  },
+  {
+    id: 'halley-1066', year: 1066, date: 'April 1066',
+    celestialEvent: 'Halley\'s Comet \u2014 Perihelion March 20, 1066', celestialType: 'eclipse', symbol: '\u2604',
+    worldEvent: 'Norman Conquest of England',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'William the Conqueror defeated King Harold II at the Battle of Hastings. Halley\'s Comet, visible for weeks, was seen as an omen.'
+  },
+  {
+    id: 'renaissance-florence', year: 1469, date: '1469',
+    celestialEvent: 'Jupiter-Saturn Great Conjunction in Libra', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Lorenzo de\' Medici Takes Power \u2014 High Renaissance Begins',
+    category: 'cultural',
+    significance: 4,
+    description: 'Lorenzo the Magnificent became de facto ruler of Florence, ushering in the golden age of Renaissance art and humanism.'
+  },
+  {
+    id: 'magellan', year: 1519, date: 'September 20, 1519',
+    celestialEvent: 'Jupiter-Saturn Conjunction approaching (1524)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Magellan Begins First Circumnavigation',
+    category: 'scientific',
+    significance: 4,
+    description: 'Ferdinand Magellan set sail from Spain on the expedition that would prove the Earth was round by completing the first circumnavigation.'
+  },
+  {
+    id: 'great-fire-london', year: 1666, date: 'September 2, 1666',
+    celestialEvent: 'Mars-Saturn Conjunction in Gemini', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Great Fire of London',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'The Great Fire destroyed 13,200 houses, 87 churches, and Old St Paul\'s Cathedral, reshaping London from medieval to modern.'
+  },
+  {
+    id: 'south-sea-bubble', year: 1720, date: 'September 1720',
+    celestialEvent: 'Saturn-Neptune Square', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'South Sea Bubble Crash',
+    category: 'financial',
+    significance: 4,
+    description: 'The South Sea Company collapse wiped out fortunes across Britain, including Isaac Newton\'s. The first modern financial bubble burst.'
+  },
+  {
+    id: 'industrial-revolution', year: 1781, date: '1781',
+    celestialEvent: 'Discovery of Uranus \u2014 Uranus enters the Pantheon', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Uranus Discovered \u2014 Industrial Revolution Accelerates',
+    category: 'scientific',
+    significance: 5,
+    description: 'William Herschel discovered Uranus, the planet of revolution and technology, just as the Industrial Revolution transformed Britain.'
+  },
+  {
+    id: 'haiti-independence', year: 1804, date: 'January 1, 1804',
+    celestialEvent: 'Uranus in Libra \u2014 Pluto in Pisces', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'Haitian Independence \u2014 First Free Black Republic',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Haiti declared independence from France, becoming the first free Black republic in history and the second independent nation in the Americas.'
+  },
+  {
+    id: 'irish-famine', year: 1845, date: 'September 1845',
+    celestialEvent: 'Saturn-Neptune Conjunction in Aquarius', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Irish Potato Famine Begins',
+    category: 'pandemic',
+    significance: 4,
+    description: 'The potato blight struck Ireland, beginning a famine that killed one million people and forced another million to emigrate.'
+  },
+  {
+    id: 'suez-canal', year: 1869, date: 'November 17, 1869',
+    celestialEvent: 'Jupiter-Saturn Conjunction in Sagittarius', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Suez Canal Opens',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'The Suez Canal connects Mediterranean and Red Seas, eliminating the need to sail around Africa.'
+  },
+  {
+    id: 'electricity-age', year: 1882, date: 'September 4, 1882',
+    celestialEvent: 'Uranus in Virgo (technology systems revolution)', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Edison Opens Pearl Street Station \u2014 Electric Age',
+    category: 'scientific',
+    significance: 4,
+    description: 'Edison opens Pearl Street station in Manhattan. Tesla\'s alternating current proves superior. The Electric Age begins.'
+  },
+  {
+    id: 'krakatoa', year: 1883, date: 'August 27, 1883',
+    celestialEvent: 'Neptune-Pluto Conjunction approaching (492-year cycle)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Krakatoa Eruption \u2014 Global Climate Shock',
+    category: 'scientific',
+    significance: 4,
+    description: 'Krakatoa erupted with a force equivalent to 200 megatons of TNT, triggering tsunamis and a volcanic winter.'
+  },
+  {
+    id: 'russian-1905', year: 1905, date: 'January 22, 1905',
+    celestialEvent: 'Uranus Opposite Neptune (exact)', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'Bloody Sunday \u2014 Russian Revolution of 1905',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Imperial guards opened fire on peaceful protesters in St. Petersburg, killing hundreds and igniting the Revolution of 1905.'
+  },
+  {
+    id: 'titanic', year: 1912, date: 'April 15, 1912',
+    celestialEvent: 'Jupiter-Neptune Conjunction (approaching, exact 1919)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'RMS Titanic Sinks',
+    category: 'cultural',
+    significance: 4,
+    description: 'The "unsinkable" Titanic struck an iceberg and sank on her maiden voyage, killing over 1,500 people.'
+  },
+  {
+    id: 'treaty-versailles', year: 1919, date: 'June 28, 1919',
+    celestialEvent: 'Jupiter-Neptune-Pluto Stellium in Cancer', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Treaty of Versailles Signed',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'The Treaty of Versailles officially ended World War I and imposed devastating reparations on Germany.'
+  },
+  {
+    id: 'penicillin', year: 1928, date: 'September 1928',
+    celestialEvent: 'Neptune in Virgo (health revolution)', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Fleming Discovers Penicillin',
+    category: 'scientific',
+    significance: 4,
+    description: 'Alexander Fleming discovered penicillin, the world\'s first antibiotic, launching the age of modern medicine.'
+  },
+  {
+    id: 'pearl-harbor', year: 1941, date: 'December 7, 1941',
+    celestialEvent: 'Saturn in Taurus Square Uranus in Gemini', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Attack on Pearl Harbor',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Japan launched a surprise attack on the US naval base at Pearl Harbor, killing 2,403 Americans and drawing the US into WWII.'
+  },
+  {
+    id: 'israel-founded', year: 1948, date: 'May 14, 1948',
+    celestialEvent: 'Total Solar Eclipse (November 1, 1948)', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'State of Israel Declared',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'David Ben-Gurion proclaimed the establishment of the State of Israel. Five Arab nations immediately declared war.'
+  },
+  {
+    id: 'china-revolution', year: 1949, date: 'October 1, 1949',
+    celestialEvent: 'Uranus in Cancer \u2014 Saturn in Virgo', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Mao Proclaims People\'s Republic of China',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Mao Zedong declared the founding of the People\'s Republic of China, completing the communist revolution.'
+  },
+  {
+    id: 'vietnam-war', year: 1955, date: 'November 1, 1955',
+    celestialEvent: 'Pluto in Leo \u2014 Neptune in Libra', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Vietnam War Begins',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'The United States began direct military involvement in Vietnam, starting a conflict that would last 20 years and claim millions of lives.'
+  },
+  {
+    id: 'woodstock', year: 1969, date: 'August 15, 1969',
+    celestialEvent: 'Jupiter-Uranus Conjunction in Libra', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Woodstock Music Festival',
+    category: 'cultural',
+    significance: 3,
+    description: 'Half a million people gathered on a farm in Bethel, New York for three days of peace, music, and countercultural expression.'
+  },
+  {
+    id: 'oil-crisis', year: 1973, date: 'October 17, 1973',
+    celestialEvent: 'Neptune in Sagittarius (global resources)', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'OPEC Oil Embargo \u2014 Energy Crisis',
+    category: 'financial',
+    significance: 4,
+    description: 'OPEC nations imposed an oil embargo against Western nations, quadrupling oil prices and reshaping the global economy.'
+  },
+  {
+    id: 'aids', year: 1981, date: 'June 5, 1981',
+    celestialEvent: 'Jupiter-Saturn Great Conjunction in Libra (1981)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'AIDS Epidemic Recognized',
+    category: 'pandemic',
+    significance: 5,
+    description: 'The CDC published a report on five gay men with mysterious immune deficiency in Los Angeles, marking the official recognition of AIDS.'
+  },
+  {
+    id: 'mandela', year: 1990, date: 'February 11, 1990',
+    celestialEvent: 'Saturn-Neptune Conjunction aftermath (1989)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Nelson Mandela Released from Prison',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Nelson Mandela walked free after 27 years of imprisonment, signaling the beginning of the end of apartheid in South Africa.'
+  },
+  {
+    id: 'human-genome', year: 2003, date: 'April 14, 2003',
+    celestialEvent: 'Uranus in Pisces (collective unconscious)', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Human Genome Project Completed',
+    category: 'scientific',
+    significance: 4,
+    description: 'Scientists completed the mapping of the entire human genome, reading all 3.2 billion base pairs of human DNA.'
+  },
+  {
+    id: 'tsunami-2004', year: 2004, date: 'December 26, 2004',
+    celestialEvent: 'Total Solar Eclipse (October 14, 2004)', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Indian Ocean Tsunami',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'A magnitude 9.1 earthquake triggered a massive tsunami across the Indian Ocean, killing over 230,000 people in 14 countries.'
+  },
+  {
+    id: 'obama', year: 2008, date: 'November 4, 2008',
+    celestialEvent: 'Saturn-Uranus Opposition (exact)', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'Barack Obama Elected President',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Barack Obama was elected the 44th President of the United States, becoming the first African American to hold the office.'
+  },
+  {
+    id: 'occupy', year: 2011, date: 'September 17, 2011',
+    celestialEvent: 'Uranus-Pluto Square (2012\u20132015, approaching)', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Occupy Wall Street Movement',
+    category: 'geopolitical',
+    significance: 3,
+    description: 'Protesters occupied Zuccotti Park in Manhattan\'s financial district, launching a global movement against economic inequality.'
+  },
+  {
+    id: 'ukraine-war', year: 2022, date: 'February 24, 2022',
+    celestialEvent: 'Saturn-Uranus Square (waning)', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Russia Invades Ukraine',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Russia launched a full-scale invasion of Ukraine, triggering the largest war in Europe since World War II.'
+  },
+  {
+    id: 'great-conjunction-2020', year: 2020, date: 'December 21, 2020',
+    celestialEvent: 'Jupiter-Saturn Great Conjunction in Aquarius', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Great Conjunction \u2014 Age of Aquarius Shift',
+    category: 'cultural',
+    significance: 5,
+    description: 'Jupiter and Saturn converged at 0\u00B0 Aquarius on the winter solstice, marking the shift of Great Conjunctions from earth to air signs for the next 200 years.'
+  },
+  {
+    id: 'neptune-discovery', year: 1846, date: 'September 23, 1846',
+    celestialEvent: 'Neptune found at 25\u00B0 Aquarius', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Discovery of Neptune',
+    category: 'scientific',
+    significance: 4,
+    description: 'Johann Galle observed Neptune for the first time, confirming its predicted existence. The planet of dreams, illusions, and dissolving boundaries entered human awareness.'
+  },
+  {
+    id: 'pluto-discovery', year: 1930, date: 'February 18, 1930',
+    celestialEvent: 'Pluto found at 17\u00B0 Cancer', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Discovery of Pluto',
+    category: 'scientific',
+    significance: 4,
+    description: 'Clyde Tombaugh discovered Pluto, the planet of death, transformation, and hidden power, as the world hurtled toward the Great Depression and the atomic age.'
+  },
+  {
+    id: 'lincoln-assassination', year: 1865, date: 'April 14, 1865',
+    celestialEvent: 'Uranus-Pluto Square in Aries-Cancer', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Assassination of Abraham Lincoln',
+    category: 'deaths',
+    significance: 5,
+    description: 'John Wilkes Booth shot President Lincoln at Ford\'s Theatre, five days after the Civil War effectively ended.'
+  },
+  {
+    id: 'stock-market-1987', year: 1987, date: 'October 19, 1987',
+    celestialEvent: 'Solar Eclipse (September 23, 1987)', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Black Monday \u2014 Stock Market Crash',
+    category: 'financial',
+    significance: 4,
+    description: 'The Dow Jones fell 22.6% in a single day \u2014 the largest single-day percentage drop in stock market history.'
+  },
+  {
+    id: 'challenger', year: 1986, date: 'January 28, 1986',
+    celestialEvent: 'Saturn-Uranus Conjunction in Sagittarius (approaching)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Space Shuttle Challenger Disaster',
+    category: 'scientific',
+    significance: 4,
+    description: 'The Space Shuttle Challenger broke apart 73 seconds after launch, killing all seven crew members as millions watched on live television.'
+  },
+  {
+    id: 'rwandan-genocide', year: 1994, date: 'April 7, 1994',
+    celestialEvent: 'Annular Solar Eclipse (May 10, 1994)', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Rwandan Genocide Begins',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Hutu extremists began a 100-day genocide against the Tutsi population of Rwanda, killing approximately 800,000 people.'
+  },
+  {
+    id: 'princess-diana', year: 1997, date: 'August 31, 1997',
+    celestialEvent: 'Total Solar Eclipse (March 9, 1997)', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Death of Princess Diana',
+    category: 'deaths',
+    significance: 3,
+    description: 'Princess Diana was killed in a car crash in Paris, triggering an unprecedented global outpouring of grief.'
+  },
+  {
+    id: 'euro-launch', year: 1999, date: 'January 1, 1999',
+    celestialEvent: 'Jupiter-Neptune-Uranus T-Square', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Euro Currency Launched',
+    category: 'financial',
+    significance: 3,
+    description: 'Eleven European nations adopted the euro as their common currency, creating the largest currency union in history.'
+  },
+  {
+    id: 'cloning-dolly', year: 1996, date: 'July 5, 1996',
+    celestialEvent: 'Uranus-Neptune Conjunction aftermath (1993)', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Dolly the Sheep \u2014 First Cloned Mammal',
+    category: 'scientific',
+    significance: 4,
+    description: 'Scientists at the Roslin Institute successfully cloned the first mammal from an adult somatic cell.'
+  },
+  {
+    id: 'deepwater-horizon', year: 2010, date: 'April 20, 2010',
+    celestialEvent: 'Saturn-Uranus Opposition + Jupiter-Uranus Conjunction', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'Deepwater Horizon Oil Spill',
+    category: 'scientific',
+    significance: 3,
+    description: 'The Deepwater Horizon oil rig exploded, causing the worst marine oil spill in history. 4.9 million barrels leaked into the Gulf of Mexico.'
+  },
+  {
+    id: 'bin-laden', year: 2011, date: 'May 2, 2011',
+    celestialEvent: 'Jupiter-Mars Conjunction in Aries', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Osama bin Laden Killed',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'US Navy SEALs killed al-Qaeda leader Osama bin Laden in Abbottabad, Pakistan, nearly ten years after the September 11 attacks.'
+  },
+  {
+    id: 'snowden', year: 2013, date: 'June 5, 2013',
+    celestialEvent: 'Uranus-Pluto Square (exact)', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Edward Snowden NSA Revelations',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Edward Snowden leaked classified NSA documents revealing mass global surveillance programs by the US government.'
+  },
+  {
+    id: 'paris-climate', year: 2015, date: 'December 12, 2015',
+    celestialEvent: 'Saturn-Neptune Square (approaching)', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Paris Climate Agreement',
+    category: 'geopolitical',
+    significance: 3,
+    description: '196 nations adopted the Paris Agreement on climate change, pledging to limit global warming to 1.5\u00B0C above pre-industrial levels.'
+  },
+  {
+    id: 'george-floyd', year: 2020, date: 'May 25, 2020',
+    celestialEvent: 'Lunar Eclipse (June 5, 2020) + Saturn-Pluto Conjunction', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'George Floyd \u2014 Global Racial Justice Movement',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'The murder of George Floyd by a Minneapolis police officer ignited the largest racial justice protests in US history.'
+  },
+  {
+    id: 'afghanistan-fall', year: 2021, date: 'August 15, 2021',
+    celestialEvent: 'Jupiter-Saturn Square Uranus', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Fall of Kabul \u2014 Taliban Return to Power',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'The Taliban seized Kabul as the US-backed Afghan government collapsed, ending the 20-year American war in Afghanistan.'
+  },
+  {
+    id: 'queen-elizabeth', year: 2022, date: 'September 8, 2022',
+    celestialEvent: 'Mercury Retrograde in Libra', celestialType: 'retrograde', symbol: '\u211E',
+    worldEvent: 'Death of Queen Elizabeth II',
+    category: 'deaths',
+    significance: 4,
+    description: 'Queen Elizabeth II died at Balmoral Castle after 70 years on the throne, the longest reign in British history.'
+  },
+  {
+    id: 'october7', year: 2023, date: 'October 7, 2023',
+    celestialEvent: 'Annular Solar Eclipse \u2014 October 14, 2023', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'October 7 Attack \u2014 Israel-Gaza War Begins',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Hamas launched a surprise attack on southern Israel, killing approximately 1,200 people. Israel\'s military response in Gaza has caused tens of thousands of casualties.'
+  },
+  {
+    id: 'saturn-neptune-2025', year: 2025, date: 'February\u2013June 2025',
+    celestialEvent: 'Saturn-Neptune Conjunction at 0\u00B0 Aries', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Saturn-Neptune Conjunction \u2014 Structural Dissolution Cycle',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Saturn meets Neptune at 0\u00B0 Aries for the first time since 1846. This conjunction historically dissolves existing structures and births new ideological movements.'
+  },
+  {
+    id: 'uranus-gemini-2025', year: 2025, date: 'July 7, 2025',
+    celestialEvent: 'Uranus Enters Gemini', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Uranus Enters Gemini \u2014 Communication Revolution',
+    category: 'scientific',
+    significance: 5,
+    description: 'Uranus enters Gemini for the first time since 1941. Every previous transit has coincided with a revolution in communication, transportation, or information.'
+  },
+  {
+    id: 'neptune-aries-2025', year: 2025, date: 'March 30, 2025',
+    celestialEvent: 'Neptune Enters Aries', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Neptune Enters Aries \u2014 New Spiritual Frontier',
+    category: 'cultural',
+    significance: 4,
+    description: 'Neptune enters Aries for the first time since 1861. This ingress historically coincides with new spiritual movements, ideological revolutions, and the dissolution of old identities.'
+  },
+  {
+    id: 'solar-eclipse-2024', year: 2024, date: 'April 8, 2024',
+    celestialEvent: 'Total Solar Eclipse across America', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Great American Eclipse of 2024',
+    category: 'cultural',
+    significance: 4,
+    description: 'A total solar eclipse crossed North America from Mexico to Maine, the last total solar eclipse visible from the contiguous US until 2044.'
+  },
+  {
+    id: 'trump-2024', year: 2024, date: 'November 5, 2024',
+    celestialEvent: 'Pluto at 29\u00B0 Capricorn (anaretic degree)', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Trump Wins Second Term',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Donald Trump won the 2024 presidential election as Pluto completed its transit through Capricorn, the sign of government and institutional power.'
+  },
+  {
+    id: 'pluto-aquarius', year: 2024, date: 'November 19, 2024',
+    celestialEvent: 'Pluto Enters Aquarius', celestialType: 'ingress', symbol: '\u2609',
+    worldEvent: 'Pluto Enters Aquarius \u2014 Power Shifts to Networks',
+    category: 'cultural',
+    significance: 5,
+    description: 'Pluto enters Aquarius for the first time since 1778. The last transit coincided with the American and French Revolutions. Power shifts from institutions to networks.'
+  },
+  {
+    id: 'united-nations', year: 1945, date: 'October 24, 1945',
+    celestialEvent: 'Jupiter-Neptune Conjunction in Libra', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'United Nations Founded',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'In the aftermath of World War II, 51 nations ratified the United Nations Charter, representing humanity\'s most ambitious attempt at collective governance.'
+  },
+  {
+    id: 'marshall-plan', year: 1948, date: 'April 3, 1948',
+    celestialEvent: 'Lunar Eclipse in Libra (April 1948)', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Marshall Plan Signed into Law',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'President Truman signed the Marshall Plan into law, committing $13.3 billion to rebuild war-devastated Europe.'
+  },
+  {
+    id: 'gandhi-assassination', year: 1948, date: 'January 30, 1948',
+    celestialEvent: 'Saturn Conjunction Transit \u2014 Karmic Reckoning', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Assassination of Mahatma Gandhi',
+    category: 'deaths',
+    significance: 5,
+    description: 'Nathuram Godse assassinated Mahatma Gandhi with three gunshots at point-blank range during an evening prayer meeting in New Delhi.'
+  },
+  {
+    id: 'korean-war', year: 1950, date: 'June 25, 1950',
+    celestialEvent: 'Mars Conjunct US Natal Mars in Gemini', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Korean War Begins',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'North Korean forces crossed the 38th parallel in a surprise invasion that drew the United States into its first major Cold War military confrontation.'
+  },
+  {
+    id: 'cuban-revolution', year: 1959, date: 'January 1, 1959',
+    celestialEvent: 'Total Solar Eclipse \u2014 October 2, 1959', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Cuban Revolution',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Fidel Castro\'s guerrilla forces overthrew the Batista dictatorship, reshaping Cold War geopolitics for decades.'
+  },
+  {
+    id: 'civil-rights-act', year: 1964, date: 'July 2, 1964',
+    celestialEvent: 'Solar Eclipse July 9 & Uranus-Pluto Conjunction Era', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Civil Rights Act Signed',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'President Lyndon Johnson signed the Civil Rights Act of 1964, ending legal racial segregation in the United States.'
+  },
+  {
+    id: 'mlk-assassination', year: 1968, date: 'April 4, 1968',
+    celestialEvent: 'Between Solar Eclipse March 28 & Blood Moon April 13', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Assassination of Martin Luther King Jr.',
+    category: 'deaths',
+    significance: 5,
+    description: 'Martin Luther King Jr. was shot and killed on the balcony of the Lorraine Motel in Memphis, Tennessee.'
+  },
+  {
+    id: 'nixon-ends-gold-standard', year: 1971, date: 'August 15, 1971',
+    celestialEvent: 'Triple Jupiter-Neptune Conjunction', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Nixon Ends the Gold Standard',
+    category: 'financial',
+    significance: 5,
+    description: 'President Nixon unilaterally ended the convertibility of the US dollar to gold, dissolving the Bretton Woods system.'
+  },
+  {
+    id: 'iranian-revolution', year: 1979, date: 'February 11, 1979',
+    celestialEvent: 'Total Solar Eclipse \u2014 February 26, 1979', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Iranian Revolution',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Ayatollah Khomeini\'s Islamic Revolution overthrew Shah Mohammad Reza Pahlavi, fundamentally altering Middle East geopolitics.'
+  },
+  {
+    id: 'tiananmen-square', year: 1989, date: 'June 4, 1989',
+    celestialEvent: 'Saturn-Neptune Conjunction in Capricorn', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Tiananmen Square Massacre',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'The Chinese government sent tanks and soldiers to crush pro-democracy protests in Tiananmen Square.'
+  },
+  {
+    id: 'fall-of-soviet-union', year: 1991, date: 'December 26, 1991',
+    celestialEvent: 'Total Solar Eclipse July 11 & Solstice Lunar Eclipse December 21', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Dissolution of the Soviet Union',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'The Soviet Union formally dissolved, ending the political order that had defined the twentieth century.'
+  },
+  {
+    id: 'dot-com-crash', year: 2000, date: 'March 10, 2000',
+    celestialEvent: 'Jupiter-Saturn Great Conjunction Square Neptune', celestialType: 'square', symbol: '\u25A1',
+    worldEvent: 'Dot-Com Bubble Crash',
+    category: 'financial',
+    significance: 4,
+    description: 'The NASDAQ peaked at 5,048 before beginning a catastrophic collapse that would destroy five trillion dollars in market value.'
+  },
+  {
+    id: 'hurricane-katrina', year: 2005, date: 'August 29, 2005',
+    celestialEvent: 'Sun Opposite Uranus & Mars Square Neptune', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'Hurricane Katrina Devastates New Orleans',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Hurricane Katrina struck the Gulf Coast, breaching the levees of New Orleans and submerging 80 percent of the city.'
+  },
+  {
+    id: 'hong-kong-protests', year: 2019, date: 'June 9 \u2013 November 2019',
+    celestialEvent: 'Total Solar Eclipse in Cancer', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Hong Kong Pro-Democracy Protests',
+    category: 'geopolitical',
+    significance: 4,
+    description: 'Two million Hong Kong residents took to the streets demanding democratic rights and resisting Beijing\'s encroachment.'
+  },
+  {
+    id: 'chatgpt-ai-revolution', year: 2022, date: 'November 30, 2022',
+    celestialEvent: 'Lunar Eclipse Conjunct Uranus \u2014 November 8, 2022', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'ChatGPT Launch \u2014 AI Revolution Begins',
+    category: 'scientific',
+    significance: 5,
+    description: 'OpenAI released ChatGPT, which reached 100 million users faster than any technology in human history.'
+  },
+  {
+    id: 'chinese-cultural-revolution', year: 1966, date: 'May 16, 1966',
+    celestialEvent: 'Uranus-Pluto Conjunction in Virgo', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'Chinese Cultural Revolution',
+    category: 'geopolitical',
+    significance: 5,
+    description: 'Chairman Mao launched the Cultural Revolution to purge rivals and reimpose ideological purity, killing millions.'
+  },
+  {
+    id: 'iphone-social-media', year: 2007, date: 'June 29, 2007',
+    celestialEvent: 'Saturn-Neptune Opposition in Leo-Aquarius', celestialType: 'opposition', symbol: '\u260D',
+    worldEvent: 'iPhone Launch \u2014 The Smartphone Revolution',
+    category: 'scientific',
+    significance: 5,
+    description: 'Steve Jobs unveiled the first iPhone, dissolving the boundary between phone, computer, and camera in a single device.'
+  },
+  {
+    id: 'penicillin-mass-use', year: 1942, date: '1942\u20131943',
+    celestialEvent: 'Solar Eclipse in Virgo \u2014 Sign of Health & Medicine', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Penicillin Mass Production Saves Millions',
+    category: 'scientific',
+    significance: 4,
+    description: 'Penicillin was mass produced and deployed to treat wounded Allied soldiers, launching the antibiotic era.'
+  },
+  {
+    id: 'cern-lhc', year: 2008, date: 'September 10, 2008',
+    celestialEvent: 'Mars-Venus Conjunction + Saturn-Uranus Opposition', celestialType: 'conjunction', symbol: '\u260C',
+    worldEvent: 'CERN Activates the Large Hadron Collider',
+    category: 'scientific',
+    significance: 4,
+    description: 'Scientists sent the first beam of protons around the Large Hadron Collider, the most complex machine ever built.'
+  },
+  {
+    id: 'trinity-nuclear-test', year: 1945, date: 'July 16, 1945',
+    celestialEvent: 'Total Solar Eclipse (July 9) \u2014 7 Days Before Detonation', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Trinity Test \u2014 First Nuclear Detonation',
+    category: 'scientific',
+    significance: 5,
+    description: 'The world\'s first nuclear weapon detonated in the New Mexico desert, seven days after a total solar eclipse.'
+  },
+  {
+    id: 'sputnik', year: 1957, date: 'October 4, 1957',
+    celestialEvent: 'Total Solar Eclipse (October 23) \u2014 19 Days After Launch', celestialType: 'eclipse', symbol: '\u2609',
+    worldEvent: 'Sputnik \u2014 Dawn of the Space Age',
+    category: 'scientific',
+    significance: 5,
+    description: 'A beach ball-sized sphere launched from the Kazakh steppe and orbited the Earth. The Space Age had begun.'
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COLOR MAP
+// ═══════════════════════════════════════════════════════════════════════════
+const TYPE_ACCENT = {
+  eclipse:     '#E84545',
+  conjunction: '#C9A96E',
+  opposition:  '#E07A2F',
+  square:      '#8B7EC7',
+  retrograde:  '#4A90D9',
+  ingress:     '#6B9E9E',
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ASTRONOMICAL CALCULATIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function julianDay(y, m, d) {
+  if (m <= 2) { y--; m += 12; }
+  const A = Math.floor(y / 100);
+  const B = (y > 1582 || (y === 1582 && (m > 10 || (m === 10 && d >= 15)))) ? 2 - A + Math.floor(A / 4) : 0;
+  return Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524.5;
+}
+
+function getMoonPhase(jd) {
+  const synodicMonth = 29.53059;
+  const daysSinceNewMoon = ((jd - 2451550.26) % synodicMonth + synodicMonth) % synodicMonth;
+  const phase = daysSinceNewMoon;
+  const illumination = Math.round((1 - Math.cos(2 * Math.PI * phase / synodicMonth)) / 2 * 100);
+
+  if (phase < 1.85) return { name: 'New Moon', icon: '\uD83C\uDF11', illumination, phase };
+  if (phase < 5.53) return { name: 'Waxing Crescent', icon: '\uD83C\uDF12', illumination, phase };
+  if (phase < 9.22) return { name: 'First Quarter', icon: '\uD83C\uDF13', illumination, phase };
+  if (phase < 12.91) return { name: 'Waxing Gibbous', icon: '\uD83C\uDF14', illumination, phase };
+  if (phase < 16.61) return { name: 'Full Moon', icon: '\uD83C\uDF15', illumination, phase };
+  if (phase < 20.30) return { name: 'Waning Gibbous', icon: '\uD83C\uDF16', illumination, phase };
+  if (phase < 23.99) return { name: 'Last Quarter', icon: '\uD83C\uDF17', illumination, phase };
+  if (phase < 27.68) return { name: 'Waning Crescent', icon: '\uD83C\uDF18', illumination, phase };
+  return { name: 'New Moon', icon: '\uD83C\uDF11', illumination: 0, phase };
+}
+
+function getSunSign(month, day) {
+  const signs = [
+    { name: 'Capricorn', symbol: '\u2651', startM: 12, startD: 22 },
+    { name: 'Aquarius', symbol: '\u2652', startM: 1, startD: 20 },
+    { name: 'Pisces', symbol: '\u2653', startM: 2, startD: 19 },
+    { name: 'Aries', symbol: '\u2648', startM: 3, startD: 21 },
+    { name: 'Taurus', symbol: '\u2649', startM: 4, startD: 20 },
+    { name: 'Gemini', symbol: '\u264A', startM: 5, startD: 21 },
+    { name: 'Cancer', symbol: '\u264B', startM: 6, startD: 21 },
+    { name: 'Leo', symbol: '\u264C', startM: 7, startD: 23 },
+    { name: 'Virgo', symbol: '\u264D', startM: 8, startD: 23 },
+    { name: 'Libra', symbol: '\u264E', startM: 9, startD: 23 },
+    { name: 'Scorpio', symbol: '\u264F', startM: 10, startD: 23 },
+    { name: 'Sagittarius', symbol: '\u2650', startM: 11, startD: 22 },
+    { name: 'Capricorn', symbol: '\u2651', startM: 12, startD: 22 },
+  ];
+
+  for (let i = signs.length - 1; i >= 0; i--) {
+    const s = signs[i];
+    if (month > s.startM || (month === s.startM && day >= s.startD)) {
+      return { name: s.name, symbol: s.symbol };
+    }
+  }
+  return { name: 'Capricorn', symbol: '\u2651' };
+}
+
+function getMoonSign(jd) {
+  // Approximate lunar longitude using mean orbital elements
+  const T = (jd - 2451545.0) / 36525.0;
+  const L0 = 218.3165 + 481267.8813 * T; // Mean longitude
+  const M = 134.9634 + 477198.8676 * T;  // Mean anomaly
+  const F = 93.2721 + 483202.0175 * T;   // Argument of latitude
+  const D = 297.8502 + 445267.1115 * T;  // Mean elongation
+
+  // Apply principal perturbations
+  const Mrad = M * Math.PI / 180;
+  const Drad = D * Math.PI / 180;
+  const Frad = F * Math.PI / 180;
+
+  let lon = L0
+    + 6.289 * Math.sin(Mrad)
+    + 1.274 * Math.sin(2 * Drad - Mrad)
+    + 0.658 * Math.sin(2 * Drad)
+    + 0.214 * Math.sin(2 * Mrad)
+    - 0.186 * Math.sin((134.9634 + 477198.8676 * T) * Math.PI / 180) * 0; // Sun mean anomaly
+    - 0.114 * Math.sin(2 * Frad);
+
+  lon = ((lon % 360) + 360) % 360;
+
+  const signs = ['\u2648','\u2649','\u264A','\u264B','\u264C','\u264D','\u264E','\u264F','\u2650','\u2651','\u2652','\u2653'];
+  const signNames = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  const idx = Math.floor(lon / 30);
+  return { name: signNames[idx], symbol: signs[idx], degree: Math.floor(lon % 30), longitude: lon };
+}
+
+function getPlanetPositions(jd) {
+  const T = (jd - 2451545.0) / 365.25; // Years from J2000.0
+  const planets = [
+    { name: 'Mercury', symbol: '\u263F', period: 0.2408467, lon0: 252.25, color: '#A0A0A0' },
+    { name: 'Venus', symbol: '\u2640', period: 0.61519726, lon0: 181.98, color: '#E8D5A0' },
+    { name: 'Mars', symbol: '\u2642', period: 1.8808158, lon0: 355.43, color: '#E84545' },
+    { name: 'Jupiter', symbol: '\u2643', period: 11.862, lon0: 34.35, color: '#C9A96E' },
+    { name: 'Saturn', symbol: '\u2644', period: 29.457, lon0: 50.08, color: '#8B7EC7' },
+    { name: 'Uranus', symbol: '\u2645', period: 84.011, lon0: 314.06, color: '#4A90D9' },
+    { name: 'Neptune', symbol: '\u2646', period: 164.8, lon0: 304.35, color: '#5B8FB9' },
+    { name: 'Pluto', symbol: '\u2647', period: 247.7, lon0: 238.96, color: '#6B9E9E' },
+  ];
+
+  const signs = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  const signSymbols = ['\u2648','\u2649','\u264A','\u264B','\u264C','\u264D','\u264E','\u264F','\u2650','\u2651','\u2652','\u2653'];
+
+  return planets.map(p => {
+    const meanLon = ((p.lon0 + (360 / p.period) * T) % 360 + 360) % 360;
+    const signIdx = Math.floor(meanLon / 30);
+    const degree = Math.floor(meanLon % 30);
+    return {
+      ...p,
+      longitude: meanLon,
+      sign: signs[signIdx],
+      signSymbol: signSymbols[signIdx],
+      degree: degree,
+    };
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CELESTIAL BRIEFING DATA
+// ═══════════════════════════════════════════════════════════════════════════
+
+const MOON_MEANINGS = {
+  'New Moon': 'The moon was completely dark \u2014 invisible in the sky. In tradition, this marks a time of fresh starts and new chapters. Think of it as a blank page.',
+  'Waxing Crescent': 'A thin sliver of moon was just becoming visible. This is the phase of early momentum \u2014 a plan forming, the first steps being taken.',
+  'First Quarter': 'The moon was half-lit. This is traditionally a decisive moment \u2014 the point where intentions meet their first real test.',
+  'Waxing Gibbous': 'The moon was nearly full, building toward its peak. A time of refinement and preparation \u2014 the finishing touches before something is ready.',
+  'Full Moon': 'The moon was at its brightest \u2014 fully illuminated. Full Moons are when things come to a head. Emotions run high, and what was building reaches its climax.',
+  'Waning Gibbous': 'The moon had just passed full and was beginning to dim. The intensity has peaked \u2014 now the lessons settle in.',
+  'Last Quarter': 'The moon was half-lit and fading. A time of release \u2014 clearing out what no longer works to make room for what comes next.',
+  'Waning Crescent': 'Only a thin sliver of moon remained. The quiet phase before renewal \u2014 rest, reflection, and the space between endings and beginnings.'
+};
+
+const SIGN_KEYWORDS = {
+  'Aries': 'action, initiative, courage',
+  'Taurus': 'stability, beauty, endurance',
+  'Gemini': 'communication, curiosity, duality',
+  'Cancer': 'nurture, memory, emotional depth',
+  'Leo': 'expression, vitality, leadership',
+  'Virgo': 'precision, service, discernment',
+  'Libra': 'harmony, partnership, justice',
+  'Scorpio': 'intensity, transformation, depth',
+  'Sagittarius': 'expansion, truth, adventure',
+  'Capricorn': 'ambition, structure, endurance',
+  'Aquarius': 'innovation, independence, vision',
+  'Pisces': 'intuition, compassion, transcendence'
+};
+
+const PLANET_THEMES = {
+  'Mercury': 'your thinking style and how you communicate',
+  'Venus': 'what you find beautiful and how you connect with people',
+  'Mars': 'what drives you and how you handle conflict',
+  'Jupiter': 'where life feels expansive and lucky',
+  'Saturn': 'where you meet challenges and build resilience',
+  'Uranus': 'where you think differently from everyone else',
+  'Neptune': 'where your imagination runs deepest',
+  'Pluto': 'where life transforms you most profoundly'
+};
+
+const SIGN_SHORTHAND = {
+  'Aries': 'bold energy, quick decisions, and a bias toward action',
+  'Taurus': 'patience, comfort-seeking, and a love of the tangible',
+  'Gemini': 'curiosity, quick thinking, and a need for variety',
+  'Cancer': 'emotional depth, protectiveness, and strong intuition',
+  'Leo': 'warmth, confidence, and a natural pull toward the spotlight',
+  'Virgo': 'attention to detail, quiet competence, and a desire to be useful',
+  'Libra': 'a need for harmony, fairness, and connection with others',
+  'Scorpio': 'intensity, depth, and a refusal to stay on the surface',
+  'Sagittarius': 'optimism, restlessness, and a hunger for meaning',
+  'Capricorn': 'discipline, long-term thinking, and a drive to build something lasting',
+  'Aquarius': 'independence, unconventional thinking, and concern for the collective',
+  'Pisces': 'sensitivity, imagination, and a pull toward the unseen'
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ASPECT DETECTION
+// ═══════════════════════════════════════════════════════════════════════════
+
+const ASPECT_TYPES = {
+  conjunction: { angle: 0, orb: 10, symbol: '☌', name: 'Conjunction', color: '#C9A96E', meaning: 'fusion of energies' },
+  opposition:  { angle: 180, orb: 8, symbol: '☍', name: 'Opposition', color: '#E84545', meaning: 'tension and awareness' },
+  square:      { angle: 90, orb: 8, symbol: '□', name: 'Square', color: '#8B7EC7', meaning: 'friction and growth' },
+  trine:       { angle: 120, orb: 8, symbol: '△', name: 'Trine', color: '#7ECBA1', meaning: 'flow and harmony' },
+  sextile:     { angle: 60, orb: 6, symbol: '⚹', name: 'Sextile', color: '#4A90D9', meaning: 'opportunity' },
+};
+
+const ASPECT_MEANINGS = {
+  'Sun-Moon': { conjunction: 'A fresh start. The conscious mind and the emotional mind are aligned — it feels like a blank page.', opposition: 'Full illumination. Something that was building reaches its peak — emotions run high, truths become visible.', square: 'An inner tug-of-war between what you want and what you feel.' },
+  'Saturn-Pluto': { conjunction: 'The old world order breaks down and rebuilds. Historically linked to wars, power shifts, and institutional overhauls.', opposition: 'Existing power structures face their greatest test. What seemed permanent starts to crack.', square: 'Intense pressure on governments, economies, and authority figures.' },
+  'Saturn-Neptune': { conjunction: 'Reality and illusion collide. What people believed in starts to dissolve. New visions for the future emerge from the confusion.', opposition: 'A collective wake-up call. Ideals that seemed solid turn out to be built on sand.', square: 'Frustration between how things are and how they should be.' },
+  'Jupiter-Saturn': { conjunction: 'A Great Conjunction — a new 20-year chapter for society. Major shifts in politics, economics, and culture.', opposition: 'Growth pulls in one direction, responsibility pulls in the other. Something has to give.', square: 'Ambition bumps against the limits of what is actually possible.' },
+  'Jupiter-Pluto': { conjunction: 'Massive, deep transformation. Historically linked to pandemics, power grabs, and seismic financial shifts.', opposition: 'Hidden power dynamics are exposed. Who really holds the cards becomes clear.', square: 'Big ambitions meet forces that are much bigger.' },
+  'Uranus-Pluto': { conjunction: 'Revolutionary energy. The status quo is overthrown. Entire generations are reshaped.', opposition: 'Revolutionary tension breaks into the open. What was suppressed demands to be heard.', square: 'Radical change clashes with deeply entrenched power. The 2010s were shaped by this.' },
+  'Jupiter-Uranus': { conjunction: 'Sudden breakthroughs and unexpected opportunities. Things that seemed impossible become real overnight.', opposition: 'An unexpected turn of events shakes things up — usually for the better.', square: 'A restless urge to break free and try something completely new.' },
+  'Saturn-Uranus': { conjunction: 'The old guard and the new guard face each other. Something has to change.', opposition: 'Freedom versus control. Tradition versus innovation. The tension is everywhere.', square: 'The push-pull between how things have always been done and how they need to change.' },
+};
+
+function detectAspects(planets, sunSign, moonSign) {
+  const allBodies = [
+    { name: 'Sun', longitude: getSunLongitude(sunSign), color: '#FFD700' },
+    { name: 'Moon', longitude: getMoonLongitude(moonSign), color: '#C0C0C0' },
+    ...planets.map(p => ({ name: p.name, longitude: p.longitude, color: p.color }))
+  ];
+
+  const aspects = [];
+  const seen = new Set();
+
+  for (let i = 0; i < allBodies.length; i++) {
+    for (let j = i + 1; j < allBodies.length; j++) {
+      const a = allBodies[i], b = allBodies[j];
+      let diff = Math.abs(a.longitude - b.longitude);
+      if (diff > 180) diff = 360 - diff;
+
+      for (const [key, asp] of Object.entries(ASPECT_TYPES)) {
+        const orb = Math.abs(diff - asp.angle);
+        if (orb <= asp.orb) {
+          const pairKey = [a.name, b.name].sort().join('-');
+          const aspectKey = pairKey + '-' + key;
+          if (seen.has(aspectKey)) continue;
+          seen.add(aspectKey);
+
+          // Only keep significant aspects (skip minor planet combos)
+          const isOuter = n => ['Jupiter','Saturn','Uranus','Neptune','Pluto'].includes(n);
+          const isLuminary = n => ['Sun','Moon'].includes(n);
+          const significance = (isOuter(a.name) && isOuter(b.name)) ? 3
+            : (isLuminary(a.name) && isOuter(b.name)) || (isOuter(a.name) && isLuminary(b.name)) ? 2
+            : (isLuminary(a.name) && isLuminary(b.name)) ? 2
+            : 1;
+
+          if (significance >= 2 || (key === 'conjunction' || key === 'opposition')) {
+            const customMeaning = ASPECT_MEANINGS[pairKey]?.[key] || ASPECT_MEANINGS[[b.name, a.name].sort().join('-')]?.[key] || '';
+            aspects.push({
+              body1: a.name, body2: b.name,
+              type: key, ...asp,
+              orb: Math.round(orb * 10) / 10,
+              customMeaning,
+              significance,
+              pairColor: key === 'opposition' ? '#E84545' : key === 'conjunction' ? '#C9A96E' : key === 'square' ? '#8B7EC7' : key === 'trine' ? '#7ECBA1' : '#4A90D9',
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return aspects.sort((a, b) => b.significance - a.significance);
+}
+
+function getSunLongitude(sunSign) {
+  const signOrder = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  const idx = signOrder.indexOf(sunSign.name);
+  return idx * 30 + 15; // midpoint of sign
+}
+
+function getMoonLongitude(moonSign) {
+  const signOrder = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+  const idx = signOrder.indexOf(moonSign.name);
+  return idx * 30 + (moonSign.degree || 15);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ACTIVE TRANSITS FOR DATE
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Known transit windows: [startYear, startMonth, endYear, endMonth, name, type, symbol, color, description]
+const TRANSIT_WINDOWS = [
+  // Saturn-Neptune conjunctions (37-year cycle)
+  { start: [1917, 1], end: [1917, 12], name: 'Saturn-Neptune Conjunction', type: 'conjunction', symbol: '☌', color: '#C9A96E', desc: 'Structures dissolve. The old order breaks down and a new one struggles to emerge.' },
+  { start: [1953, 1], end: [1953, 12], name: 'Saturn-Neptune Conjunction', type: 'conjunction', symbol: '☌', color: '#C9A96E', desc: 'Structures dissolve. Stalin dies, Korean War ends, DNA discovered.' },
+  { start: [1989, 1], end: [1989, 12], name: 'Saturn-Neptune Conjunction', type: 'conjunction', symbol: '☌', color: '#C9A96E', desc: 'Structures dissolve. The Berlin Wall falls, Soviet communism collapses.' },
+  { start: [2025, 10], end: [2026, 11], name: 'Saturn-Neptune Conjunction', type: 'conjunction', symbol: '☌', color: '#C9A96E', desc: 'Saturn meets Neptune at 0\u00B0 Aries. The old world order dissolves. Institutions that outlived their purpose come apart.' },
+  // Pluto in Aquarius
+  { start: [1778, 1], end: [1798, 12], name: 'Pluto in Aquarius', type: 'ingress', symbol: '♇', color: '#6B9E9E', desc: 'Power shifts from centralized authority to the collective. Revolutions reshape who governs and how.' },
+  { start: [2023, 3], end: [2044, 1], name: 'Pluto in Aquarius', type: 'ingress', symbol: '♇', color: '#6B9E9E', desc: 'Power shifts from centralized institutions to networks and collectives. AI, crypto, and decentralization reshape society.' },
+  // Uranus in Gemini
+  { start: [1858, 1], end: [1866, 12], name: 'Uranus in Gemini', type: 'ingress', symbol: '♅', color: '#4A90D9', desc: 'Communication and information are revolutionized. The last transit brought the telegraph and Civil War dispatches.' },
+  { start: [1941, 1], end: [1949, 12], name: 'Uranus in Gemini', type: 'ingress', symbol: '♅', color: '#4A90D9', desc: 'Communication is revolutionized. This transit brought radar, the atomic bomb, the transistor, and the computer.' },
+  { start: [2025, 7], end: [2033, 12], name: 'Uranus in Gemini', type: 'ingress', symbol: '♅', color: '#4A90D9', desc: 'Communication and information are being rewritten. AI, quantum computing, and the end of consensus reality.' },
+  // Saturn-Pluto conjunctions
+  { start: [1914, 1], end: [1915, 12], name: 'Saturn-Pluto Conjunction', type: 'conjunction', symbol: '☌', color: '#C9A96E', desc: 'Power structures collapse and rebuild. WWI begins, the old European order is destroyed.' },
+  { start: [1947, 1], end: [1948, 12], name: 'Saturn-Pluto Conjunction', type: 'conjunction', symbol: '☌', color: '#C9A96E', desc: 'Power structures collapse and rebuild. Cold War begins, India partitioned, Israel founded.' },
+  { start: [1982, 1], end: [1983, 12], name: 'Saturn-Pluto Conjunction', type: 'conjunction', symbol: '☌', color: '#C9A96E', desc: 'Power structures face crisis. Global recession, Falklands War, AIDS crisis emerges.' },
+  { start: [2019, 6], end: [2020, 12], name: 'Saturn-Pluto Conjunction', type: 'conjunction', symbol: '☌', color: '#C9A96E', desc: 'Power structures collapse and rebuild. COVID-19 pandemic, global lockdowns, institutional crisis.' },
+  // Jupiter-Saturn Great Conjunctions (20-year cycle)
+  { start: [2000, 1], end: [2000, 12], name: 'Jupiter-Saturn Great Conjunction', type: 'conjunction', symbol: '☌', color: '#C9A96E', desc: 'A new 20-year chapter. The dot-com era peaks and crashes. A generational shift in economics and technology.' },
+  { start: [2020, 6], end: [2021, 6], name: 'Jupiter-Saturn Great Conjunction', type: 'conjunction', symbol: '☌', color: '#C9A96E', desc: 'The Great Mutation. For the first time in 200 years, the conjunction shifts from earth signs to air signs. The information age officially begins.' },
+  // Uranus-Pluto conjunctions/squares
+  { start: [1962, 1], end: [1968, 12], name: 'Uranus-Pluto Conjunction', type: 'conjunction', symbol: '☌', color: '#C9A96E', desc: 'Revolutionary transformation. The 1960s counterculture, civil rights movement, space race, and social upheaval.' },
+  { start: [2012, 1], end: [2015, 12], name: 'Uranus-Pluto Square', type: 'square', symbol: '□', color: '#8B7EC7', desc: 'Radical change versus entrenched power. Arab Spring aftermath, Occupy, Snowden, Black Lives Matter.' },
+];
+
+function findActiveTransits(year, month) {
+  return TRANSIT_WINDOWS.filter(t => {
+    const startVal = t.start[0] * 100 + t.start[1];
+    const endVal = t.end[0] * 100 + t.end[1];
+    const dateVal = year * 100 + month;
+    return dateVal >= startVal && dateVal <= endVal;
+  });
+}
+
+function renderTransits(transits) {
+  const section = document.getElementById('section-transits');
+  const el = document.getElementById('transit-results');
+
+  if (!transits.length) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = '';
+  el.innerHTML = `
+    <div class="transit-cards">
+      ${transits.map(t => `
+        <div class="transit-card" style="border-left: 4px solid ${t.color};">
+          <div class="transit-card-head">
+            <span class="transit-card-symbol" style="color:${t.color}">${t.symbol}</span>
+            <span class="transit-card-type" style="color:${t.color}">${t.type.toUpperCase()}</span>
+          </div>
+          <div class="transit-card-name">${t.name}</div>
+          <div class="transit-card-desc">${t.desc}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EVENT MATCHING
+// ═══════════════════════════════════════════════════════════════════════════
+
+function findMatchingEvents(year, month, day) {
+  const exact = [];
+  const yearMatch = [];
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  EVENTS.forEach(ev => {
+    const evYear = ev.year;
+    if (evYear === year) {
+      if (month && day && ev.date) {
+        const dateStr = monthNames[month - 1] + ' ' + day;
+        if (ev.date.includes(dateStr)) {
+          exact.push(ev);
+          return;
+        }
+      }
+      yearMatch.push(ev);
+    }
+  });
+
+  return { exact, yearMatch };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DAY OF WEEK
+// ═══════════════════════════════════════════════════════════════════════════
+
+function getDayOfWeek(jd) {
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const d = Math.floor(jd + 0.5) % 7;
+  return days[d];
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UI LOGIC
+// ═══════════════════════════════════════════════════════════════════════════
+
+const yearInput = document.getElementById('year-input');
+const monthSelect = document.getElementById('month-select');
+const daySelect = document.getElementById('day-select');
+const eraToggle = document.getElementById('era-toggle');
+const btnLookup = document.getElementById('btn-lookup');
+const btnToday = document.getElementById('btn-today');
+const btnRandom = document.getElementById('btn-random');
+const results = document.getElementById('results');
+
+let isBC = false;
+
+// Populate day select
+function populateDays() {
+  const y = parseInt(yearInput.value) || 2026;
+  const m = parseInt(monthSelect.value);
+  const daysInMonth = new Date(y, m, 0).getDate();
+  const current = parseInt(daySelect.value) || 1;
+  daySelect.innerHTML = '';
+  for (let i = 1; i <= daysInMonth; i++) {
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = i;
+    if (i === current || (current > daysInMonth && i === daysInMonth)) opt.selected = true;
+    daySelect.appendChild(opt);
+  }
+}
+populateDays();
+
+// Set today's date on load
+(function setToday() {
+  const now = new Date();
+  yearInput.value = now.getFullYear();
+  monthSelect.value = now.getMonth() + 1;
+  populateDays();
+  daySelect.value = now.getDate();
+})();
+
+monthSelect.addEventListener('change', populateDays);
+yearInput.addEventListener('change', populateDays);
+
+eraToggle.addEventListener('click', () => {
+  isBC = !isBC;
+  eraToggle.textContent = isBC ? 'BC' : 'AD';
+  eraToggle.classList.toggle('bc', isBC);
+});
+
+btnToday.addEventListener('click', () => {
+  const now = new Date();
+  isBC = false;
+  eraToggle.textContent = 'AD';
+  eraToggle.classList.remove('bc');
+  yearInput.value = now.getFullYear();
+  monthSelect.value = now.getMonth() + 1;
+  populateDays();
+  daySelect.value = now.getDate();
+  performLookup();
+});
+
+btnRandom.addEventListener('click', () => {
+  const ry = Math.floor(Math.random() * 2070) + 1;
+  const rm = Math.floor(Math.random() * 12) + 1;
+  const rd = Math.floor(Math.random() * 28) + 1;
+  const rbc = ry < 100 && Math.random() > 0.5;
+  isBC = rbc;
+  eraToggle.textContent = isBC ? 'BC' : 'AD';
+  eraToggle.classList.toggle('bc', isBC);
+  yearInput.value = ry;
+  monthSelect.value = rm;
+  populateDays();
+  daySelect.value = rd;
+  performLookup();
+});
+
+btnLookup.addEventListener('click', performLookup);
+yearInput.addEventListener('keydown', e => { if (e.key === 'Enter') performLookup(); });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ASTROLOGY WHEEL
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Utility: hex color to rgba string (matching celestial map style)
+function hexToRgba(hex, a) {
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// Simple hash for deterministic per-body twinkle offsets
+function bodyHash(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = ((h << 5) - h) + name.charCodeAt(i);
+  return h;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INTERACTIVE CELESTIAL DAY MAP
+// ═══════════════════════════════════════════════════════════════════════════
+
+let dayMapAnimId = null;
+let dayMapState = null;  // { allBodies, aspects, starfield, hoveredPlanet, selectedPlanet }
+
+const PLANET_DESCRIPTIONS = {
+  Sun:     'Your core identity and vitality',
+  Moon:    'Your emotional nature and instincts',
+  Mercury: 'How you think and communicate',
+  Venus:   'What you love and find beautiful',
+  Mars:    'What drives you and how you handle conflict',
+  Jupiter: 'Where life feels expansive',
+  Saturn:  'Where you face challenges and build resilience',
+  Uranus:  'Where you think differently from everyone',
+  Neptune: 'Where your imagination runs deepest',
+  Pluto:   'Where life transforms you most profoundly'
+};
+
+const ASPECT_EXPLANATIONS = {
+  conjunction: 'Two planets in the same place. Their energies merge and amplify each other.',
+  opposition:  'Two planets directly across from each other. Creates tension, awareness, and the need to balance.',
+  square:      'Two planets at 90\u00B0. Friction that forces growth \u2014 uncomfortable but productive.',
+  trine:       'Two planets at 120\u00B0. Natural harmony and flow \u2014 things come easily here.',
+  sextile:     'Two planets at 60\u00B0. Opportunity \u2014 the door is open but you have to walk through it.'
+};
+
+const ASPECT_SYMBOLS_MAP = {
+  conjunction: '\u260C',
+  opposition:  '\u260D',
+  square:      '\u25A1',
+  trine:       '\u25B3',
+  sextile:     '\u26B9'
+};
+
+const PLANET_RADIAL_LAYER = {
+  Sun: 0.38, Moon: 0.45,
+  Mercury: 0.54, Venus: 0.60, Mars: 0.66,
+  Jupiter: 0.74, Saturn: 0.80,
+  Uranus: 0.86, Neptune: 0.90, Pluto: 0.94
+};
+
+const PLANET_SIZES = {
+  Sun: 9, Moon: 7.5,
+  Mercury: 5, Venus: 5.5, Mars: 5.5,
+  Jupiter: 6.5, Saturn: 6,
+  Uranus: 4.5, Neptune: 4.5, Pluto: 4
+};
+
+const PLANET_COLORS = {
+  Sun: '#FFD700', Moon: '#C0C0C0',
+  Mercury: '#A0A0A0', Venus: '#E8D5A0', Mars: '#E84545',
+  Jupiter: '#C9A96E', Saturn: '#8B7EC7',
+  Uranus: '#4A90D9', Neptune: '#5B8FB9', Pluto: '#6B9E9E'
+};
+
+const ZODIAC_NAMES = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+const ZODIAC_SYMBOLS = ['\u2648','\u2649','\u264A','\u264B','\u264C','\u264D','\u264E','\u264F','\u2650','\u2651','\u2652','\u2653'];
+const ELEMENT_MAP = ['fire','earth','air','water','fire','earth','air','water','fire','earth','air','water'];
+
+function initDayMap(planets, sunSign, moonSign, aspects, moonPhase) {
+  const canvas = document.getElementById('dayMapCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  const displayW = canvas.clientWidth;
+  const displayH = canvas.clientHeight;
+  canvas.width = displayW * dpr;
+  canvas.height = displayH * dpr;
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  // Build body list
+  const sunLon = getSunLongitude(sunSign);
+  const moonLon = getMoonLongitude(moonSign);
+
+  const allBodies = [
+    { name: 'Sun', symbol: '\u2609', longitude: sunLon, color: PLANET_COLORS.Sun, sign: sunSign.name, signSymbol: sunSign.symbol, degree: Math.floor(sunLon % 30) },
+    { name: 'Moon', symbol: '\u263D', longitude: moonLon, color: PLANET_COLORS.Moon, sign: moonSign.name, signSymbol: moonSign.symbol, degree: moonSign.degree || Math.floor(moonLon % 30) },
+    ...planets.map(p => ({
+      name: p.name, symbol: p.symbol, longitude: p.longitude, color: PLANET_COLORS[p.name] || p.color,
+      sign: p.sign, signSymbol: p.signSymbol, degree: p.degree
+    }))
+  ];
+
+  // Generate starfield for this canvas
+  const stars = [];
+  for (let i = 0; i < 180; i++) {
+    stars.push({
+      x: Math.random() * displayW,
+      y: Math.random() * displayH,
+      r: Math.random() * 1.0 + 0.2,
+      alpha: Math.random() * 0.35 + 0.05,
+      delta: (Math.random() - 0.5) * 0.003,
+    });
+  }
+
+  dayMapState = {
+    canvas, ctx, displayW, displayH, dpr,
+    allBodies, aspects, stars,
+    hoveredPlanet: null,
+    selectedPlanet: null,
+  };
+
+  if (dayMapAnimId) cancelAnimationFrame(dayMapAnimId);
+
+  function loop(time) {
+    drawDayMap(time);
+    dayMapAnimId = requestAnimationFrame(loop);
+  }
+  dayMapAnimId = requestAnimationFrame(loop);
+
+  // Set up interaction handlers (only once)
+  if (!canvas._dayMapBound) {
+    canvas._dayMapBound = true;
+
+    canvas.addEventListener('mousemove', e => {
+      if (!dayMapState) return;
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const hit = dayMapHitTest(mx, my);
+      dayMapState.hoveredPlanet = hit;
+      canvas.style.cursor = hit ? 'pointer' : 'default';
+
+      const tip = document.getElementById('dayMapTooltip');
+      if (hit) {
+        const signIdx = Math.floor(hit.longitude / 30);
+        tip.innerHTML = `
+          <span style="font-family:var(--mono);font-size:12px;color:${hit.color};font-weight:500;">${hit.symbol} ${hit.name}</span>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:8px;">${hit.degree}\u00B0 ${ZODIAC_SYMBOLS[signIdx]} ${ZODIAC_NAMES[signIdx]}</span>
+        `;
+        tip.classList.add('visible');
+        let tx = e.clientX - rect.left + 16;
+        let ty = e.clientY - rect.top - 10;
+        if (tx + 200 > dayMapState.displayW) tx = e.clientX - rect.left - 210;
+        if (ty < 10) ty = 10;
+        tip.style.left = tx + 'px';
+        tip.style.top = ty + 'px';
+      } else {
+        tip.classList.remove('visible');
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      if (dayMapState) dayMapState.hoveredPlanet = null;
+      document.getElementById('dayMapTooltip').classList.remove('visible');
+    });
+
+    canvas.addEventListener('click', e => {
+      if (!dayMapState) return;
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const hit = dayMapHitTest(mx, my);
+      if (hit) {
+        dayMapState.selectedPlanet = hit;
+        openPlanetPanel(hit, dayMapState.aspects);
+      } else {
+        closePlanetPanel();
+      }
+    });
+
+    document.getElementById('dayMapPanelClose').addEventListener('click', closePlanetPanel);
+  }
+}
+
+function drawDayMap(time) {
+  const s = dayMapState;
+  if (!s) return;
+  const { ctx, displayW: w, displayH: h, allBodies, aspects, stars } = s;
+  const cx = w / 2, cy = h / 2;
+  const baseR = Math.min(cx, cy) - 20;
+
+  ctx.clearRect(0, 0, w, h);
+
+  // ─── STARFIELD (twinkling) ────────────────────────────────
+  stars.forEach(st => {
+    st.alpha += st.delta;
+    if (st.alpha <= 0.03 || st.alpha >= 0.4) st.delta *= -1;
+    ctx.beginPath();
+    ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(232,230,240,${st.alpha})`;
+    ctx.fill();
+  });
+
+  // ─── ZODIAC RING (12 ghostly segments) ──────────────────────
+  const outerR = baseR;
+  const signBandW = Math.max(28, baseR * 0.09);
+  const signR = outerR - signBandW;
+
+  for (let i = 0; i < 12; i++) {
+    const startAngle = (i * 30 - 90) * Math.PI / 180;
+    const endAngle = ((i + 1) * 30 - 90) * Math.PI / 180;
+
+    // Subtle element tint
+    const elem = ELEMENT_MAP[i];
+    const elemAlpha = elem === 'fire' ? 0.035 : elem === 'water' ? 0.03 : 0.025;
+    const elemColor = elem === 'fire' ? '232,69,69' : elem === 'earth' ? '126,203,161' : elem === 'air' ? '139,126,199' : '74,144,217';
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, startAngle, endAngle);
+    ctx.arc(cx, cy, signR, endAngle, startAngle, true);
+    ctx.closePath();
+    ctx.fillStyle = `rgba(${elemColor},${elemAlpha})`;
+    ctx.fill();
+
+    // Divider line
+    const lx1 = cx + signR * Math.cos(startAngle);
+    const ly1 = cy + signR * Math.sin(startAngle);
+    const lx2 = cx + outerR * Math.cos(startAngle);
+    const ly2 = cy + outerR * Math.sin(startAngle);
+    ctx.beginPath();
+    ctx.moveTo(lx1, ly1);
+    ctx.lineTo(lx2, ly2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+
+    // Sign symbol + name
+    const midAngle = ((i * 30 + 15) - 90) * Math.PI / 180;
+    const symbolMidR = (outerR + signR) / 2;
+    const fontSize = Math.max(11, Math.min(15, w * 0.024));
+    ctx.font = `${fontSize}px serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(ZODIAC_SYMBOLS[i], cx + symbolMidR * Math.cos(midAngle), cy + symbolMidR * Math.sin(midAngle));
+
+    // Zodiac name (very faint, on outer edge)
+    if (w > 500) {
+      const nameR = outerR + 14;
+      const nameSize = Math.max(7, Math.min(9, w * 0.014));
+      ctx.save();
+      ctx.font = `500 ${nameSize}px 'IBM Plex Mono', monospace`;
+      ctx.fillStyle = 'rgba(232,230,240,0.12)';
+      const nx = cx + nameR * Math.cos(midAngle);
+      const ny = cy + nameR * Math.sin(midAngle);
+      ctx.translate(nx, ny);
+      ctx.rotate(midAngle + Math.PI / 2);
+      ctx.fillText(ZODIAC_NAMES[i].toUpperCase(), 0, 0);
+      ctx.restore();
+    }
+  }
+
+  // Ring borders
+  ctx.beginPath();
+  ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(201,169,110,0.1)';
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, signR, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+
+  // ─── RADIAL GUIDE LINES (compass rose) ──────────────────────
+  for (let i = 0; i < 12; i++) {
+    const a = (i * 30 - 90) * Math.PI / 180;
+    const x1 = cx + 30 * Math.cos(a);
+    const y1 = cy + 30 * Math.sin(a);
+    const x2 = cx + signR * Math.cos(a);
+    const y2 = cy + signR * Math.sin(a);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = `rgba(232,230,240,${i % 3 === 0 ? 0.035 : 0.015})`;
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+
+  // ─── ASPECT LINES (double-pass glow rendering) ─────────────
+  const aspectColors = {
+    conjunction: '#C9A96E',
+    opposition: '#E84545',
+    square: '#8B7EC7',
+    trine: '#7ECBA1',
+    sextile: '#4A90D9'
+  };
+
+  function lonToAngle(lon) { return (lon - 90) * Math.PI / 180; }
+  function lonToXY(lon, r) {
+    const angle = lonToAngle(lon);
+    return { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+  }
+
+  if (aspects && aspects.length) {
+    aspects.forEach(asp => {
+      const body1 = allBodies.find(b => b.name === asp.body1);
+      const body2 = allBodies.find(b => b.name === asp.body2);
+      if (!body1 || !body2) return;
+
+      const r1 = signR * (PLANET_RADIAL_LAYER[body1.name] || 0.6);
+      const r2 = signR * (PLANET_RADIAL_LAYER[body2.name] || 0.6);
+      const p1 = lonToXY(body1.longitude, r1);
+      const p2 = lonToXY(body2.longitude, r2);
+
+      const maxOrb = ASPECT_TYPES[asp.type]?.orb || 10;
+      const tightness = 1 - asp.orb / maxOrb;
+      const baseOpacity = Math.max(0.06, 0.35 * tightness);
+      const color = aspectColors[asp.type] || '#C9A96E';
+
+      // Pass 1: thick faint glow
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = hexToRgba(color, baseOpacity * 0.4);
+      ctx.lineWidth = 4;
+      ctx.setLineDash([]);
+      ctx.stroke();
+
+      // Pass 2: thin bright line
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = hexToRgba(color, baseOpacity);
+      ctx.lineWidth = asp.type === 'conjunction' ? 1.4 : 1;
+
+      if (asp.type === 'opposition') {
+        ctx.setLineDash([6, 4]);
+      } else if (asp.type === 'sextile') {
+        ctx.setLineDash([3, 3]);
+      } else {
+        ctx.setLineDash([]);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+  }
+
+  // ─── PLANET NODES (with twinkling glow) ─────────────────────
+  allBodies.forEach(body => {
+    const radialFrac = PLANET_RADIAL_LAYER[body.name] || 0.6;
+    const r = signR * radialFrac;
+    const pos = lonToXY(body.longitude, r);
+    const size = PLANET_SIZES[body.name] || 5;
+    const isHovered = s.hoveredPlanet === body;
+    const isSelected = s.selectedPlanet === body;
+
+    // Twinkle
+    const twinkle = 0.7 + 0.3 * Math.sin(time * 0.003 + bodyHash(body.name));
+    const displaySize = size * (isHovered ? 1.5 : 1);
+
+    // Glow halo
+    const glowR = displaySize * (isHovered ? 6 : 3.5) * twinkle;
+    const glow = ctx.createRadialGradient(pos.x, pos.y, 0, pos.x, pos.y, glowR);
+    const glowAlpha = isHovered ? 0.3 : 0.12;
+    glow.addColorStop(0, hexToRgba(body.color, glowAlpha * twinkle));
+    glow.addColorStop(1, hexToRgba(body.color, 0));
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, glowR, 0, Math.PI * 2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    // Node body
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, displaySize, 0, Math.PI * 2);
+    ctx.fillStyle = hexToRgba(body.color, 0.85 * twinkle);
+    ctx.fill();
+
+    // Bright center pip
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, displaySize * 0.45, 0, Math.PI * 2);
+    ctx.fillStyle = hexToRgba(body.color, 0.95 * twinkle);
+    ctx.fill();
+
+    // Selection ring
+    if (isSelected) {
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, displaySize + 5, 0, Math.PI * 2);
+      ctx.strokeStyle = body.color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // Planet symbol label (just outside the dot)
+    const labelR = r + displaySize + 12;
+    const labelPos = lonToXY(body.longitude, labelR);
+    const symSize = Math.max(11, Math.min(15, w * 0.024));
+    ctx.font = `${symSize}px serif`;
+    ctx.fillStyle = hexToRgba(body.color, 0.7 * twinkle);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(body.symbol, labelPos.x, labelPos.y);
+
+    // Store screen position for hit testing
+    body._sx = pos.x;
+    body._sy = pos.y;
+    body._sr = displaySize;
+  });
+
+  // ─── CENTER GLOW ──────────────────────────────────────────
+  const pulse = 0.7 + 0.3 * Math.sin(time * 0.002);
+  const coreR = 10 * pulse;
+
+  const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 4);
+  coreGrad.addColorStop(0, `rgba(201,169,110,${0.2 * pulse})`);
+  coreGrad.addColorStop(0.3, `rgba(201,169,110,${0.06 * pulse})`);
+  coreGrad.addColorStop(1, 'rgba(201,169,110,0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, coreR * 4, 0, Math.PI * 2);
+  ctx.fillStyle = coreGrad;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(201,169,110,${0.5 * pulse})`;
+  ctx.fill();
+
+  // Watermark
+  const wmSize = Math.max(7, Math.min(9, w * 0.015));
+  ctx.font = `500 ${wmSize}px 'IBM Plex Mono', monospace`;
+  ctx.fillStyle = `rgba(201,169,110,${0.12 * pulse})`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('COSMOS DAILY', cx, cy + 18);
+}
+
+function dayMapHitTest(mx, my) {
+  if (!dayMapState) return null;
+  let closest = null;
+  let closestDist = Infinity;
+  for (const body of dayMapState.allBodies) {
+    const dx = mx - body._sx;
+    const dy = my - body._sy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const hitR = Math.max((body._sr || 5) + 8, 14);
+    if (dist < hitR && dist < closestDist) {
+      closest = body;
+      closestDist = dist;
+    }
+  }
+  return closest;
+}
+
+function openPlanetPanel(planet, aspects) {
+  const panel = document.getElementById('dayMapPanel');
+  const inner = document.getElementById('dayMapPanelInner');
+
+  const signIdx = Math.floor(planet.longitude / 30);
+  const signName = ZODIAC_NAMES[signIdx];
+  const signSym = ZODIAC_SYMBOLS[signIdx];
+
+  // Planet description
+  const desc = PLANET_DESCRIPTIONS[planet.name] || '';
+
+  // Sign interpretation for this planet
+  const signShort = SIGN_SHORTHAND[signName] || '';
+  const planetTheme = PLANET_THEMES[planet.name] || '';
+  let signInterp = '';
+  if (planetTheme && signShort) {
+    signInterp = `${planet.name} in ${signName}: ${planetTheme.charAt(0).toUpperCase() + planetTheme.slice(1)} is colored by ${signShort}.`;
+  } else if (planet.name === 'Sun') {
+    signInterp = `Sun in ${signName}: Your core identity radiates with ${signShort}.`;
+  } else if (planet.name === 'Moon') {
+    signInterp = `Moon in ${signName}: Your emotional instincts are shaped by ${signShort}.`;
+  }
+
+  // Find aspects for this planet
+  const planetAspects = aspects.filter(a => a.body1 === planet.name || a.body2 === planet.name);
+
+  let aspectsHtml = '';
+  if (planetAspects.length) {
+    aspectsHtml = '<div class="dmp-section"><div class="dmp-section-label">Aspects</div>';
+    planetAspects.forEach(asp => {
+      const otherName = asp.body1 === planet.name ? asp.body2 : asp.body1;
+      const sym = ASPECT_SYMBOLS_MAP[asp.type] || asp.symbol || '';
+      const aspColor = getAspectColor(asp.type);
+      const explanation = ASPECT_EXPLANATIONS[asp.type] || '';
+
+      // Custom or generic meaning
+      let meaning = asp.customMeaning || '';
+      if (!meaning) {
+        const planetDesc = PLANET_DESCRIPTIONS[planet.name] || planet.name.toLowerCase() + ' energy';
+        const otherDesc = PLANET_DESCRIPTIONS[otherName] || otherName.toLowerCase() + ' energy';
+        if (asp.type === 'conjunction') meaning = `${planetDesc} merges with ${otherDesc.toLowerCase()}.`;
+        else if (asp.type === 'opposition') meaning = `Tension between ${planetDesc.toLowerCase()} and ${otherDesc.toLowerCase()}.`;
+        else if (asp.type === 'square') meaning = `Friction between ${planetDesc.toLowerCase()} and ${otherDesc.toLowerCase()} \u2014 forcing growth.`;
+        else if (asp.type === 'trine') meaning = `Natural flow between ${planetDesc.toLowerCase()} and ${otherDesc.toLowerCase()}.`;
+        else if (asp.type === 'sextile') meaning = `Opportunity connecting ${planetDesc.toLowerCase()} and ${otherDesc.toLowerCase()}.`;
+      }
+
+      aspectsHtml += `
+        <div class="dmp-aspect-item" style="border-left-color:${aspColor};">
+          <div class="dmp-aspect-title" style="color:${aspColor};">${sym} ${asp.name} to ${otherName} <span style="color:var(--muted);font-size:10px;">(${asp.orb}\u00B0 orb)</span></div>
+          <div class="dmp-aspect-desc">${meaning}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:0.5px;">${explanation}</div>
+        </div>`;
+    });
+    aspectsHtml += '</div>';
+  }
+
+  inner.innerHTML = `
+    <div class="dmp-accent-bar" style="background:${planet.color};"></div>
+    <div class="dmp-planet-name">${planet.symbol} ${planet.name}</div>
+    <div class="dmp-planet-sign" style="color:${planet.color};">${planet.degree}\u00B0 ${signSym} ${signName}</div>
+
+    <div class="dmp-section">
+      <div class="dmp-section-label">This Planet</div>
+      <div class="dmp-section-text">${desc}</div>
+    </div>
+
+    ${signInterp ? `
+    <div class="dmp-section dmp-sign-interp">
+      <div class="dmp-section-label" style="color:var(--gold);">In This Sign</div>
+      <div class="dmp-section-text">${signInterp}</div>
+    </div>` : ''}
+
+    ${aspectsHtml}
+  `;
+
+  panel.style.display = 'block';
+  // Trigger animation
+  requestAnimationFrame(() => panel.classList.add('open'));
+}
+
+function getAspectColor(type) {
+  const map = {
+    conjunction: '#C9A96E',
+    opposition: '#E84545',
+    square: '#8B7EC7',
+    trine: '#7ECBA1',
+    sextile: '#4A90D9'
+  };
+  return map[type] || '#C9A96E';
+}
+
+function closePlanetPanel() {
+  const panel = document.getElementById('dayMapPanel');
+  panel.classList.remove('open');
+  if (dayMapState) dayMapState.selectedPlanet = null;
+  setTimeout(() => { if (!panel.classList.contains('open')) panel.style.display = 'none'; }, 350);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PERFORM LOOKUP
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HEADLINE GENERATION
+// ═══════════════════════════════════════════════════════════════════════════
+
+const MOON_PHASE_HEADLINES = {
+  'New Moon': 'The moon was dark. A blank page. The kind of day where new things begin without anyone noticing.',
+  'Waxing Crescent': 'A thin crescent was just becoming visible. Something was starting to take shape.',
+  'First Quarter': 'The moon was half-lit \u2014 a day of decisions and first tests.',
+  'Waxing Gibbous': 'The moon was nearly full, building toward a peak. Anticipation in the air.',
+  'Full Moon': 'The sky was wide open. Full Moon, no major tensions. A day for visibility.',
+  'Waning Gibbous': 'The Full Moon had just passed. Intensity fading, lessons settling in.',
+  'Last Quarter': 'A half-lit moon, fading. A day for letting go of what no longer works.',
+  'Waning Crescent': 'Only a sliver of moon remained. The quiet before something new.',
+};
+
+const ASPECT_HEADLINE_TEMPLATES = {
+  conjunction: [
+    '{body1} and {body2} aligned \u2014 the kind of day that births breakthroughs.',
+    '{body1} met {body2} in the sky. When these two merge, the world notices.',
+    'A day of fusion \u2014 {body1} and {body2} joined forces overhead.',
+  ],
+  opposition: [
+    'A day of hidden intensity \u2014 {body1} faced off against {body2} across the sky.',
+    '{body1} and {body2} pulled in opposite directions. Something had to give.',
+    'Tension in the sky \u2014 {body1} opposed {body2}. A day when truths become visible.',
+  ],
+  square: [
+    'Friction in the sky \u2014 {body1} squared {body2}. Pressure that forces growth.',
+    '{body1} clashed with {body2} at 90\u00B0. Nothing about this day was easy or boring.',
+    'A day of pressure \u2014 {body1} and {body2} locked in a square. Something had to change.',
+  ],
+};
+
+function generateHeadline(moonPhase, aspects, transits, archiveMatches) {
+  // Priority 1: exact archive match
+  if (archiveMatches.exact.length) {
+    const ev = archiveMatches.exact[0];
+    const title = ev.worldEvent.split('\u2014')[0].trim();
+    return `The day ${title} happened.`;
+  }
+
+  // Priority 2: notable major aspect
+  const bigAspect = aspects.find(a =>
+    a.significance >= 2 && ['conjunction','opposition','square'].includes(a.type)
+  );
+  if (bigAspect) {
+    const templates = ASPECT_HEADLINE_TEMPLATES[bigAspect.type] || ASPECT_HEADLINE_TEMPLATES.conjunction;
+    const seed = (bigAspect.body1.charCodeAt(0) + bigAspect.body2.charCodeAt(0)) % templates.length;
+    const template = templates[seed];
+    return template.replace('{body1}', bigAspect.body1).replace('{body2}', bigAspect.body2);
+  }
+
+  // Priority 3: active transit
+  if (transits.length) {
+    return `${transits[0].name} was active. ${transits[0].desc.split('.')[0]}.`;
+  }
+
+  // Priority 4: moon phase
+  return MOON_PHASE_HEADLINES[moonPhase.name] || 'Nothing extraordinary in the sky. Sometimes the cosmos is just... quiet.';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MOON PHASE ONE-LINERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const MOON_VIBES = {
+  'New Moon': 'Fresh starts, blank pages',
+  'Waxing Crescent': 'First steps, early momentum',
+  'First Quarter': 'Decisions and first tests',
+  'Waxing Gibbous': 'Refining, almost ready',
+  'Full Moon': 'Things come to a head',
+  'Waning Gibbous': 'Lessons settling in',
+  'Last Quarter': 'Releasing what doesn\u2019t work',
+  'Waning Crescent': 'Rest before renewal',
+};
+
+function performLookup() {
+  let year = parseInt(yearInput.value) || 2026;
+  const month = parseInt(monthSelect.value);
+  const day = parseInt(daySelect.value);
+
+  if (isBC) year = -year + 1;
+
+  const jd = julianDay(year, month, day);
+  const moonPhase = getMoonPhase(jd);
+  const sunSign = getSunSign(month, day);
+  const moonSign = getMoonSign(jd);
+  const planets = getPlanetPositions(jd);
+  const dayOfWeek = getDayOfWeek(jd);
+  const aspects = detectAspects(planets, sunSign, moonSign);
+  const activeTransits = findActiveTransits(year, month);
+
+  // Format display date
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const displayYear = isBC ? Math.abs(year - 1) + ' BC' : year + ' AD';
+  const dateText = monthNames[month - 1] + ' ' + day + ', ' + displayYear;
+
+  document.getElementById('result-date-text').textContent = dateText;
+  document.getElementById('result-dayofweek').textContent = dayOfWeek;
+
+  // Archive matches
+  const lookupYear = isBC ? -(Math.abs(parseInt(yearInput.value)) - 1) : parseInt(yearInput.value);
+  const matches = findMatchingEvents(lookupYear, month, day);
+
+  // ─── 1. CELESTIAL DAY MAP ───────────────────────────────────────
+  initDayMap(planets, sunSign, moonSign, aspects, moonPhase);
+
+  // ─── 2. HEADLINE ───────────────────────────────────────────────
+  const headline = generateHeadline(moonPhase, aspects, activeTransits, matches);
+  document.getElementById('day-headline-text').textContent = headline;
+
+  // ─── 3. MOON (compact) ────────────────────────────────────────
+  renderMoonCompact(moonPhase, sunSign, moonSign);
+
+  // ─── 4. TRANSITS ───────────────────────────────────────────────
+  renderTransits(activeTransits);
+
+  // ─── 5. ARCHIVE MATCHES ────────────────────────────────────────
+  const archiveSection = document.getElementById('section-archive');
+  const archiveEl = document.getElementById('archive-results');
+  const hasMatches = matches.exact.length || matches.yearMatch.length;
+
+  if (hasMatches) {
+    archiveSection.style.display = '';
+    let html = '';
+    if (matches.exact.length) {
+      html += '<p class="archive-discovery">Did you know? Here\u2019s what happened on this exact date:</p>';
+      html += '<div class="archive-cards">' + matches.exact.map(renderArchiveCard).join('') + '</div>';
+    }
+    if (matches.yearMatch.length) {
+      if (matches.exact.length) html += '<div style="margin-top:28px;"></div>';
+      html += '<div class="match-label">Same Year</div>';
+      html += '<div class="archive-cards">' + matches.yearMatch.map(renderArchiveCard).join('') + '</div>';
+    }
+    archiveEl.innerHTML = html;
+  } else {
+    archiveSection.style.display = 'none';
+  }
+
+  // Show results and animate
+  results.classList.add('visible');
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const sections = document.querySelectorAll('.result-section');
+  let visibleIdx = 0;
+  sections.forEach(sec => {
+    if (sec.style.display === 'none') return;
+    sec.classList.remove('animate-in');
+    const delay = 150 + visibleIdx * 180;
+    setTimeout(() => sec.classList.add('animate-in'), delay);
+    visibleIdx++;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: MOON (COMPACT)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function renderMoonCompact(moonPhase, sunSign, moonSign) {
+  const el = document.getElementById('moon-compact');
+  const phaseAngle = (moonPhase.phase / 29.53059) * 360;
+  let shadowCSS = '';
+  if (moonPhase.illumination <= 3) {
+    shadowCSS = 'left: 0; width: 100%; background: var(--bg);';
+  } else if (moonPhase.illumination >= 97) {
+    shadowCSS = 'width: 0;';
+  } else if (phaseAngle < 180) {
+    const ratio = 1 - (moonPhase.illumination / 50);
+    shadowCSS = `right: 0; width: ${Math.max(10, Math.abs(ratio) * 100)}%; background: var(--bg); border-radius: ${ratio > 0 ? '50% 0 0 50%' : '0 50% 50% 0'};`;
+  } else {
+    const ratio = 1 - ((100 - moonPhase.illumination) / 50);
+    shadowCSS = `left: 0; width: ${Math.max(10, Math.abs(ratio) * 100)}%; background: var(--bg); border-radius: ${ratio > 0 ? '0 50% 50% 0' : '50% 0 0 50%'};`;
+  }
+
+  const vibe = MOON_VIBES[moonPhase.name] || '';
+
+  el.innerHTML = `
+    <div class="moon-compact">
+      <div class="moon-compact-circle">
+        <div class="moon-compact-shadow" style="${shadowCSS}"></div>
+      </div>
+      <div class="moon-compact-info">
+        <div class="moon-compact-top">
+          <span class="moon-compact-name">${moonPhase.name}</span>
+          <span class="moon-compact-illum">${moonPhase.illumination}% illuminated</span>
+          <span class="moon-compact-vibe">\u201C${vibe}\u201D</span>
+        </div>
+        <div class="moon-compact-pills">
+          <span class="moon-compact-pill">${sunSign.symbol} Sun in ${sunSign.name}</span>
+          <span class="moon-compact-pill">${moonSign.symbol} Moon in ${moonSign.name}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// (Cosmic weather, planet strip, and aspect sections removed — their data
+//  is now communicated through the wheel visual and the generated headline)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: ARCHIVE CARD
+// ═══════════════════════════════════════════════════════════════════════════
+
+const CATEGORY_ICONS = {
+  geopolitical: '\uD83C\uDF0D',
+  financial: '\uD83D\uDCC8',
+  scientific: '\uD83D\uDD2C',
+  cultural: '\uD83C\uDFA8',
+  religious: '\u2721',
+  pandemic: '\u26A0',
+  deaths: '\u271E',
+};
+
+function renderArchiveCard(ev) {
+  const accent = TYPE_ACCENT[ev.celestialType] || '#C9A96E';
+  const icon = CATEGORY_ICONS[ev.category] || '\u2726';
+  const displayYear = ev.year < 0 ? Math.abs(ev.year - 1) + ' BC' : ev.year;
+
+  return `
+    <div class="archive-card" style="border-left-color: ${accent};">
+      <div class="archive-card-thumb">${icon}</div>
+      <div class="archive-card-body">
+        <div class="archive-card-header">
+          <span class="archive-card-year">${displayYear}</span>
+          <span class="archive-card-category">${ev.category}</span>
+        </div>
+        <div class="archive-card-title">${ev.worldEvent}</div>
+        <div class="archive-card-desc">${ev.description}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STARFIELD
+// ═══════════════════════════════════════════════════════════════════════════
+(function initStarfield() {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function createStars(count) {
+    stars = [];
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.2 + 0.2,
+        alpha: Math.random() * 0.5 + 0.1,
+        delta: (Math.random() - 0.5) * 0.004,
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      s.alpha += s.delta;
+      if (s.alpha <= 0.05 || s.alpha >= 0.65) s.delta *= -1;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(232,230,240,${s.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+
+  resize();
+  createStars(280);
+  draw();
+  window.addEventListener('resize', () => { resize(); createStars(280); });
+})();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SHARE BUTTON
+// ═══════════════════════════════════════════════════════════════════════════
+
+document.getElementById('shareReadingBtn').addEventListener('click', () => {
+  const dateText = document.getElementById('result-date-text').textContent;
+  const headline = document.getElementById('day-headline-text').textContent;
+  const moonName = document.querySelector('.moon-compact-name')?.textContent || '';
+  const pills = Array.from(document.querySelectorAll('.moon-compact-pill')).map(p => p.textContent.trim());
+
+  const shareTitle = `My Sky on ${dateText}`;
+  const shareText = `${headline}\n\n${moonName} \u00B7 ${pills.join(' \u00B7 ')}\n\nDiscover your celestial story:`;
+  const shareUrl = `https://cosmosdaily.co/date-lookup.html`;
+
+  if (navigator.share) {
+    navigator.share({ title: shareTitle, text: shareText, url: shareUrl }).catch(() => {});
+  } else {
+    const fullText = `${shareText}\n${shareUrl}`;
+    navigator.clipboard.writeText(fullText).then(() => {
+      const btn = document.getElementById('shareReadingBtn');
+      const origHTML = btn.innerHTML;
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.innerHTML = origHTML; }, 2000);
+    });
+  }
+});
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
