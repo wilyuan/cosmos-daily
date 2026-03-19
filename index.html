@@ -6387,28 +6387,30 @@ document.addEventListener('keydown', e => {
     titleEl.style.color = transitKey ? (transitColors[transitKey] || '#C9A96E') : '#C9A96E';
     tooltip.querySelector('.transit-tooltip-body').textContent = body;
 
-    // Show related news — match by tag keywords, not just transit
+    // Show related news — match by tag-specific keywords
     const newsEl = tooltip.querySelector('.transit-tooltip-news');
     if (liveNewsData && transitKey) {
-      // Extract keywords from tag title for relevance matching
-      const tagWords = title.toLowerCase().replace(/[^a-z ]/g, '').split(/\s+/).filter(w => w.length > 3);
+      // Map tag titles to API tag keys
+      const tagTitle = title.toLowerCase();
+      const tagMap = {
+        'iran': 'iran', 'strike': 'iran', 'hormuz': 'hormuz', 'oil': 'hormuz', 'gasoline': 'gasoline', 'gas price': 'gasoline',
+        'nato': 'nato', 'alliance': 'nato', 'brics': 'brics', 'dollar': 'brics', 'de-dollarization': 'brics',
+        'ukraine': 'ukraine', 'peace': 'ukraine',
+        'ai regulation': 'ai-regulation', 'federal ai': 'ai-regulation',
+        'eu ai': 'eu-ai', 'ai act': 'eu-ai',
+        'doge': 'doge-cuts', 'government cuts': 'doge-cuts',
+        'health': 'health', 'contamination': 'health', 'outbreak': 'health',
+        'quantum': 'quantum', 'transistor': 'quantum',
+        'bitcoin': 'bitcoin', 'crypto': 'bitcoin',
+      };
 
-      // Score each story by how well it matches THIS specific tag
-      const scored = liveNewsData.stories
-        .filter(s => s.transit === transitKey)
-        .map(s => {
-          const storyText = (s.text + ' ' + s.explain).toLowerCase();
-          let relevance = 0;
-          tagWords.forEach(w => { if (storyText.includes(w)) relevance++; });
-          return { ...s, relevance };
-        })
-        .filter(s => s.relevance > 0)
-        .sort((a, b) => b.relevance - a.relevance)
-        .slice(0, 3);
+      let matchedTag = null;
+      for (const [keyword, tagKey] of Object.entries(tagMap)) {
+        if (tagTitle.includes(keyword)) { matchedTag = tagKey; break; }
+      }
 
-      // Fallback: if no keyword matches, show top transit stories
-      const related = scored.length > 0 ? scored :
-        liveNewsData.stories.filter(s => s.transit === transitKey).slice(0, 3);
+      const byTag = liveNewsData.byTag || {};
+      const related = matchedTag && byTag[matchedTag] ? byTag[matchedTag].slice(0, 3) : [];
 
       if (related.length) {
         const c = transitColors[transitKey] || '#C9A96E';
