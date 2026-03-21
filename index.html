@@ -1460,6 +1460,11 @@ body {
   transition: border-color 0.2s, color 0.2s;
 }
 .live-transit:hover { border-color: var(--gold); color: var(--gold); }
+.live-source {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.5px;
+  color: var(--muted); opacity: 0.6;
+  display: block; margin-top: 6px;
+}
 .transit-tooltip-overlay {
   position: fixed; inset: 0; z-index: 9999;
   background: rgba(3,2,8,0.6);
@@ -6346,43 +6351,38 @@ document.addEventListener('keydown', e => {
     if (!picked.includes(s)) picked.push(s);
   }
 
-  // ── Render ──
+  // ── Render — fetch live news first, fallback to hardcoded ──
   const panel = document.getElementById('currentPanel');
 
-  // Featured card with live tags
-  const featuredHTML = `
-    <div class="live-card accent-${briefTransit.accent} featured">
-      <div class="live-card-head">
-        <span class="live-dot" style="background:var(--red)"></span>
-        <span class="live-category" style="color:${briefTransit.color}">Today's Cosmos Daily</span>
-      </div>
-      <div class="live-title">${briefing.title}</div>
-      <div class="live-desc">${briefing.desc.replace(/\n\n/g, '<br><br>')}</div>
-      <div class="live-tags">
-        ${tagPicks.map(tag => {
-          const c = TAG_COLORS[tag.cat];
-          return `<span class="live-tag" data-explain="${(tag.explain||'').replace(/"/g,'&quot;')}" data-transit="${tag.transit||''}" style="background:${c.bg};color:${c.color};border:1px solid ${c.border};cursor:pointer">${tag.text}</span>`;
-        }).join('')}
-      </div>
-      <span class="live-transit" data-transit="${briefing.transit}">${briefTransit.symbol} ${briefTransit.name}</span>
-    </div>`;
+  // Tag-to-category mapping for live stories
+  const TAG_CATEGORY = {
+    'iran': 'conflict', 'hormuz': 'energy', 'energy-markets': 'energy',
+    'nato': 'geopolitics', 'brics': 'financial', 'ukraine': 'geopolitics',
+    'gasoline': 'financial', 'trade-tariffs': 'financial', 'diplomacy': 'geopolitics',
+    'ai-regulation': 'tech', 'eu-ai': 'tech',
+    'doge-cuts': 'exposure', 'health': 'exposure',
+    'quantum': 'tech', 'bitcoin': 'financial',
+  };
 
-  // Regular cards
-  const regularHTML = picked.map(story => {
-    const t = TRANSITS[story.transit];
-    return `
-      <div class="live-card accent-${t.accent}">
-        <div class="live-card-head">
-          <span class="live-dot" style="background:${t.color}"></span>
-          <span class="live-category" style="color:${t.color}">${t.type.charAt(0).toUpperCase() + t.type.slice(1)} · ${story.label}</span>
-        </div>
-        <div class="live-title">${story.title}</div>
-        <div class="live-desc">${story.desc}</div>
-        <span class="live-transit" data-transit="${story.transit}">${t.symbol} ${t.name}</span>
-      </div>`;
-  }).join('');
+  // Tag-to-transit mapping
+  const TAG_TRANSIT = {
+    'iran': 'saturn-neptune', 'hormuz': 'saturn-neptune', 'energy-markets': 'saturn-neptune',
+    'nato': 'saturn-neptune', 'brics': 'saturn-neptune', 'ukraine': 'saturn-neptune',
+    'gasoline': 'saturn-neptune', 'trade-tariffs': 'saturn-neptune', 'diplomacy': 'saturn-neptune',
+    'ai-regulation': 'pluto-aquarius', 'eu-ai': 'pluto-aquarius',
+    'doge-cuts': 'blood-moon', 'health': 'blood-moon',
+    'quantum': 'uranus-gemini', 'bitcoin': 'uranus-gemini',
+  };
 
-  panel.innerHTML = featuredHTML + regularHTML + '<button class="mobile-show-more" onclick="this.parentElement.classList.toggle(\'show-all\'); this.textContent = this.parentElement.classList.contains(\'show-all\') ? \'Show less\' : \'Show more stories\'">Show more stories</button>';
+  // Human-readable tag labels
+  const TAG_LABELS = {
+    'iran': 'Iran', 'hormuz': 'Energy Crisis', 'energy-markets': 'Energy Markets',
+    'nato': 'NATO', 'brics': 'BRICS & Dollar', 'ukraine': 'Ukraine',
+    'gasoline': 'Fuel Prices', 'trade-tariffs': 'Trade & Tariffs', 'diplomacy': 'Diplomacy',
+    'ai-regulation': 'AI Regulation', 'eu-ai': 'EU AI Act',
+    'doge-cuts': 'Government Cuts', 'health': 'Public Health',
+    'quantum': 'Quantum Computing', 'bitcoin': 'Bitcoin & Crypto',
+  };
 
   // ── Centered modal tooltip with live news ──
   const tooltipOverlay = document.createElement('div');
@@ -6393,9 +6393,163 @@ document.addEventListener('keydown', e => {
   const tooltip = tooltipOverlay.querySelector('.transit-tooltip');
   let liveNewsData = null;
 
-  // Fetch news once
+  function renderPanel(newsData) {
+    liveNewsData = newsData;
+
+    // ── Build live tags from API headlines ──
+    let liveTagsFromAPI = [];
+    let liveStoriesFromAPI = [];
+
+    if (newsData && newsData.byTag) {
+      // Build tags: one headline per tag that has data
+      for (const [tagKey, articles] of Object.entries(newsData.byTag)) {
+        if (!articles.length) continue;
+        const top = articles[0];
+        const cat = TAG_CATEGORY[tagKey] || 'geopolitics';
+        const transit = TAG_TRANSIT[tagKey] || 'saturn-neptune';
+        liveTagsFromAPI.push({
+          text: top.text,
+          cat,
+          transit,
+          tag: tagKey,
+          explain: top.explain || '',
+          source: top.source || '',
+          url: top.url || '',
+        });
+
+        // Build story cards from remaining headlines
+        for (let i = 0; i < Math.min(articles.length, 2); i++) {
+          const a = articles[i];
+          liveStoriesFromAPI.push({
+            transit,
+            label: TAG_LABELS[tagKey] || tagKey,
+            title: a.text,
+            desc: a.explain || '',
+            source: a.source || '',
+            url: a.url || '',
+            tag: tagKey,
+          });
+        }
+      }
+    }
+
+    // Fallback: use hardcoded if API returned nothing
+    const useLiveTags = liveTagsFromAPI.length >= 3;
+    const useLiveStories = liveStoriesFromAPI.length >= 4;
+
+    // ── Pick briefing ──
+    const briefing = shuffle(BRIEFINGS)[0];
+    const briefTransit = TRANSITS[briefing.transit];
+
+    // ── Pick tags ──
+    let tagPicks;
+    if (useLiveTags) {
+      const shuffled = shuffle(liveTagsFromAPI);
+      tagPicks = [];
+      const usedCats = new Set();
+      for (const tag of shuffled) {
+        if (tagPicks.length >= 6) break;
+        if (!usedCats.has(tag.cat)) { tagPicks.push(tag); usedCats.add(tag.cat); }
+      }
+      for (const tag of shuffled) {
+        if (tagPicks.length >= 6) break;
+        if (!tagPicks.includes(tag)) tagPicks.push(tag);
+      }
+    } else {
+      const shuffled = shuffle(LIVE_TAGS);
+      tagPicks = [];
+      const usedCats = new Set();
+      for (const tag of shuffled) {
+        if (tagPicks.length >= 6) break;
+        if (!usedCats.has(tag.cat)) { tagPicks.push(tag); usedCats.add(tag.cat); }
+      }
+      for (const tag of shuffled) {
+        if (tagPicks.length >= 6) break;
+        if (!tagPicks.includes(tag)) tagPicks.push(tag);
+      }
+    }
+
+    // ── Pick story cards ──
+    let picked;
+    if (useLiveStories) {
+      // Deduplicate against tags already shown
+      const tagTexts = new Set(tagPicks.map(t => t.text));
+      const candidates = liveStoriesFromAPI.filter(s => !tagTexts.has(s.title));
+      const rest = shuffle(candidates);
+      picked = [];
+      const usedTransits = new Set();
+      for (const s of rest) {
+        if (picked.length >= 5) break;
+        if (!usedTransits.has(s.transit)) { picked.push(s); usedTransits.add(s.transit); }
+      }
+      for (const s of rest) {
+        if (picked.length >= 5) break;
+        if (!picked.includes(s)) picked.push(s);
+      }
+    } else {
+      const rest = shuffle(STORIES);
+      picked = [];
+      const usedTransits = new Set();
+      for (const s of rest) {
+        if (picked.length >= 5) break;
+        if (!usedTransits.has(s.transit)) { picked.push(s); usedTransits.add(s.transit); }
+      }
+      for (const s of rest) {
+        if (picked.length >= 5) break;
+        if (!picked.includes(s)) picked.push(s);
+      }
+    }
+
+    // ── Featured card with live tags ──
+    const featuredHTML = `
+      <div class="live-card accent-${briefTransit.accent} featured">
+        <div class="live-card-head">
+          <span class="live-dot" style="background:var(--red)"></span>
+          <span class="live-category" style="color:${briefTransit.color}">Today's Cosmos Daily</span>
+        </div>
+        <div class="live-title">${briefing.title}</div>
+        <div class="live-desc">${briefing.desc.replace(/\n\n/g, '<br><br>')}</div>
+        <div class="live-tags">
+          ${tagPicks.map(tag => {
+            const c = TAG_COLORS[tag.cat] || TAG_COLORS.geopolitics;
+            return `<span class="live-tag" data-explain="${(tag.explain||'').replace(/"/g,'&quot;')}" data-transit="${tag.transit||''}" data-tag="${tag.tag||''}" data-url="${tag.url||''}" data-source="${tag.source||''}" style="background:${c.bg};color:${c.color};border:1px solid ${c.border};cursor:pointer">${tag.text}</span>`;
+          }).join('')}
+        </div>
+        <span class="live-transit" data-transit="${briefing.transit}">${briefTransit.symbol} ${briefTransit.name}</span>
+      </div>`;
+
+    // ── Regular cards — now with live headlines ──
+    const regularHTML = picked.map(story => {
+      const t = TRANSITS[story.transit] || TRANSITS['saturn-neptune'];
+      const sourceAttr = story.url ? ` data-url="${story.url}"` : '';
+      const sourceLabel = story.source ? `<span class="live-source">${story.source}</span>` : '';
+      return `
+        <div class="live-card accent-${t.accent}"${sourceAttr}>
+          <div class="live-card-head">
+            <span class="live-dot" style="background:${t.color}"></span>
+            <span class="live-category" style="color:${t.color}">${t.type.charAt(0).toUpperCase() + t.type.slice(1)} · ${story.label}</span>
+          </div>
+          <div class="live-title">${story.title}</div>
+          <div class="live-desc">${story.desc}</div>
+          ${sourceLabel}
+          <span class="live-transit" data-transit="${story.transit}">${t.symbol} ${t.name}</span>
+        </div>`;
+    }).join('');
+
+    panel.innerHTML = featuredHTML + regularHTML + '<button class="mobile-show-more" onclick="this.parentElement.classList.toggle(\'show-all\'); this.textContent = this.parentElement.classList.contains(\'show-all\') ? \'Show less\' : \'Show more stories\'">Show more stories</button>';
+
+    // Re-bind event listeners after render
+    bindPanelEvents();
+  }
+
+  // ── Fetch live news, then render ──
+  // Show hardcoded immediately, then replace with live data
+  renderPanel(null);
+
   fetch('/api/news').then(r => r.ok ? r.json() : null).then(data => {
-    if (data && data.stories) liveNewsData = data;
+    if (data && data.stories && data.stories.length > 0) {
+      renderPanel(data);
+    }
   }).catch(() => {});
 
   const transitColors = { 'saturn-neptune': '#C9A96E', 'pluto-aquarius': '#6B9E9E', 'blood-moon': '#E84545', 'uranus-gemini': '#8B7EC7' };
@@ -6416,6 +6570,9 @@ document.addEventListener('keydown', e => {
         'iran': 'iran', 'strike': 'iran', 'hormuz': 'hormuz', 'oil': 'hormuz', 'gasoline': 'gasoline', 'gas price': 'gasoline',
         'nato': 'nato', 'alliance': 'nato', 'brics': 'brics', 'dollar': 'brics', 'de-dollarization': 'brics',
         'ukraine': 'ukraine', 'peace': 'ukraine',
+        'qatar': 'energy-markets', 'lng': 'energy-markets', 'energy market': 'energy-markets', 'opec': 'energy-markets', 'saudi': 'energy-markets',
+        'tariff': 'trade-tariffs', 'trade war': 'trade-tariffs', 'sanctions': 'trade-tariffs', 'trade deal': 'trade-tariffs',
+        'summit': 'diplomacy', 'bilateral': 'diplomacy', 'diplomatic': 'diplomacy', 'prime minister': 'diplomacy', 'japan': 'diplomacy', 'trump': 'diplomacy',
         'ai regulation': 'ai-regulation', 'federal ai': 'ai-regulation',
         'eu ai': 'eu-ai', 'ai act': 'eu-ai',
         'doge': 'doge-cuts', 'government cuts': 'doge-cuts',
@@ -6424,9 +6581,12 @@ document.addEventListener('keydown', e => {
         'bitcoin': 'bitcoin', 'crypto': 'bitcoin',
       };
 
-      let matchedTag = null;
-      for (const [keyword, tagKey] of Object.entries(tagMap)) {
-        if (tagTitle.includes(keyword)) { matchedTag = tagKey; break; }
+      // Try direct tag match first (from data-tag attribute), then fallback to keyword matching
+      let matchedTag = tooltip._currentTag || null;
+      if (!matchedTag) {
+        for (const [keyword, tagKey] of Object.entries(tagMap)) {
+          if (tagTitle.includes(keyword)) { matchedTag = tagKey; break; }
+        }
       }
 
       const byTag = liveNewsData.byTag || {};
@@ -6462,37 +6622,38 @@ document.addEventListener('keydown', e => {
     if (e.target === tooltipOverlay) closeTooltip();
   });
 
-  panel.querySelectorAll('.live-transit').forEach(tag => {
-    tag.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const key = tag.dataset.transit;
-      const t = TRANSITS[key];
-      if (!t || !t.explain) return;
-      openTooltipModal(t.symbol + ' ' + t.name, t.explain, null);
+  function bindPanelEvents() {
+    panel.querySelectorAll('.live-transit').forEach(tag => {
+      tag.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const key = tag.dataset.transit;
+        const t = TRANSITS[key];
+        if (!t || !t.explain) return;
+        openTooltipModal(t.symbol + ' ' + t.name, t.explain, null);
+      });
     });
-  });
 
-  // Each live-tag stores its transit in a data attribute
-  panel.querySelectorAll('.live-tag[data-explain]').forEach(tag => {
-    tag.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const explain = tag.dataset.explain;
-      if (!explain) return;
-      const transit = tag.dataset.transit || '';
-      openTooltipModal(tag.textContent, explain, transit);
+    panel.querySelectorAll('.live-tag[data-explain]').forEach(tag => {
+      tag.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const explain = tag.dataset.explain;
+        if (!explain) return;
+        const transit = tag.dataset.transit || '';
+        tooltip._currentTag = tag.dataset.tag || null;
+        openTooltipModal(tag.textContent, explain, transit);
+      });
     });
-  });
 
-  // ── Make live cards open share modal ──
-  panel.querySelectorAll('.live-card').forEach(card => {
-    card.style.cursor = 'pointer';
-    card.addEventListener('click', (e) => {
-      if (e.target.closest('.live-transit') || e.target.closest('.live-tag')) return;
-      const title = card.querySelector('.live-title')?.textContent || 'Cosmos Daily';
-      const desc = card.querySelector('.live-desc')?.textContent?.slice(0, 140) + '…' || '';
-      openShareModal(title, desc, card);
+    panel.querySelectorAll('.live-card').forEach(card => {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.live-transit') || e.target.closest('.live-tag')) return;
+        const title = card.querySelector('.live-title')?.textContent || 'Cosmos Daily';
+        const desc = card.querySelector('.live-desc')?.textContent?.slice(0, 140) + '\u2026' || '';
+        openShareModal(title, desc, card);
+      });
     });
-  });
+  }
 })();
 
 

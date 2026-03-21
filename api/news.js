@@ -13,6 +13,9 @@ const TAG_SEARCHES = {
   'brics': { query: '"BRICS" OR "de-dollarization" OR "dollar decline" OR "yuan"', transit: 'saturn-neptune', match: ['brics', 'dollar', 'yuan', 'de-dollarization', 'reserve currency'] },
   'ukraine': { query: '"Ukraine" AND ("peace" OR "ceasefire" OR "negotiations" OR "war")', transit: 'saturn-neptune', match: ['ukraine', 'kyiv', 'zelensky', 'donbas', 'donetsk'] },
   'gasoline': { query: '"gasoline price" OR "gas prices" OR "fuel cost" OR "pump price"', transit: 'saturn-neptune', match: ['gasoline', 'gas price', 'pump', 'fuel cost', 'gallon'] },
+  'energy-markets': { query: '"energy market" OR "Qatar" OR "LNG" OR "natural gas" OR "OPEC" AND ("deal" OR "supply" OR "crisis")', transit: 'saturn-neptune', match: ['qatar', 'lng', 'natural gas', 'opec', 'energy market', 'pipeline', 'saudi'] },
+  'trade-tariffs': { query: '"tariff" OR "trade war" OR "sanctions" OR "trade deal" OR "import duty"', transit: 'saturn-neptune', match: ['tariff', 'trade war', 'sanctions', 'trade deal', 'import', 'export', 'protectionism'] },
+  'diplomacy': { query: '"summit" OR "diplomatic" OR "bilateral" OR "foreign minister" OR "prime minister" AND ("talks" OR "meeting" OR "agreement")', transit: 'saturn-neptune', match: ['summit', 'bilateral', 'diplomatic', 'prime minister', 'foreign minister', 'state visit', 'talks'] },
   // Pluto-Aquarius tags
   'ai-regulation': { query: '"AI regulation" OR "AI governance" OR "AI safety" OR "AI law"', transit: 'pluto-aquarius', match: ['ai regulation', 'ai governance', 'ai safety', 'ai law', 'ai act', 'regulate ai'] },
   'eu-ai': { query: '"EU AI Act" OR "European AI" OR "AI compliance"', transit: 'pluto-aquarius', match: ['eu ai', 'european ai', 'ai act', 'ai compliance', 'brussels'] },
