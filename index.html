@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cosmos Daily — Predictive History Through Celestial Cycles</title>
-<meta name="description" content="Predictive history through celestial mechanics. 200 planetary alignments mapped to the world events they coincided with — from ancient empires to the 2026 Iran war. The Saturn-Neptune conjunction predicted the fall of the Berlin Wall, the Soviet collapse, and now institutional dissolution at 0° Aries.">
+<meta name="description" content="Predictive history through celestial mechanics. 180 planetary alignments mapped to the world events they coincided with — from ancient empires to the 2026 Iran war. The Saturn-Neptune conjunction predicted the fall of the Berlin Wall, the Soviet collapse, and now institutional dissolution at 0° Aries.">
 <meta name="keywords" content="predictive history, mundane astrology, celestial events, historical cycles, Professor Jiang, Jiang Xueqin, planetary alignments, Saturn Neptune conjunction 2026, Iran war prediction, geopolitical forecasting, historical patterns, eclipses, conjunctions, psychohistory, celestial chronicle, world events prediction, Trump prediction, predictive analysis">
 <meta name="author" content="Cosmos Daily">
 <link rel="canonical" href="https://cosmosdaily.co">
@@ -17,7 +17,7 @@
   "name": "Cosmos Daily",
   "alternateName": "Cosmos Daily — Predictive History Through Celestial Cycles",
   "url": "https://cosmosdaily.co",
-  "description": "Predictive history through celestial mechanics. 200 planetary alignments mapped to the world events they coincided with. Historical cycles, pattern analysis, and celestial forecasting from ancient empires to 2026.",
+  "description": "Predictive history through celestial mechanics. 180 planetary alignments mapped to the world events they coincided with. Historical cycles, pattern analysis, and celestial forecasting from ancient empires to 2026.",
   "inLanguage": "en",
   "publisher": {
     "@type": "Organization",
@@ -36,13 +36,13 @@
   "@context": "https://schema.org",
   "@type": "CollectionPage",
   "name": "Celestial History Archive",
-  "description": "A chronicle mapping 200 celestial events to pivotal moments in world history, spanning 5,800+ years from 3811 BC to 2026.",
+  "description": "A chronicle mapping 180 celestial events to pivotal moments in world history, spanning 5,800+ years from 3811 BC to 2026.",
   "url": "https://cosmosdaily.co",
   "mainEntity": {
     "@type": "ItemList",
     "name": "Celestial Events Archive",
     "description": "Historical events mapped to celestial alignments",
-    "numberOfItems": 200,
+    "numberOfItems": 180,
     "itemListOrder": "https://schema.org/ItemListUnordered"
   },
   "about": [
@@ -2494,12 +2494,12 @@ body {
   <div class="hero-headline">
     <span class="hero-overline">Celestial History · Historical Record</span>
     <h1 class="hero-title">When the sky moves,<br><em>history follows.</em></h1>
-    <p class="hero-desc">200 pivotal celestial alignments mapped to the moments they shaped — from the first recorded eclipse in 3800 BC to the war with Iran.</p>
+    <p class="hero-desc"><span id="heroEventCount"></span> pivotal celestial alignments mapped to the moments they shaped — from the first recorded eclipse in 3800 BC to the war with Iran.</p>
   </div>
   <div class="stats-wrapper">
   <div class="stats-row">
     <div class="stat-cell">
-      <span class="stat-num">200</span>
+      <span class="stat-num" id="statEventCount">—</span>
       <span class="stat-label">Events Mapped</span>
     </div>
     <div class="stat-cell">
@@ -2628,13 +2628,13 @@ body {
     <div class="map-cta-copy">
       <div class="map-cta-overline">Interactive Experience</div>
       <h2 class="map-cta-title">See history as <em>the sky sees it.</em></h2>
-      <p class="map-cta-desc">Explore all 200 events mapped onto a radial celestial chart. Events orbit outward from the origin of recorded time — color-coded by alignment, sized by significance. Zoom, pan, and trace the constellations of history.</p>
+      <p class="map-cta-desc">Explore all events mapped onto a radial celestial chart. Events orbit outward from the origin of recorded time — color-coded by alignment, sized by significance. Zoom, pan, and trace the constellations of history.</p>
       <a href="celestial-map.html" class="map-cta-btn">
         Open Celestial Map
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <div class="map-cta-stats">
-        <div class="map-cta-stat"><strong>200</strong>Events Mapped</div>
+        <div class="map-cta-stat"><strong id="mapEventCount">—</strong>Events Mapped</div>
         <div class="map-cta-stat"><strong>5,800+</strong>Years Covered</div>
         <div class="map-cta-stat"><strong>6</strong>Celestial Types</div>
       </div>
@@ -5235,6 +5235,18 @@ const EVENTS = [
   }
 ];
 
+// ─── AUTO-COUNT: derive all event counts from EVENTS.length ───────────────
+// This ensures hero, stats bar, map CTA, and filter all show the same number.
+// When adding new events, just add to the EVENTS array — counts update automatically.
+(function syncEventCounts() {
+  const n = EVENTS.length;
+  const el = id => document.getElementById(id);
+  if (el('heroEventCount'))  el('heroEventCount').textContent = n;
+  if (el('statEventCount'))  el('statEventCount').textContent = n;
+  if (el('mapEventCount'))   el('mapEventCount').textContent = n;
+  // Also update meta description (not visible but good for consistency)
+})();
+
 // ─── COLOR MAPPING ─────────────────────────────────────────────────────────
 const TYPE_ACCENT = {
   eclipse:     { cls: 'red',    hex: '#E84545', overlay: 'eclipse'  },
@@ -5361,7 +5373,7 @@ function renderGrid() {
   const remaining = totalMatching - visible;
   if (remaining > 0) {
     loadMoreBtn.querySelector('.load-more-text').textContent = 'LOAD MORE EVENTS';
-    loadMoreBtn.querySelector('.load-more-hint').textContent = `${remaining} more events · Full archive coming soon`;
+    loadMoreBtn.querySelector('.load-more-hint').textContent = `${remaining} more events`;
     loadMoreBtn.style.display = '';
   } else {
     loadMoreBtn.style.display = 'none';
