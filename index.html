@@ -6630,14 +6630,13 @@ document.addEventListener('keydown', e => {
         const top = articles[0];
         const cat = TAG_CATEGORY[tagKey] || 'geopolitics';
         const transit = TAG_TRANSIT[tagKey] || 'saturn-neptune';
-        // Truncate headline to tag-friendly length; full headline becomes the tooltip explain
-        const tagText = top.text.length > 60 ? top.text.slice(0, 57).replace(/\s+\S*$/, '') + '…' : top.text;
+        // Use short editorial label as tag text; headline becomes the tooltip
         liveTagsFromAPI.push({
-          text: tagText,
+          text: TAG_LABELS[tagKey] || tagKey,
           cat,
           transit,
           tag: tagKey,
-          explain: top.explain || top.text,
+          explain: top.text + (top.explain ? '\n\n' + top.explain : ''),
           source: top.source || '',
           url: top.url || '',
         });
