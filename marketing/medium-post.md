@@ -16,7 +16,7 @@ Three completely independent frameworks. Three different methodologies. One over
 
 ## Professor Jiang: Structural Collapse by the Numbers
 
-Jiang Xueqin runs the YouTube channel Predictive History (1.9 million subscribers). His framework draws from Peter Turchin's cliodynamics, game theory, and — by his own admission — Asimov's fictional psychohistory from the *Foundation* series. He has no interest in astrology or celestial events. His tools are economic data, historical analogies, and strategic logic.
+Jiang Xueqin runs the YouTube channel [Predictive History](https://www.youtube.com/@PredictiveHistory) (1.9 million subscribers). His framework draws from Peter Turchin's cliodynamics, game theory, and — by his own admission — Asimov's fictional psychohistory from the *Foundation* series. He has no interest in astrology or celestial events. His tools are economic data, historical analogies, and strategic logic.
 
 His track record: in May 2024, he predicted Trump would win the election, that JD Vance would be his VP pick, and that a second Trump administration would go to war with Iran. Two for three confirmed. The third is unfolding.
 
@@ -28,7 +28,7 @@ The timeline he keeps returning to: **2026**.
 
 ## Chris Bledsoe: The Star Rising Before the Sphinx
 
-Chris Bledsoe's story comes from a completely different world. After a UFO encounter in 2007 that was investigated by NASA and CIA personnel, he claims ongoing contact with a luminous feminine being he calls "The Lady" — whom he identifies with the Egyptian goddess Hathor and various Marian apparitions.
+Chris Bledsoe's story comes from a completely different world. After a [UFO encounter in 2007](https://ufoofgod.com/) that was investigated by NASA and CIA personnel, he claims ongoing contact with a luminous feminine being he calls "The Lady" — whom he identifies with the Egyptian goddess Hathor and various Marian apparitions.
 
 On Easter 2012, Bledsoe says The Lady delivered a prophecy: when the star Regulus appears red on the horizon, in the gaze of the Sphinx, before daylight — that moment would mark a fundamental shift in human awareness.
 
@@ -61,15 +61,13 @@ The site [Cosmos Daily](https://cosmosdaily.co) maps 200 of these celestial-to-h
 
 ## The Convergence
 
-Here is what makes this interesting. These three frameworks share no methodology:
+Here is what makes this interesting. These three frameworks share no methodology.
 
-| | Professor Jiang | Chris Bledsoe | Mundane Astrology |
-|---|---|---|---|
-| **Method** | Game theory, cliodynamics | Prophetic vision | Planetary orbital cycles |
-| **Source** | Historical data, economic analysis | Claimed contact experience | 2,500 years of documented practice |
-| **Uses celestial data?** | No | Yes (fixed star Regulus) | Yes (planetary conjunctions) |
-| **Inspired by** | Asimov, Turchin, Thucydides | Egyptian stellar religion | Babylonian omen tradition |
-| **2026 prediction** | US imperial decline, market crash, Iran war loss | Regulus-Sphinx alignment, epochal shift | Saturn-Neptune dissolution cycle |
+**Professor Jiang** uses game theory, cliodynamics, and historical data. He has never referenced a celestial event. His inspiration is Asimov and Thucydides. His 2026 prediction: US imperial decline, market crash, and the loss of the Iran war.
+
+**Chris Bledsoe** uses prophetic vision rooted in a claimed contact experience. His framework draws on Egyptian stellar religion and the fixed star Regulus — one of the four Royal Stars tracked since antiquity. His 2026 prediction: the Regulus-Sphinx alignment on October 7, marking an epochal shift in human awareness.
+
+**Mundane astrology** uses planetary orbital cycles documented over 2,500 years of continuous practice. It requires no belief in the mechanism — only observation of the correlation. Its 2026 prediction: the Saturn-Neptune dissolution cycle returns at the world axis, dissolving institutional structures that outlived their purpose.
 
 They arrive at the same window through entirely independent reasoning. Jiang sees structural collapse through political economy. Bledsoe sees a celestial marker through personal revelation. Mundane astrology sees a recurring cycle through orbital mechanics.
 
@@ -89,8 +87,8 @@ Whether that's coincidence, convergent analysis, or something else entirely — 
 
 ---
 
-*[Cosmos Daily](https://cosmosdaily.co) is a free interactive archive mapping 200 celestial events to 2,070 years of world history. No ads, no paywalls, no horoscopes.*
+*[Cosmos Daily](https://cosmosdaily.co) is a free interactive archive mapping 200 celestial events to 2,070 years of world history. No ads, no paywalls, no horoscopes. Explore the [predictive history archive](https://cosmosdaily.co/predictive-history) or [look up any date in history](https://cosmosdaily.co/date-lookup).*
 
 ---
 
-**Tags:** predictive history, mundane astrology, professor jiang, chris bledsoe, saturn neptune conjunction, 2026, geopolitics, celestial cycles, pattern recognition, historical cycles
+**Tags:** predictive history, mundane astrology, professor jiang, chris bledsoe, saturn neptune conjunction, 2026, geopolitics, celestial cycles, pattern recognition, historical cycles, jiang xueqin, ufo of god, regulus sphinx alignment
