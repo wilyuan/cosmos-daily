@@ -6630,12 +6630,14 @@ document.addEventListener('keydown', e => {
         const top = articles[0];
         const cat = TAG_CATEGORY[tagKey] || 'geopolitics';
         const transit = TAG_TRANSIT[tagKey] || 'saturn-neptune';
+        // Truncate headline to tag-friendly length; full headline becomes the tooltip explain
+        const tagText = top.text.length > 60 ? top.text.slice(0, 57).replace(/\s+\S*$/, '') + '…' : top.text;
         liveTagsFromAPI.push({
-          text: top.text,
+          text: tagText,
           cat,
           transit,
           tag: tagKey,
-          explain: top.explain || '',
+          explain: top.explain || top.text,
           source: top.source || '',
           url: top.url || '',
         });
@@ -6692,35 +6694,17 @@ document.addEventListener('keydown', e => {
       }
     }
 
-    // ── Pick story cards ──
-    let picked;
-    if (useLiveStories) {
-      // Deduplicate against tags already shown
-      const tagTexts = new Set(tagPicks.map(t => t.text));
-      const candidates = liveStoriesFromAPI.filter(s => !tagTexts.has(s.title));
-      const rest = shuffle(candidates);
-      picked = [];
-      const usedTransits = new Set();
-      for (const s of rest) {
-        if (picked.length >= 5) break;
-        if (!usedTransits.has(s.transit)) { picked.push(s); usedTransits.add(s.transit); }
-      }
-      for (const s of rest) {
-        if (picked.length >= 5) break;
-        if (!picked.includes(s)) picked.push(s);
-      }
-    } else {
-      const rest = shuffle(STORIES);
-      picked = [];
-      const usedTransits = new Set();
-      for (const s of rest) {
-        if (picked.length >= 5) break;
-        if (!usedTransits.has(s.transit)) { picked.push(s); usedTransits.add(s.transit); }
-      }
-      for (const s of rest) {
-        if (picked.length >= 5) break;
-        if (!picked.includes(s)) picked.push(s);
-      }
+    // ── Pick story cards — always use curated STORIES for editorial quality ──
+    const rest = shuffle(STORIES);
+    const picked = [];
+    const usedTransits = new Set();
+    for (const s of rest) {
+      if (picked.length >= 5) break;
+      if (!usedTransits.has(s.transit)) { picked.push(s); usedTransits.add(s.transit); }
+    }
+    for (const s of rest) {
+      if (picked.length >= 5) break;
+      if (!picked.includes(s)) picked.push(s);
     }
 
     // ── Featured card with live tags ──
@@ -6741,20 +6725,17 @@ document.addEventListener('keydown', e => {
         <span class="live-transit" data-transit="${briefing.transit}">${briefTransit.symbol} ${briefTransit.name}</span>
       </div>`;
 
-    // ── Regular cards — now with live headlines ──
+    // ── Regular cards — curated editorial stories ──
     const regularHTML = picked.map(story => {
       const t = TRANSITS[story.transit] || TRANSITS['saturn-neptune'];
-      const sourceAttr = story.url ? ` data-url="${story.url}"` : '';
-      const sourceLabel = story.source ? `<span class="live-source">${story.source}</span>` : '';
       return `
-        <div class="live-card accent-${t.accent}"${sourceAttr}>
+        <div class="live-card accent-${t.accent}">
           <div class="live-card-head">
             <span class="live-dot" style="background:${t.color}"></span>
             <span class="live-category" style="color:${t.color}">${t.type.charAt(0).toUpperCase() + t.type.slice(1)} · ${story.label}</span>
           </div>
           <div class="live-title">${story.title}</div>
           <div class="live-desc">${story.desc}</div>
-          ${sourceLabel}
           <span class="live-transit" data-transit="${story.transit}">${t.symbol} ${t.name}</span>
         </div>`;
     }).join('');
