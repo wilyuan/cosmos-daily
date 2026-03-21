@@ -6607,6 +6607,25 @@ document.addEventListener('keydown', e => {
     'quantum': 'Quantum Computing', 'bitcoin': 'Bitcoin & Crypto',
   };
 
+  // Curated editorial summaries — always used in tooltips instead of raw API descriptions
+  const TAG_EXPLAIN = {
+    'iran': 'On February 28, 2026, the US and Israel launched joint military strikes against Iran, killing Supreme Leader Khamenei. Iran retaliated with missile strikes on Israel and Gulf allies. The intelligence justification remains disputed.',
+    'hormuz': 'Iran\'s IRGC has effectively shut down the Strait of Hormuz, through which 20 million barrels per day normally flow. Brent crude surged from $66 to $126 per barrel — the largest supply disruption in the history of the global oil market.',
+    'energy-markets': 'Global energy markets are in upheaval as the Hormuz closure disrupts 20% of the world\'s oil supply. Qatar LNG shipments are rerouted, OPEC+ emergency meetings convened, and pipeline politics have intensified across every producing region.',
+    'nato': 'Germany, Spain, and Italy refused to send ships to reopen the Strait of Hormuz. Spain denied US forces use of jointly operated bases. The 2026 US National Defense Strategy states America will no longer prop up the entire world order.',
+    'brics': 'The BRICS Unit — a gold-backed settlement tool launched October 2025 — is now operational. Russia and China settle 90% of bilateral trade in rubles and yuan. The dollar\'s share of global reserves has fallen from 73% in 2001 to around 54%.',
+    'ukraine': 'US-brokered peace talks between Russia and Ukraine are on hold as attention shifts to the Middle East. Despite a January 2026 Paris summit with security guarantees, Polymarket gives only a 1% chance of ceasefire by March 31.',
+    'gasoline': 'US gasoline hit $3.79 per gallon — the highest since October 2023 — driven by the Hormuz crisis. Analysts warn sustained high oil prices will create stagflationary drag and likely recession in major importing nations.',
+    'trade-tariffs': 'A new wave of tariffs and counter-tariffs is reshaping global trade. Sanctions regimes are expanding as the Iran conflict draws in new parties, while protectionist policies accelerate the fragmentation of the post-WWII trade order.',
+    'diplomacy': 'Diplomatic channels are under extreme strain. Emergency summits, bilateral talks, and backroom negotiations intensify as nations scramble to navigate a multi-front geopolitical crisis spanning the Gulf, Europe, and the Pacific.',
+    'ai-regulation': 'A March 11 deadline required the Secretary of Commerce to identify onerous state AI laws conflicting with federal preemption. A lawsuit alleges DOGE used ChatGPT to cancel over $100 million in DEI grants — AI governance meets institutional power.',
+    'eu-ai': 'The EU\'s compliance deadline for high-risk AI systems has been paused, pushing enforcement to late 2027 or 2028. A compliance splinternet is forming where the same AI feature can be legal in one jurisdiction and banned in another.',
+    'doge-cuts': 'DOGE\'s elimination of 300,000+ federal employees has hampered the government\'s ability to monitor terror threats, guard against cyberattacks, and help Americans stranded abroad — all during an active war.',
+    'health': 'Rising La Nina flooding is destroying food stocks across East Africa, worsening cholera outbreaks. Experts estimate DOGE cuts to foreign aid contributed to an estimated 781,000 deaths by February 2026, mostly children.',
+    'quantum': 'A paper in Science declared quantum computing has reached a critical phase mirroring classical computing\'s pre-transistor era. Quantinuum demonstrated error correction on its 98-qubit Helios processor. IBM published its first hybrid quantum-classical data center architecture.',
+    'bitcoin': 'Bitcoin is expected to mine its 20 millionth coin in March 2026 — with only 1 million left over the next century. Despite this milestone, crypto market sentiment sits at Extreme Fear with BTC at roughly $72,600.',
+  };
+
   // ── Centered modal tooltip with live news ──
   const tooltipOverlay = document.createElement('div');
   tooltipOverlay.className = 'transit-tooltip-overlay';
@@ -6630,13 +6649,13 @@ document.addEventListener('keydown', e => {
         const top = articles[0];
         const cat = TAG_CATEGORY[tagKey] || 'geopolitics';
         const transit = TAG_TRANSIT[tagKey] || 'saturn-neptune';
-        // Use short editorial label as tag text; headline becomes the tooltip
+        // Use short editorial label as tag text; curated summary for tooltip
         liveTagsFromAPI.push({
           text: TAG_LABELS[tagKey] || tagKey,
           cat,
           transit,
           tag: tagKey,
-          explain: top.text + (top.explain ? '\n\n' + top.explain : ''),
+          explain: TAG_EXPLAIN[tagKey] || top.text,
           source: top.source || '',
           url: top.url || '',
         });
