@@ -62,14 +62,22 @@ export default async function handler(req, res) {
   try {
     const allResults = {};
     const globalUsed = []; // Prevent same story across tags
+    const debug = { queries: 0, totalArticles: 0, filtered: 0, matched: 0, errors: [] };
 
     for (const [tagKey, config] of Object.entries(TAG_SEARCHES)) {
       try {
         const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(config.query)}&language=en&sortBy=relevancy&pageSize=15&apiKey=${NEWSAPI_KEY}`;
         const response = await fetch(url);
         const data = await response.json();
+        debug.queries++;
+
+        if (data.status === 'error') {
+          debug.errors.push({ tag: tagKey, error: data.message || data.code });
+          continue;
+        }
 
         if (!data.articles) continue;
+        debug.totalArticles += data.articles.length;
 
         const tagStories = [];
         for (const article of data.articles) {
@@ -108,7 +116,7 @@ export default async function handler(req, res) {
         top.forEach(s => globalUsed.push(s.text));
         if (top.length) allResults[tagKey] = top;
 
-      } catch (e) { /* skip failed query */ }
+      } catch (e) { debug.errors.push({ tag: tagKey, error: e.message }); }
     }
 
     // Flatten all stories
@@ -118,7 +126,8 @@ export default async function handler(req, res) {
       updated: new Date().toISOString(),
       count: stories.length,
       stories,
-      byTag: allResults, // Frontend can use this for per-tag matching
+      byTag: allResults,
+      debug,
     });
   } catch (error) {
     return res.status(500).json({ error: error.message });
